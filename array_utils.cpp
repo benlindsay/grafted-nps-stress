@@ -13,31 +13,28 @@ using namespace std;
 void accumulate_all_averages() {
 
   if ( n_samples == 0.0 ) {
-    initialize_averages( avg_rhoda ) ;
-    initialize_averages( avg_rhodb ) ;
-    initialize_averages( avg_rhoha ) ;
+    initialize_averages( avg_rhoda );
+    initialize_averages( avg_rhodb );
+    initialize_averages( avg_rhoha );
   }
 
-  accumulate_average_array( avg_rhoda , rhoda ) ;
-  accumulate_average_array( avg_rhodb , rhodb ) ;
-  accumulate_average_array( avg_rhoha , rhoha ) ;
+  accumulate_average_array( avg_rhoda , rhoda );
+  accumulate_average_array( avg_rhodb , rhodb );
+  accumulate_average_array( avg_rhoha , rhoha );
 
-  n_samples += 1.0 ;
+  n_samples += 1.0;
 }
 
 
 void initialize_averages( complex<double> *avg ) {
-  int i;
-  for ( i=0 ; i<ML ; i++ )
-    avg[i] = 0.0 ;
+  for (int i=0; i<ML; i++)
+    avg[i] = 0.0;
 }
 
 
 void accumulate_average_array( complex<double> *avg , complex<double>* dat ) {
-
-  int i;
-  for ( i=0 ; i<ML ; i++ ) 
-    avg[i] += dat[i] ;
+  for (int i=0; i<ML; i++) 
+    avg[i] += dat[i];
 }
 
 
