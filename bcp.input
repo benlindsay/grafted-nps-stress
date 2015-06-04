@@ -11,6 +11,7 @@
 #Init field cond flags (0=zero, -1=rand, -2=cosine, -3=sine, -4=factor of 1)
 -2 -6.0 0 2.0  flag 1, prefactor, direction (x=0, y=1, z=2), # periods
 -2 6.0 1 1.0  flag 2, prefactor, direction (0, 1, 2), # periods
+1   keep_fields  0=re-initialize fields for each sim, 1=keep prev. w's
 
 # Simulation parameters
 49 35 49  Nx, # grid points in each direction

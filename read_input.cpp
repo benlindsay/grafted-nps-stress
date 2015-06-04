@@ -40,6 +40,7 @@ void read_input() {
   fscanf( inp , "%d %lf %lf %lf" , &ic_flag[1] ,
           &ic_pre[1] , &ic_dir[1] , &ic_period[1] ) ; 
   fgets(tt , 80 , inp ) ;
+  fscanf(inp, "%d", &keep_fields); fgets( tt ,80 , inp ) ;
 
   fgets( tt ,80 , inp ) ;
   fgets( tt ,80 , inp ) ;

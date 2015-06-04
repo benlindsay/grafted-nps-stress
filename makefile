@@ -18,8 +18,8 @@ OBJS = ${SRCS:.cpp=.o}
 .cpp.o:
 	${CC} ${CFLAGS} ${DFLAGS} -c ${INCLUDE} $<
 
-a.out:	${OBJS}
+b.out:	${OBJS}
 	${CC} ${CFLAGS} -o $@ ${OBJS} ${LDFLAGS}
 
 clean:
-	rm -f *.o a.out
+	rm -f *.o b.out

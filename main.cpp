@@ -158,7 +158,7 @@ double get_slope(double l) {
 // calculated. The real part of the hamiltonian is returned.
 double simulate() {
   complex<double> Hcur, Ho, H;
-  double error ;
+  double error;
   FILE *otp;
   otp = fopen("data.dat", "w");
 
@@ -174,27 +174,25 @@ double simulate() {
 #endif
   calc_poly_density();
 
-  if ( myrank == 0 ) {
+  if (myrank == 0) {
     printf("Initial densities calculated!\n");
   }
 
-  // if (myrank == 0 ) {
-    printf("Segment counts:\n");
-    cout << "nD * N = " << nD * N << " integ(rhoda + rhodb) = "
-         << integ_trapPBC( rhoda ) + integ_trapPBC( rhodb ) << endl; 
-    cout << "nAH * Nah = " << nAH * Nah << " integ(rhoha) = "
-         << integ_trapPBC( rhoha ) << endl;
-    fflush(stdout);
-  // }
+  printf("Segment counts:\n");
+  cout << "nD * N = " << nD * N << " integ(rhoda + rhodb) = "
+    << integ_trapPBC( rhoda ) + integ_trapPBC( rhodb ) << endl; 
+  cout << "nAH * Nah = " << nAH * Nah << " integ(rhoha) = "
+    << integ_trapPBC( rhoha ) << endl;
+  fflush(stdout);
 
-  Ho = calc_H() ;
-  if ( myrank == 0 ) 
+  Ho = calc_H();
+  if (myrank == 0) 
     cout << "Starting H: " << Ho << endl;
 
-  write_outputs() ;
+  write_outputs();
 
-  if ( myrank == 0 ) { 
-    printf("Entering main loop!\n\n") ; 
+  if (myrank == 0) { 
+    printf("Entering main loop!\n\n"); 
   }
 
   ///////////////
@@ -202,36 +200,36 @@ double simulate() {
   ///////////////
 
   for (iter; iter<=itermax; iter++) {
-    if ( update_scheme == 0 )
-      update_Euler() ;
+    if (update_scheme == 0)
+      update_Euler();
     else
-      update_1s() ;
+      update_1s();
 
-    if ( do_CL && iter >= sample_wait && iter % sample_freq == 0 ) 
-      accumulate_all_averages() ;
+    if (do_CL && iter >= sample_wait && iter % sample_freq == 0) 
+      accumulate_all_averages();
 
     ////////////
     // OUTPUT //
     ////////////
-    if ( iter % print_freq == 0 ) {
+    if (iter % print_freq == 0) {
 
-      Ho = Hcur ;
-      H = Hcur = calc_H() ;
+      Ho = Hcur;
+      H = Hcur = calc_H();
 
-      if ( Hcur != Hcur ) {
-        printf("Crashed! iteration %d\n" , iter );
-        printf("H: %lf Qd: %lf\n" , real(H), real( Qd ) ) ;
-        write_data_bin( "crashed.wpl" , wpl ) ;
-        write_data_bin( "crashed.wabp" , wabp ) ;
-        write_data_bin( "crashed.wabm" , wabm ) ;
-        exit(1) ;
+      if (Hcur != Hcur) {
+        printf("Crashed! iteration %d\n", iter);
+        printf("H: %lf Qd: %lf\n", real(H), real(Qd));
+        write_data_bin("crashed.wpl", wpl);
+        write_data_bin("crashed.wabp", wabp);
+        write_data_bin("crashed.wabm", wabm);
+        exit(1);
       }
 
-      if ( myrank == 0 ) {
-        printf("Iteration: %d, H=%lf -log(Qd): %lf -log(Qha): %lf " ,
-               iter , real(H) , real(-log(Qd)) , real(-log(Qha))  ) ;
-        if ( do_CL )
-          printf(" + i%lf" , imag(H) );
+      if (myrank == 0) {
+        printf( "Iteration: %d, H=%lf -log(Qd): %lf -log(Qha): %lf ",
+                iter, real(H), real(-log(Qd)), real(-log(Qha)) );
+        if (do_CL)
+          printf(" + i%lf", imag(H));
         printf("\n");
       }
 
@@ -241,20 +239,20 @@ double simulate() {
         fprintf(otp,"%d %5.6lf %1.3e  %5.6lf %5.6lf " , 
             iter , real(H) , imag(H) , real(-log(Qd)) , real(-log(Qha) ) ) ;
 
-        fprintf( otp , "\n" ) ;
-        fflush( otp ) ;
+        fprintf(otp , "\n");
+        fflush(otp);
       }
       
-      write_outputs() ;
+      write_outputs();
 
     }// output
 
 
-    if ( !do_CL && iter > 25 && error < 1.0E-10 ) {     
-      if ( myrank == 0 ) {
+    if (!do_CL && iter > 25 && error < 1.0E-10) {     
+      if (myrank == 0) {
         cout << "Tolerance reach! Error: " << error << endl;
       }
-      break ;
+      break;
     }
 
   }// for ( iter ; iter < itermax //
@@ -267,6 +265,7 @@ double simulate() {
     // Output length, H, and H/V data to brent.dat
     for (int i=0; i<Dim; i++) fprintf(brent_otp, "%5.6lf ", L[i]);
     fprintf(brent_otp, "%5.6lf %5.6lf\n", real(H), H_over_V);
+    fflush(brent_otp);
     // Output results to standard output
     printf("For L[0]=%lf, H=%lf and H/V=%lf\n", L[0], real(H), H_over_V);
     printf("Completed L[0]=%lf simulation\n", L[0]);

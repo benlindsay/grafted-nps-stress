@@ -59,8 +59,8 @@ int Nx[Dim], NxT[Dim], M, do_CL, iter,
     print_freq, itermax, sample_freq, sample_wait, update_scheme, 
     ML, NxL[Dim], zstart, size, myrank, nprocs,
     N, Nda, Ndb, Nah,
-    ic_flag[3], do_brent, do_film, n_exp_nr ;  
-
+    ic_flag[3], do_brent, do_film, n_exp_nr,
+    keep_fields, first_sim;  
 
 #ifdef PAR
 #ifndef MAIN
