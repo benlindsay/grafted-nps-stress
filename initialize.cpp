@@ -36,7 +36,6 @@ void initialize_1() {
   }
 
   n_samples = 0.0 ;
-  first_sim = 1; // Flag that's only marked true for first simulation init
 
   if ( myrank == 0 ) {
     printf("First initialization complete\n") ;
@@ -95,10 +94,6 @@ void initialize_2() {
   }
     
   // Initialize fields
-  if (myrank == 0) {
-    printf("keep_fields=%d\n", keep_fields);
-    printf("first_sim=%d\n", first_sim);
-  }
   if (keep_fields && !first_sim) {
     // Do nothing if we're keeping the fields and it's not the first
     // simulation. The final fields from the previous simulation carry on to

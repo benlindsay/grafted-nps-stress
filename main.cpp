@@ -35,6 +35,9 @@ int main(int argc, char** argv) {
   initialize_1();
   allocate();
 
+  // Flag that's only marked true for first simulation init
+  first_sim = 1;
+
   if (do_brent) {
     // Brent's method to optimize box size
     double L_ideal = brent_method(L_low, L_high, brent_tol);
