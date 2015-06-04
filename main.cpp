@@ -16,10 +16,9 @@ double brent_method(double, double, double);
 double get_slope(double);
 double simulate(void);
 
-// The main routine is essentially a wrapper that allocates memory correctly,
-// then either runs a single simuation or implements Brent's method to find
-// the optimum box size before calculating the structure and energy at that
-// box size.
+// The main routine is essentially a wrapper that allocates memory, then either
+// runs a single simuation or implements Brent's method to find the optimum box
+// size before calculating the structure and energy at that box size.
 int main(int argc, char** argv) {
 
 #ifdef PAR
@@ -47,7 +46,6 @@ int main(int argc, char** argv) {
     simulate();
 
 #ifdef PAR
-  // MPI finalization
   MPI_Finalize();
 #endif
 
@@ -62,6 +60,9 @@ double brent_method(double lowerLimit, double upperLimit, double errorTol) {
   double c = 0;
   double d = upperLimit * 1.25;
 
+  // Open file that will store final results for each simulation run.
+  // One line is added to this file at the end of each pass through the
+  // simulate method
   brent_otp = fopen("brent.dat", "w");
 
   double fa = get_slope(a);
@@ -128,6 +129,7 @@ double brent_method(double lowerLimit, double upperLimit, double errorTol) {
     }
   }
 
+  // Close the brent.dat file
   fclose(brent_otp);
 
   return b;
