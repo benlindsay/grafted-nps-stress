@@ -265,8 +265,9 @@ double simulate() {
     // Output length, H, and H/V data to brent.dat
     for (int i=0; i<Dim; i++) fprintf(brent_otp, "%5.6lf ", L[i]);
     fprintf(brent_otp, "%5.6lf %5.6lf\n", real(H), H_over_V);
-
-    cout << "You win!" << endl;
+    // Output results to standard output
+    printf("For L[0]=%lf, H=%lf and H/V=%lf\n", L[0], real(H), H_over_V);
+    printf("Completed L[0]=%lf simulation\n", L[0]);
   }
 
   return H_over_V;
