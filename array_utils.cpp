@@ -4,17 +4,13 @@ int stack_local( int* ) ;
 void fft_fwd_wrapper(complex<double>*, complex<double>*, int);
 void fft_bck_wrapper(complex<double>*, complex<double>*, int);
 void zero_average(complex<double>*, int);
-void read_resume_files(void);
 void initialize_averages( complex<double>* );
 void accumulate_average_array( complex<double>* , complex<double>* ) ;
 double get_k_global( int, double* ) ;
 
 using namespace std;
 
-
-
-
-void accumulate_all_averages( ) {
+void accumulate_all_averages() {
 
   if ( n_samples == 0.0 ) {
     initialize_averages( avg_rhoda ) ;
@@ -42,7 +38,6 @@ void accumulate_average_array( complex<double> *avg , complex<double>* dat ) {
   int i;
   for ( i=0 ; i<ML ; i++ ) 
     avg[i] += dat[i] ;
-
 }
 
 

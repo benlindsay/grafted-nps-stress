@@ -95,20 +95,22 @@ void initialize_2() {
   }
     
   // Initialize fields
-  printf("keep_fields=%d\n", keep_fields);
-  printf("first_sim=%d\n", first_sim);
+  if (myrank == 0) {
+    printf("keep_fields=%d\n", keep_fields);
+    printf("first_sim=%d\n", first_sim);
+  }
   if (keep_fields && !first_sim) {
     // Do nothing if we're keeping the fields and it's not the first
     // simulation. The final fields from the previous simulation carry on to
     // the next one.
-    printf("Keeping fields, not reinitializing");
+    if (myrank == 0) printf("Keeping fields, not reinitializing\n");
   }
   else {
     // Mark first_sim false so next time around we can keep the fields
     // unchanged if keep_fields is true
     first_sim = 0;
     init_fields();
-    printf("Reinitialized fields");
+    if (myrank == 0) printf("Reinitialized fields\n");
   }
 
   // Define the "free" volume
