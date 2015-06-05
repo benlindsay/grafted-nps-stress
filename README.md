@@ -7,3 +7,5 @@ Features available as of 6/3/2015:
 - 0, 1, or 2 particles, either spheres or rods
 - Bulk or confined simulation
 - Brent's method to optimize box size (in progress)
+
+6/5/2015--Switched from Github to Bitbucket
