@@ -100,10 +100,17 @@ double brent_method(double lowerLimit, double upperLimit, double errorTol) {
       s = a*fb*fc / (fa-fb) / (fa-fc) +
           b*fa*fc / (fb-fa) / (fb-fc) +
           c*fa*fb / (fc-fa) / (fc-fb);
+      printf("Brent: used quadratic interpolation. ");
+      printf("a=%lf, b=%lf, c=%lf, fa=%lf, fb=%lf, fc=%lf\n",
+              a,     b,     c,     fa,     fb,     fc);
     }
-    else
+    else {
       // Secant method (linear interpolation)
       s = b - fb * (b-a) / (fb-fa);
+      printf("Brent: used secant method. ");
+      printf("a=%lf, b=%lf, fa=%lf, fb=%lf, s=%lf\n",
+              a,     b,     fa,     fb,     s);
+    }
 
     // Use bisection method if any of the following conditions is true:
     // Condition 1: s is not between (3a+b)/4 and b
@@ -121,6 +128,9 @@ double brent_method(double lowerLimit, double upperLimit, double errorTol) {
     if (cond1 || cond2 || cond3 || cond4 || cond5) {
       s = (a + b) / 2;
       mflag = true;
+      printf("Brent: used bisection method. ");
+      printf("a=%lf, b=%lf, s=%lf\n",
+              a,     b,     s);
     }
     else
       mflag = false;
@@ -137,9 +147,13 @@ double brent_method(double lowerLimit, double upperLimit, double errorTol) {
       double tmp = a; a = b; b = tmp; tmp = fa; fa = fb; fb = tmp;
     }
 
+    printf("Brent: end of iteration %d. ", j);
+    printf("a=%lf, b=%lf, c=%lf, fa=%lf, fb=%lf, fc=%lf, s=%lf\n",
+            a,     b,     c,     fa,     fb,     fc,     s);
+
     // exit loop if f(s)=0 or |b-a| is small enough
     if (fs==0.0 || abs(b-a) < errorTol) break;
-  }
+  } // j for loop
 
   // Close the brent.dat file
   fclose(brent_otp);
@@ -284,8 +298,8 @@ double simulate() {
     fflush(brent_otp);
     // Output results to standard output
     printf("For L[0]=%lf, H=%lf and H/V=%lf\n", L[0], real(H), H_over_V);
-    printf("Global minimum: L=%lf, H/V=%lf\n", L[0], min_H_over_V);
     printf("Completed L[0]=%lf simulation\n", L[0]);
+    printf("Global minimum: L=%lf, H/V=%lf\n", L[0], min_H_over_V);
   }
 
   if (first_sim) first_sim = 0;
