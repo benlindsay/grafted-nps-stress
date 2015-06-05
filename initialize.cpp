@@ -30,16 +30,16 @@ void initialize_1() {
   if (a == -1.0) a_squared = 1.0 / double(N-1);
   else a_squared = a * a;
 
-  if ( myrank == 0 ) {
+  if (myrank == 0) {
     cout << "V: " << V << endl;
     cout << "fD: " << fD << endl;
   }
 
-  n_samples = 0.0 ;
+  n_samples = 0.0;
 
-  if ( myrank == 0 ) {
-    printf("First initialization complete\n") ;
-    fflush(stdout) ;
+  if (myrank == 0) {
+    printf("First initialization complete\n");
+    fflush(stdout);
   }
 }
 
@@ -61,11 +61,11 @@ void initialize_2() {
 
       // Distance from current position to z=0 plane
       r1[Dim-1] = 0.0;
-      get_r( i , x );
+      get_r(i, x);
       for (int j=0; j<Dim-1; j++)
         r1[j] = x[j];
-      mdr2 = pbc_mdr2( x , r1 , dr );
-      mdr = sqrt( mdr2 );
+      mdr2 = pbc_mdr2(x, r1, dr);
+      mdr = sqrt(mdr2);
 
       rho_surf[i] = 0.5 * (1.0 - erf((fabs(mdr) - wallT) / wallXi));
 
@@ -97,13 +97,10 @@ void initialize_2() {
   if (keep_fields && !first_sim) {
     // Do nothing if we're keeping the fields and it's not the first
     // simulation. The final fields from the previous simulation carry on to
-    // the next one.
+    // the next one. (first_sim gets marked false at end of simulate() method)
     if (myrank == 0) printf("Keeping fields, not reinitializing\n");
   }
   else {
-    // Mark first_sim false so next time around we can keep the fields
-    // unchanged if keep_fields is true
-    first_sim = 0;
     init_fields();
     if (myrank == 0) printf("Reinitialized fields\n");
   }

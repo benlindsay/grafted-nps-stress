@@ -94,16 +94,16 @@ double brent_method(double lowerLimit, double upperLimit, double errorTol) {
   bool mflag = true;
 
   // Iterate max 5 times so this doesn't go on forever
-  for (int j = 0; j<5; j++) {
+  for (int j=0; j<5; j++) {
     if ((fa != fc) && (fb != fc)) {
       // Inverse quadratic interpolation
-      s = a * fb * fc / (fa - fb) / (fa - fc) +
-          b * fa * fc / (fb - fa) / (fb - fc) +
-          c * fa * fb / (fc - fa) / (fc - fb);
+      s = a*fb*fc / (fa-fb) / (fa-fc) +
+          b*fa*fc / (fb-fa) / (fb-fc) +
+          c*fa*fb / (fc-fa) / (fc-fb);
     }
     else
       // Secant method (linear interpolation)
-      s = b - fb * (b - a) / (fb - fa);
+      s = b - fb * (b-a) / (fb-fa);
 
     // Use bisection method if any of the following conditions is true:
     // Condition 1: s is not between (3a+b)/4 and b
@@ -136,21 +136,24 @@ double brent_method(double lowerLimit, double upperLimit, double errorTol) {
     if (abs(fa) < abs(fb)) {
       double tmp = a; a = b; b = tmp; tmp = fa; fa = fb; fb = tmp;
     }
+
+    // exit loop if f(s)=0 or |b-a| is small enough
+    if (fs==0.0 || abs(b-a) < errorTol) break;
   }
 
   // Close the brent.dat file
   fclose(brent_otp);
 
-  return b;
+  return s;
 }
 
 // Returns the slope of the H/V vs L graph at the L-value input to get_slope.
 // This is a part of Brent's method where H/V is calculated at 2 nearby L 
 // values by running separate simulations, then the slope is calculated
 double get_slope(double l) {
-  // Change L[0] to l and keep same L[1] / L[0] ratio for 3D
-  if (Dim==3) L[1] *= l / L[0];
-  L[0] = l;
+  // Change L[0] to l-L_step/2 and keep same L[1] / L[0] ratio for 3D
+  if (Dim==3) L[1] *= (l-0.5*L_step) / L[0];
+  L[0] = l - 0.5 * L_step;
   double H_over_V_1 = simulate();
 
   // Add L_step to L[0] and keep same L[1] / L[0] ratio for 3D
@@ -270,6 +273,10 @@ double simulate() {
   fclose(otp);
 
   double H_over_V = real(H) / V;
+  if (first_sim || H_over_V < min_H_over_V) {
+    min_H_over_V = H_over_V;
+    min_L = L[0];
+  }
   if (myrank == 0) {
     // Output length, H, and H/V data to brent.dat
     for (int i=0; i<Dim; i++) fprintf(brent_otp, "%5.6lf ", L[i]);
@@ -277,8 +284,11 @@ double simulate() {
     fflush(brent_otp);
     // Output results to standard output
     printf("For L[0]=%lf, H=%lf and H/V=%lf\n", L[0], real(H), H_over_V);
+    printf("Global minimum: L=%lf, H/V=%lf\n", L[0], min_H_over_V);
     printf("Completed L[0]=%lf simulation\n", L[0]);
   }
+
+  if (first_sim) first_sim = 0;
 
   return H_over_V;
 }
