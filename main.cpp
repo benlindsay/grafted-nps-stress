@@ -93,32 +93,38 @@ double brent_method(double lowerLimit, double upperLimit, double errorTol) {
   fc = fa;
   bool mflag = true;
 
+  // Iterate max 5 times so this doesn't go on forever
   for (int j = 0; j<5; j++) {
-    if ((fa != fc) && (fb != fc))
+    if ((fa != fc) && (fb != fc)) {
+      // Inverse quadratic interpolation
       s = a * fb * fc / (fa - fb) / (fa - fc) +
           b * fa * fc / (fb - fa) / (fb - fc) +
           c * fa * fb / (fc - fa) / (fc - fb);
+    }
     else
+      // Secant method (linear interpolation)
       s = b - fb * (b - a) / (fb - fa);
+
+    // Use bisection method if any of the following conditions is true:
+    // Condition 1: s is not between (3a+b)/4 and b
     double tmp2 = (3 * a + b) / 4;
-    if ( (!(((s > tmp2) && (s < b)) || ((s < tmp2) && (s > b)))) ||
-         (mflag && (abs(s - b) >= (abs(b - c) / 2))) ||
-         (!mflag && (abs(s - b) >= (abs(c - d) / 2))) )
-    {
+    bool cond1 = (s<tmp2 && s<b) || (s>tmp2 && s>b);
+    // Condition 2: mflag is set and |s-b|>=|b-c|/2
+    bool cond2 = mflag && (abs(s-b) >= abs(b-c)/2);
+    // Condition 3: mflag is cleared and |s-b|>=|c-d|/2
+    bool cond3 = !mflag && (abs(s-b) >= abs(c-d)/2);
+    // Condition 4: mflag is set and |b-c|<|delta|
+    bool cond4 = mflag && (abs(b-c) < errorTol);
+    // Condition 5: mflag is cleared and |c-d|<|delta|
+    bool cond5 = !mflag && (abs(c-d) < errorTol);
+
+    if (cond1 || cond2 || cond3 || cond4 || cond5) {
       s = (a + b) / 2;
       mflag = true;
     }
     else
-    {
-      if ( (mflag && (abs(b - c) < errorTol)) ||
-           (!mflag && (abs(c - d) < errorTol)) )
-      {
-        s = (a + b) / 2;
-        mflag = true;
-      }
-      else
-        mflag = false;
-    }
+      mflag = false;
+
     fs = get_slope(s);
     d = c;
     c = b;
