@@ -27,10 +27,12 @@ int main(int argc, char** argv) {
   MPI_Comm_rank( MPI_COMM_WORLD, &myrank);
   MPI_Comm_size( MPI_COMM_WORLD, &nprocs);
   fftw_mpi_init();
+#else
+  myrank = 0;
 #endif
 
   // Other initialization stuff
-  idum = -long(time(0)) * (myrank + 1); // -25*myrank ;//
+  idum = -long(time(0)) * (myrank + 1);
   read_input();
   initialize_1();
   allocate();
@@ -42,7 +44,7 @@ int main(int argc, char** argv) {
     // Brent's method to optimize box size
     double L_ideal = brent_method(L_low, L_high, brent_tol);
     if (myrank == 0)
-      cout << "L_ideal=" << L_ideal << endl;
+      printf("L_ideal = %lf\n", L_ideal);
   }
   else
     // Single simulation if not doing Brent's method
@@ -77,7 +79,7 @@ double brent_method(double lowerLimit, double upperLimit, double errorTol) {
 
   // if f(a) f(b) >= 0 then error-exit
   if (fa * fb >= 0 ) {
-    if (myrank == 0) cout << "Bad length range for Brent's method" << endl;
+    if (myrank == 0) printf("Bad length range for Brent's method\n");
     if (fa < fb)
       return a;
     else
@@ -100,16 +102,20 @@ double brent_method(double lowerLimit, double upperLimit, double errorTol) {
       s = a*fb*fc / (fa-fb) / (fa-fc) +
           b*fa*fc / (fb-fa) / (fb-fc) +
           c*fa*fb / (fc-fa) / (fc-fb);
-      printf("Brent: used quadratic interpolation. ");
-      printf("a=%lf, b=%lf, c=%lf, fa=%lf, fb=%lf, fc=%lf\n",
-              a,     b,     c,     fa,     fb,     fc);
+      if (myrank == 0) {
+        printf("Brent: used quadratic interpolation. ");
+        printf("a=%lf, b=%lf, c=%lf, fa=%lf, fb=%lf, fc=%lf\n",
+                a,     b,     c,     fa,     fb,     fc);
+      }
     }
     else {
       // Secant method (linear interpolation)
       s = b - fb * (b-a) / (fb-fa);
-      printf("Brent: used secant method. ");
-      printf("a=%lf, b=%lf, fa=%lf, fb=%lf, s=%lf\n",
-              a,     b,     fa,     fb,     s);
+      if (myrank == 0) {
+        printf("Brent: used secant method. ");
+        printf("a=%lf, b=%lf, fa=%lf, fb=%lf, s=%lf\n",
+                a,     b,     fa,     fb,     s);
+      }
     }
 
     // Use bisection method if any of the following conditions is true:
@@ -128,9 +134,11 @@ double brent_method(double lowerLimit, double upperLimit, double errorTol) {
     if (cond1 || cond2 || cond3 || cond4 || cond5) {
       s = (a + b) / 2;
       mflag = true;
-      printf("Brent: used bisection method. ");
-      printf("a=%lf, b=%lf, s=%lf\n",
-              a,     b,     s);
+      if (myrank == 0) {
+        printf("Brent: used bisection method. ");
+        printf("a=%lf, b=%lf, s=%lf\n",
+                a,     b,     s);
+      }
     }
     else
       mflag = false;
@@ -147,9 +155,11 @@ double brent_method(double lowerLimit, double upperLimit, double errorTol) {
       double tmp = a; a = b; b = tmp; tmp = fa; fa = fb; fb = tmp;
     }
 
-    printf("Brent: end of iteration %d. ", j);
-    printf("a=%lf, b=%lf, c=%lf, fa=%lf, fb=%lf, fc=%lf, s=%lf\n",
-            a,     b,     c,     fa,     fb,     fc,     s);
+    if (myrank == 0) {
+      printf("Brent: end of iteration %d. ", j);
+      printf("a=%lf, b=%lf, c=%lf, fa=%lf, fb=%lf, fc=%lf, s=%lf\n",
+              a,     b,     c,     fa,     fb,     fc,     s);
+    }
 
     // exit loop if f(s)=0 or |b-a| is small enough
     if (fs==0.0 || abs(b-a) < errorTol) break;
@@ -158,7 +168,7 @@ double brent_method(double lowerLimit, double upperLimit, double errorTol) {
   // Close the brent.dat file
   fclose(brent_otp);
 
-  return s;
+  return b;
 }
 
 // Returns the slope of the H/V vs L graph at the L-value input to get_slope.
@@ -202,24 +212,21 @@ double simulate() {
 
   if (myrank == 0) {
     printf("Initial densities calculated!\n");
+    printf("Segment counts:\n");
+    printf("nD * N = %lf integ(rhoda + rhodb) = %lf\n",
+           nD * N, integ_trapPBC(rhoda)+integ_trapPBC(rhodb) );
+    printf("nAH * Nah = %lf integ(rhoha) = %lf\n",
+           nAH * Nah, integ_trapPBC(rhoha) );
+    fflush(stdout);
   }
 
-  printf("Segment counts:\n");
-  cout << "nD * N = " << nD * N << " integ(rhoda + rhodb) = "
-    << integ_trapPBC( rhoda ) + integ_trapPBC( rhodb ) << endl; 
-  cout << "nAH * Nah = " << nAH * Nah << " integ(rhoha) = "
-    << integ_trapPBC( rhoha ) << endl;
-  fflush(stdout);
-
   Ho = calc_H();
-  if (myrank == 0) 
-    cout << "Starting H: " << Ho << endl;
+
+  if (myrank == 0) printf("Starting H: %lf\n", Ho);
 
   write_outputs();
 
-  if (myrank == 0) { 
-    printf("Entering main loop!\n\n"); 
-  }
+  if (myrank == 0) printf("Entering main loop:\n\n"); 
 
   ///////////////
   // MAIN LOOP //
@@ -299,7 +306,7 @@ double simulate() {
     // Output results to standard output
     printf("For L[0]=%lf, H=%lf and H/V=%lf\n", L[0], real(H), H_over_V);
     printf("Completed L[0]=%lf simulation\n", L[0]);
-    printf("Global minimum: L=%lf, H/V=%lf\n", L[0], min_H_over_V);
+    printf("Global minimum: L=%lf, H/V=%lf\n", min_L, min_H_over_V);
   }
 
   if (first_sim) first_sim = 0;

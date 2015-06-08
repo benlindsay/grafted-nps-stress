@@ -8,13 +8,15 @@ void read_input() {
   inp = fopen("bcp.input", "r");
 
   if (inp==NULL) { 
-    cout << "Failed to open bcp.input!" << endl;
+    printf("Failed to open bcp.input!");
     exit(1);
   }
 
   char tt[80];
   double dm1, dm2;
   int di1, di2,i, j;
+
+  if (myrank == 0) printf("Reading bcp.input\n\n");
 
   // Main Parameters
   fgets( tt, 80, inp );

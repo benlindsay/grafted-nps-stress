@@ -16,6 +16,8 @@ void explicit_nanosphere(double, double, double[Dim]);
 
 void initialize_1() {
 
+  if (myrank == 0) printf("\nInitialization 1:\n\n");
+
   I = complex<double>(0.0,1.0);
   M = 1; V = 1.0;
   for (int i=0; i<Dim; i++) {
@@ -31,16 +33,15 @@ void initialize_1() {
   else a_squared = a * a;
 
   if (myrank == 0) {
-    cout << "V: " << V << endl;
-    cout << "fD: " << fD << endl;
+    printf("V = %lf\n", V);
+    printf("N = %d\n", N);
+    printf("fD = %lf\n", fD);
+    printf("a^2 = %lf\n", a_squared);
+    printf("Initialization 1 complete\n\n");
+    fflush(stdout);
   }
 
   n_samples = 0.0;
-
-  if (myrank == 0) {
-    printf("First initialization complete\n");
-    fflush(stdout);
-  }
 }
 
 // Initializes fields and other variables
@@ -48,6 +49,8 @@ void initialize_2() {
   int i;
   double k2 , kv[Dim];
   double mdr2, mdr , r1[Dim], r2[Dim], dr[Dim] , x[Dim];
+
+  if (myrank == 0) printf("Initialization 2:\n\n");
 
   // Initialize hhat
   for (i=0; i<ML; i++) {
@@ -70,18 +73,18 @@ void initialize_2() {
       rho_surf[i] = 0.5 * (1.0 - erf((fabs(mdr) - wallT) / wallXi));
 
     }
-    write_data_bin( "rho_surf" ,  rho_surf ) ;
-    fft_fwd_wrapper( rho_surf , surfH ) ;
+    write_data_bin("rho_surf", rho_surf);
+    fft_fwd_wrapper(rho_surf, surfH);
   }
   else 
-    for ( i=0 ; i<ML ; i++ )
+    for (i=0; i<ML; i++)
       rho_surf[i] = surfH[i] = 0.0;
 
   // Initialize explicit nanorod density
-  for ( i=0; i<ML ; i++ )
+  for (i=0; i<ML; i++)
     rho_exp_nr[i] = exp_nrH[i] = 0.0;
   // Loop over nanorods and add nanorod density to rho_exp_nr
-  for ( i=0; i<n_exp_nr; i++ ) {
+  for (i=0; i<n_exp_nr; i++) {
     if (L_nr == R_nr)
       explicit_nanosphere(R_nr, xi_nr, exp_nr_c[i]);
     else
@@ -89,8 +92,8 @@ void initialize_2() {
   }
   // If there are nanorods (and/or nanospheres) write data and take FT
   if (n_exp_nr>0) {
-    write_data_bin( "rho_exp_nr" ,  rho_exp_nr ) ;
-    fft_fwd_wrapper( rho_exp_nr , exp_nrH ) ;
+    write_data_bin("rho_exp_nr",  rho_exp_nr);
+    fft_fwd_wrapper(rho_exp_nr, exp_nrH);
   }
     
   // Initialize fields
@@ -114,39 +117,39 @@ void initialize_2() {
 
   rho0 = ( nD * N + nAH * Nah ) / Vf ;
 
-  if ( myrank == 0 ) {
-    cout << "Total V_segment actual: " << nD * N + nAH * Nah << endl;
-    cout << "Total V_segment theoretical: " << C * Vf * double(N)  << endl;
-    cout << "V - Vf: " << V - Vf << endl;
-    cout << "rho0 = " << rho0 << endl;
+  if (myrank == 0) {
+    printf("Total V_segment actual: %lf\n", nD*N + nAH*Nah);
+    printf("Total V_segment theoretical: %lf\n", C * Vf * double(N));
+    printf("V - Vf: %lf\n", V - Vf);
+    printf("rho0 = %lf\n", rho0);
   }
 
   // Initialize Debye functions
-  calc_gaa( gaa , fD );
-  calc_gbb( gbb , fD );
-  calc_gab( gab , fD );
+  calc_gaa(gaa, fD);
+  calc_gbb(gbb, fD);
+  calc_gab(gab, fD);
   
-  calc_gd( gd, double( Nah-1 ) / double( N-1 ) ) ;
+  calc_gd( gd, double(Nah-1)/double(N-1) );
 
   ///////////////////////////////
   // Set up bonding potentials //
   ///////////////////////////////
-  if ( myrank == 0 ) 
-    cout << "Setting up Gaussian bonds!" << endl; 
-  for ( i=0 ; i<ML ; i++ ) {
-    k2 = get_k( i , kv ) ;
-    poly_bond_fft[i] = exp( -k2 / double(N-1) ) ;
+  if (myrank == 0) 
+    printf("Setting up Gaussian bonds:\n");
+  for (i=0; i<ML; i++) {
+    k2 = get_k(i, kv);
+    poly_bond_fft[i] = exp( -k2/double(N-1) ) ;
   }
 
   iter = 0;
 
   // Zero all densities //
-  for ( i=0 ; i<ML ; i++ )
-    rhoda[i] = rhodb[i] = rhoha[i] = 0.0 ;
+  for (i=0; i<ML; i++)
+    rhoda[i] = rhodb[i] = rhoha[i] = 0.0;
 
-  if ( myrank == 0 ) {
-    printf("Second initialization complete\n") ;
-    fflush(stdout) ;
+  if (myrank == 0) {
+    printf("Second initialization complete\n\n");
+    fflush(stdout);
   }
 }
 
@@ -205,17 +208,17 @@ void explicit_nanorod(double L, double R, double xi,
 
   for (int i=0; i<ML; i++) {
     // Get distance from nanorod center to current position (dr)
-    i_global = unstack_stack( i );
-    unstack( i_global, nn);
+    i_global = unstack_stack(i);
+    unstack(i_global, nn);
     for (int j=0; j<Dim; j++)
       x[j] = double(nn[j])*dx[j];
-    pbc_mdr2( x, center, dr );
+    pbc_mdr2(x, center, dr);
 
     // Compute explicit nanorod density
     u_dot_r = dot_prod(u, dr);
     u_cross_r = cross_prod(u, dr);
-    rho_exp_nr[i] += 0.25 * erfc((fabs(u_dot_r)-0.5*L)/xi)
-      * erfc((fabs(u_cross_r)-R)/xi);
+    rho_exp_nr[i] += 0.25 * erfc( (fabs(u_dot_r)-0.5*L)/xi )
+      * erfc( (fabs(u_cross_r)-R)/xi );
   }
 }
 
@@ -227,14 +230,14 @@ void explicit_nanosphere(double R, double xi, double center[Dim]) {
 
   for (int i=0; i<ML; i++) {
     // Get distance from nanorod center to current position (dr)
-    i_global = unstack_stack( i );
-    unstack( i_global, nn);
+    i_global = unstack_stack(i);
+    unstack(i_global, nn);
     for (int j=0; j<Dim; j++)
       x[j] = double(nn[j])*dx[j];
-    dr2 = pbc_mdr2( x, center, dr );
+    dr2 = pbc_mdr2(x, center, dr);
     dr_abs = sqrt(dr2);
 
     // Compute explicit nanorod density
-    rho_exp_nr[i] += 0.5 * erfc((dr_abs-R)/xi);
+    rho_exp_nr[i] += 0.5 * erfc( (dr_abs-R)/xi );
   }
 }

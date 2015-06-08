@@ -325,9 +325,11 @@ void zero_average(complex<double>* tp) {
 // Allocates the memory for global variables
 void allocate(void) {
 
-  int i;
+  printf("Allocating memory:\n\n");
 
+  int i;
   int Nf[Dim], alloc_size;
+
   for (i=0; i<Dim; i++) 
     Nf[i] = Nx[Dim-i-1];
 
@@ -336,7 +338,6 @@ void allocate(void) {
   ptrdiff_t Dm = Dim, Nfp[Dim], NxLtp, ztp;
   for (i=0; i<Dim; i++)
     Nfp[i] = Nf[i];
-
 
   size = fftw_mpi_local_size_many(Dm, Nfp, 1, 0, MPI_COMM_WORLD,
             &NxLtp, &ztp );
@@ -361,13 +362,11 @@ void allocate(void) {
   
   total_alloced += size*sizeof(fftw_complex)*2 ;
 
-
   // Set up the memory to allocate //
   alloc_size = NxL[0] ;
 
   for ( i=1 ; i<Dim ; i++ ) 
     alloc_size *= NxL[i];
-
 
   // Allocate the fields
   wpl = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
@@ -375,21 +374,19 @@ void allocate(void) {
   wb = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   smwa = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   smwb = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
-
   wabp = ( complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   wabm = ( complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
-
-  total_alloced += alloc_size * sizeof(complex<double>) * 7 ;
+  total_alloced += alloc_size * sizeof(complex<double>) * 7;
   
   if ( do_CL ) {
     etap = ( complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
     etam = ( complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
-    total_alloced += alloc_size * sizeof(complex<double>) * 2 ;
+    total_alloced += alloc_size * sizeof(complex<double>) * 2;
   }
 
   tmp  = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   tmp2 = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
-  total_alloced += alloc_size * sizeof(complex<double>) * 2 ;
+  total_alloced += alloc_size * sizeof(complex<double>) * 2;
 
   // Allocate the density operators
   rho_surf = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
@@ -399,13 +396,13 @@ void allocate(void) {
   rhoda = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   rhodb = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   rhoha = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
-  total_alloced += alloc_size * sizeof(complex<double>) * 5 ;
+  total_alloced += alloc_size * sizeof(complex<double>) * 7;
 
   if ( do_CL ) {
-    avg_rhoda = ( complex<double>* ) fftw_malloc(alloc_size*sizeof(complex<double>));
-    avg_rhodb = ( complex<double>* ) fftw_malloc(alloc_size*sizeof(complex<double>));
-    avg_rhoha = ( complex<double>* ) fftw_malloc(alloc_size*sizeof(complex<double>));
-    total_alloced += alloc_size * sizeof(complex<double>) * 3 ;
+    avg_rhoda = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
+    avg_rhodb = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
+    avg_rhoha = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
+    total_alloced += alloc_size * sizeof(complex<double>) * 3;
   }
 
   // Debye functions
@@ -413,22 +410,20 @@ void allocate(void) {
   gab = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   gbb = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   gd = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
-  total_alloced += alloc_size * sizeof(complex<double>) * 4 ;
+  total_alloced += alloc_size * sizeof(complex<double>) * 4;
   
-  poly_bond_fft = 
-    ( complex<double>* ) fftw_malloc( alloc_size * sizeof( complex<double> ) ) ;
-  hhat = ( complex<double>* ) fftw_malloc( alloc_size * sizeof( complex<double> ) ) ;
-  total_alloced += alloc_size * sizeof(complex<double>) * 2 ;
+  poly_bond_fft = (complex<double>*) fftw_malloc(alloc_size *
+                                                 sizeof(complex<double>));
+  hhat = (complex<double>*) fftw_malloc(alloc_size * sizeof(complex<double>));
+  total_alloced += alloc_size * sizeof(complex<double>) * 2;
 
-  qd = (complex<double>**) fftw_malloc((N+1)*sizeof(complex<double>*));
-  qddag = (complex<double>**) fftw_malloc((N+1)*sizeof(complex<double>*));
+  qd = (complex<double>**) fftw_malloc((N+1) * sizeof(complex<double>*));
+  qddag = (complex<double>**) fftw_malloc((N+1) * sizeof(complex<double>*));
   for (i=0; i<=N; i++) {
     qd[i] = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
     qddag[i] = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   }
-  
-  total_alloced += alloc_size * sizeof( complex<double> ) * (N+1) ;
-
+  total_alloced += alloc_size * sizeof(complex<double>) * (N+1) * 2;
 
   qha = (complex<double>**) fftw_malloc((Nah+1)*sizeof(complex<double>*));
   for (i=0; i<=Nah; i++) {
@@ -436,13 +431,17 @@ void allocate(void) {
   }
   total_alloced += alloc_size * sizeof(complex<double>) * 2 * (Nah+1);
  
+  printf("Processor %d allocated %lf MB\n",
+         myrank, double(total_alloced)/1.0E6);
 
+#ifdef PAR
+  // This just makes sure all processors finished before announcing allocation
+  MPI_Barrier( MPI_COMM_WORLD );
+#endif
 
-  cout << "Processor " << myrank << " allocated " << double(total_alloced)/1.0E6 << " MB\n" ;
-
-  if ( myrank == 0 ) {
-    printf("Memory allocation complete\n" ) ; 
-    fflush( stdout ) ;
+  if (myrank == 0) {
+    printf("Memory allocation complete\n"); 
+    fflush(stdout);
   }
 }
 
