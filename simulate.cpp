@@ -83,6 +83,7 @@ double simulate() {
         if (do_CL)
           printf(" + i%lf", imag(H));
         printf("\n");
+        fflush(stdout);
       }
       error = abs(H - Ho) / V ;
       if (iter > 0 && myrank == 0) {
