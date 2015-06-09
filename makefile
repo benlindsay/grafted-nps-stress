@@ -8,9 +8,9 @@ LDFLAGS = -limf -lm -lfftw3_mpi -lfftw3 -L${HOME}/Install/fftw3-intel-mpi/lib
 
 SRCS = main.cpp calc_poly_density.cpp homopolymer_discrete.cpp \
        io_utils.cpp integrate_utils.cpp ran2.cpp array_utils.cpp calc_h.cpp \
-			 fft_wrappers.cpp calc_debye.cpp initialize.cpp \
-			 read_input.cpp diblock_discrete.cpp 1s_update.cpp \
-			 Euler_update.cpp
+       fft_wrappers.cpp calc_debye.cpp initialize.cpp \
+       read_input.cpp diblock_discrete.cpp 1s_update.cpp \
+       Euler_update.cpp brent.cpp simulate.cpp
 			 
 
 OBJS = ${SRCS:.cpp=.o}

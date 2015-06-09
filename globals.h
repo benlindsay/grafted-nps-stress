@@ -32,7 +32,7 @@ double dx[Dim], L[Dim], V, Vf,
        exp_nr_u[2][Dim], L_nr, R_nr, xi_nr,
        exp_nr_chiAPN, exp_nr_chiBPN,
        L_low, L_high, L_step, brent_tol,
-       min_L, min_H_over_V;
+       L_ideal, min_H_over_V;
 
 #ifndef MAIN
 extern

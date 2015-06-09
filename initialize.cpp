@@ -16,7 +16,7 @@ void explicit_nanosphere(double, double, double[Dim]);
 
 void initialize_1() {
 
-  if (myrank == 0) printf("\nInitialization 1:\n\n");
+  if (myrank == 0) printf("\n---Initialization 1---\n");
 
   I = complex<double>(0.0,1.0);
   M = 1; V = 1.0;
@@ -37,7 +37,7 @@ void initialize_1() {
     printf("N = %d\n", N);
     printf("fD = %lf\n", fD);
     printf("a^2 = %lf\n", a_squared);
-    printf("Initialization 1 complete\n\n");
+    printf("---Initialization 1 complete---\n\n");
     fflush(stdout);
   }
 
@@ -50,7 +50,7 @@ void initialize_2() {
   double k2 , kv[Dim];
   double mdr2, mdr , r1[Dim], r2[Dim], dr[Dim] , x[Dim];
 
-  if (myrank == 0) printf("Initialization 2:\n\n");
+  if (myrank == 0) printf("---Initialization 2---\n");
 
   // Initialize hhat
   for (i=0; i<ML; i++) {
@@ -105,7 +105,10 @@ void initialize_2() {
   }
   else {
     init_fields();
-    if (myrank == 0) printf("Reinitialized fields\n");
+    if (myrank == 0) {
+      if (first_sim) printf("Initialized fields\n");
+      else printf("Reinitialized fields\n");
+    }
   }
 
   // Define the "free" volume
@@ -135,7 +138,7 @@ void initialize_2() {
   // Set up bonding potentials //
   ///////////////////////////////
   if (myrank == 0) 
-    printf("Setting up Gaussian bonds:\n");
+    printf("Setting up Gaussian bonds\n");
   for (i=0; i<ML; i++) {
     k2 = get_k(i, kv);
     poly_bond_fft[i] = exp( -k2/double(N-1) ) ;
@@ -148,7 +151,7 @@ void initialize_2() {
     rhoda[i] = rhodb[i] = rhoha[i] = 0.0;
 
   if (myrank == 0) {
-    printf("Second initialization complete\n\n");
+    printf("---Initialization 2 complete---\n\n");
     fflush(stdout);
   }
 }
@@ -179,8 +182,7 @@ void init_fields() {
             wabm[i] *= ic_pre[j]*tanh( sin(2.0 * PI * ic_period[j]
                   * x[sincos_dir] / L[sincos_dir])/0.2 );
           else if (ic_flag[j] < -4) { // -4 flag is just a factor of 1
-            cout << "Initial condition flags smaller than -4 not supported"
-              << endl;
+            printf("Initial condition flags smaller than -4 not supported\n");
             exit(1);
           }
         } // j (initial condition flag sets)

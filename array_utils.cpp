@@ -325,7 +325,7 @@ void zero_average(complex<double>* tp) {
 // Allocates the memory for global variables
 void allocate(void) {
 
-  printf("Allocating memory:\n\n");
+  printf("---Allocating memory---\n");
 
   int i;
   int Nf[Dim], alloc_size;
@@ -345,6 +345,7 @@ void allocate(void) {
   NxL[Dim-1] = NxLtp;
   for (i=0; i<Dim-1; i++)
     NxL[i] = Nx[i];
+
 
   zstart = ztp;
   
@@ -440,7 +441,7 @@ void allocate(void) {
 #endif
 
   if (myrank == 0) {
-    printf("Memory allocation complete\n"); 
+    printf("---Memory allocation complete---\n\n"); 
     fflush(stdout);
   }
 }

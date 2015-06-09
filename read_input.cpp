@@ -16,7 +16,7 @@ void read_input() {
   double dm1, dm2;
   int di1, di2,i, j;
 
-  if (myrank == 0) printf("Reading bcp.input\n\n");
+  if (myrank == 0) printf("---Reading bcp.input---\n");
 
   // Main Parameters
   fgets( tt, 80, inp );
@@ -108,4 +108,5 @@ void read_input() {
       exp_nr_u[j][i] /= dm2;
   }
   fclose(inp);
+  printf("---Reading of bcp.input complete---\n");
 }
