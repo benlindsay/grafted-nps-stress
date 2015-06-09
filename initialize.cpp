@@ -29,8 +29,8 @@ void initialize_1() {
   N = Nda + Ndb ;
   fD = double(Nda) / double(N) ;
 
-  if (a == -1.0) a_squared = 1.0 / double(N-1);
-  else a_squared = a * a;
+  if (a_smear == -1.0) a_squared = 1.0 / double(N-1);
+  else a_squared = a_smear * a_smear;
 
   if (myrank == 0) {
     printf("V = %lf\n", V);

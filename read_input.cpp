@@ -22,7 +22,7 @@ void read_input() {
   fgets( tt, 80, inp );
   fscanf(inp,"%d %d", &Nda , &Ndb );     fgets(tt,80,inp);
   fscanf( inp , "%lf %d" , &phiH , &Nah) ; fgets( tt , 80 , inp ) ;
-  fscanf( inp  , "%lf" , &a ) ; fgets( tt , 80 ,  inp ) ;
+  fscanf( inp  , "%lf" , &a_smear ) ; fgets( tt , 80 ,  inp ) ;
   fscanf(inp,"%lf", &C );      fgets(tt,80,inp);
   
   fgets( tt ,80 , inp ) ;

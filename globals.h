@@ -25,7 +25,7 @@ using namespace std;
 extern
 #endif
 double dx[Dim], L[Dim], V, Vf, 
-       a, a_squared, C, rho0, lam_mi, lam_pl,
+       a_smear, a_squared, C, rho0, lam_mi, lam_pl,
        kappaN, chiN, fD, nD, nAH, phiH,
        n_samples, ic_pre[2], ic_dir[2], ic_period[2],
        wall_lamA, wall_lamB, wallT, wallXi, exp_nr_c[2][Dim],
