@@ -34,19 +34,26 @@ int main(int argc, char** argv) {
   // Flag that's only marked true for first simulation init
   first_sim = 1;
 
+  // Check if the do_brent flag is true, then either run Brent's method to
+  // optimize box size or just run a single simulation.
   if (do_brent) {
     // Brent's method to optimize box size
     double L_brent = brent_method(L_low, L_high, brent_tol);
     if (myrank == 0) {
       printf("L_brent = %lf\n\n", L_brent);
     }
-    // Simulate at L_brent if that wasn't just done
+    // Simulate at L_brent if that wasn't just done. There was not necessarily
+    // a simulation performed at the L value returned by Brent's method,
+    // especially with the current (as of 6/10/15) implementation of get_slope.
     if (L[0] != L_brent) {
       change_L0(L_brent);
       simulate();
     }
     if (myrank == 0) printf("L_ideal = %lf\n\n", L_ideal);
-    // Run a final simulation at the global optimum L
+    // Run a final simulation at the global optimum L. After running a
+    // simulation at L_brent, it might turn out that a different point close
+    // to L_brent had a slightly lower energy. If that is the case, run a final
+    // simulation at the length that gives the global minimum energy.
     if (L[0] != L_ideal) {
       change_L0(L_ideal);
       simulate();
