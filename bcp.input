@@ -29,7 +29,8 @@
 # Film parameters
 0        do_film flag, creates walls in dim-1 direction
 2.0 0.5  Wall thickness, interfacial width
-0.5 0.5  Wall interaction parameters, lambda_A, lambda_B
+0.5 0.5  Top wall interaction parameters, lambda_A, lambda_B
+0.5 0.5  Bottom wall interaction parameters, lambda_A, lambda_B
 
 # Explicit nanorod parameters
 1                n_exp_nr, number of nanorods

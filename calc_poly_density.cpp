@@ -18,101 +18,125 @@ complex<double> grafted_nanoparticles( complex<double>*, complex<double>*,
     complex<double>*, complex<double>**, complex<double>**, complex<double>*,
     complex<double>*, complex<double>*, double , double , int ) ;
 
-void calc_poly_density( ) {
+void calc_poly_density() {
 
   int i;
 
-  for ( i=0 ; i<ML ; i++ ) {
-    wa[i] = ( I * (wpl[i] + wabp[i] ) - wabm[i] ) / double( N ) ;
-    wb[i] = ( I * (wpl[i] + wabp[i] ) + wabm[i] ) / double( N ) ;
-    if ( do_film ) {
-      wa[i] += wall_lamA * rho_surf[i] ;
-      wb[i] += wall_lamB * rho_surf[i] ;
+  // Iterate over all points
+  for (i=0; i<ML; i++) {
+
+    // Add all fields that make up wa and wb
+    wa[i] = (I * (wpl[i] + wabp[i]) - wabm[i]) / double(N);
+    wb[i] = (I * (wpl[i] + wabp[i]) + wabm[i]) / double(N);
+
+    // If doing a film calculation, add surface density times appropriate
+    // lambda to wa and wb
+    if (do_film) {
+      // Get global index from index on current processor
+      int i_global = unstack_stack(i);
+      int nn[Dim];
+      // Fill nn with global x, y [, and z] indices
+      unstack(i_global, nn);
+      // Get x[Dim-1] (z in 3D) position
+      double z = dx[Dim-1] * double(nn[Dim-1]);
+      double lamA, lamB;
+      // Set lamA and lamB to the values associated with whichever surface
+      // is closer
+      if (z > L[Dim-1]/2.0) {
+        lamA = top_wall_lamA;
+        lamB = top_wall_lamB;
+      }
+      else {
+        lamA = bot_wall_lamA;
+        lamB = bot_wall_lamB;
+      }
+      // Add surface density times appropriate lambda to each field
+      wa[i] += lamA * rho_surf[i];
+      wb[i] += lamB * rho_surf[i];
     }
-    if ( n_exp_nr > 0 ) {
-      wa[i] += exp_nr_chiAPN / double( N ) * rho_exp_nr[i] ;
-      wb[i] += exp_nr_chiBPN / double( N ) * rho_exp_nr[i] ;
+
+    // If doing explicit nanorods, add nanorod interaction terms to fields
+    if (n_exp_nr > 0) {
+      wa[i] += exp_nr_chiAPN / double(N) * rho_exp_nr[i];
+      wb[i] += exp_nr_chiBPN / double(N) * rho_exp_nr[i];
     }
   }
 
-  fft_fwd_wrapper( wa , smwa ) ;
-  fft_fwd_wrapper( wb , smwb ) ;
-  for ( i=0 ; i<ML ; i++ ) {
-    smwa[i] *= hhat[i] ;
-    smwb[i] *= hhat[i] ;
+  // Convolve wa and wb with h to get smeared fields smwa and smwb
+  fft_fwd_wrapper(wa, smwa);
+  fft_fwd_wrapper(wb, smwb);
+  for (i=0; i<ML; i++) {
+    smwa[i] *= hhat[i];
+    smwb[i] *= hhat[i];
   }
-  fft_bck_wrapper( smwa , smwa ) ;
-  fft_bck_wrapper( smwb , smwb ) ;
+  fft_bck_wrapper(smwa, smwa);
+  fft_bck_wrapper(smwb, smwb);
 
   ///////////////////////////////
   // Polymer matrix propagator //
   ///////////////////////////////
-  if ( nD > 0.0 ) {
-   Qd = diblock_discrete( smwa , smwb , qd , qddag , N , Nda );
+  if (nD > 0.0) {
+   Qd = diblock_discrete(smwa, smwb, qd, qddag, N, Nda);
    integrate_diblock_discrete(qd, qddag, Qd, nD, rhoda, rhodb, smwa, smwb, 
        N, Nda);
   }
   else 
    Qd = 1.0;
   
-  if ( nAH > 0.0 ) {
-    Qha = homopolymer_discrete( smwa , qha , Nah ) ;
-    integrate_homopoly_discrete( qha, Qha, nAH, rhoha, smwa,  Nah );
+  if (nAH > 0.0) {
+    Qha = homopolymer_discrete(smwa, qha, Nah);
+    integrate_homopoly_discrete(qha, Qha, nAH, rhoha, smwa, Nah);
   }
   else 
     Qha = 1.0;
-}
+} // End calc_poly_density
 
 ///////////////////////////////////////////////////////
 // Calculate density of a discrete diblock copolymer //
 ///////////////////////////////////////////////////////
-void integrate_diblock_discrete( complex<double>** q, complex<double> **qdag , 
-    complex<double> Q , complex<double> nK , complex<double>* rda , 
+void integrate_diblock_discrete(complex<double>** q, complex<double> **qdag, 
+    complex<double> Q, complex<double> nK, complex<double>* rda, 
     complex<double>* rdb, complex<double>* wA,
-    complex<double>* wB, int Ns , int Na ) {
+    complex<double>* wB, int Ns, int Na) {
 
-  int i,j;
+  int i, j;
 
-  complex<double> factor ;
+  complex<double> factor;
 
-  factor = nK / Q / V ;
+  factor = nK / Q / V;
 
-  for ( i=0 ; i < ML ; i++ ) {
-    rda[i] = rdb[i] = 0.0 ;
-    for ( j=0 ; j < Ns ; j++ ) {
-      if ( Na > 0 && j < Na )
-        rda[i] += q[j][i] * qdag[Ns-j-1][i] ;
+  for (i=0; i<ML; i++) {
+    rda[i] = rdb[i] = 0.0;
+    for (j=0; j<Ns; j++) {
+      if (Na > 0 && j < Na)
+        rda[i] += q[j][i] * qdag[Ns-j-1][i];
       else
-        rdb[i] += q[j][i] * qdag[Ns-j-1][i] ;
+        rdb[i] += q[j][i] * qdag[Ns-j-1][i];
     }
 
-    rda[i] *= exp( wA[i] ) * factor ;
-    rdb[i] *= exp( wB[i] ) * factor ;
+    rda[i] *= exp(wA[i]) * factor;
+    rdb[i] *= exp(wB[i]) * factor;
 
   }//for ( i=0 ; i<ML
-}
+} // End integrate_diblock_discrete
 
-void integrate_homopoly_discrete( complex<double>** q,
-    complex<double> Q , complex<double> nK , complex<double>* rh ,
-    complex<double>* W,
-    int N  ) {
+void integrate_homopoly_discrete(complex<double>** q,
+    complex<double> Q, complex<double> nK, complex<double>* rh,
+    complex<double>* W, int N) {
 
-  int i,j;
+  int i, j;
 
-  complex<double> factor ;
+  complex<double> factor;
 
-  factor = nK / Q / V ;
+  factor = nK / Q / V;
 
-  for ( i=0 ; i < ML ; i++ ) {
-    rh[i] = 0.0 ;
+  for (i=0; i<ML; i++) {
+    rh[i] = 0.0;
 
-    for ( j=0 ; j < N ; j++ ) {
-        rh[i] += q[j][i] * q[N-j-1][i] ;
-
+    for (j=0; j<N; j++) {
+        rh[i] += q[j][i] * q[N-j-1][i];
     }
 
-    rh[i] *= exp( W[i] ) * factor ;
-
+    rh[i] *= exp(W[i]) * factor;
   }//for ( i=0 ; i<ML
-
-}
+} // End integrate_homopoly_discrete
