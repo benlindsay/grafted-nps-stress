@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
       change_L0(L_ideal);
       simulate();
     }
-  }
+  } // if do_brent
   else
     // Single simulation if not doing Brent's method
     simulate();
