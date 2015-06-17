@@ -19,9 +19,10 @@ double simulate() {
     exit(1);
   }
 
-  if (myrank == 0)
+  if (myrank == 0) {
     printf("------Starting simulation for L[0]=%lf, L[1]=%lf------\n",
            L[0], L[1]);
+  }
 
   // Initialize variables and fields
   initialize_1();
@@ -33,13 +34,16 @@ double simulate() {
 
   calc_poly_density();
 
+  double smrhodadb = real( integ_trapPBC(rhoda)+integ_trapPBC(rhodb) );
+  double smrhoha = real( integ_trapPBC(rhoha) );
+
   if (myrank == 0) {
     printf("Initial densities calculated!\n");
     printf("Segment counts:\n");
     printf("nD * N = %lf integ(rhoda + rhodb) = %lf\n",
-           nD * N, integ_trapPBC(rhoda)+integ_trapPBC(rhodb) );
+           nD * N, smrhodadb);
     printf("nAH * Nah = %lf integ(rhoha) = %lf\n",
-           nAH * Nah, integ_trapPBC(rhoha) );
+           nAH * Nah, smrhoha);
     fflush(stdout);
   }
 

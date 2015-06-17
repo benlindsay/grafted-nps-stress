@@ -325,7 +325,7 @@ void zero_average(complex<double>* tp) {
 // Allocates the memory for global variables
 void allocate(void) {
 
-  printf("---Allocating memory---\n");
+  if (myrank == 0) printf("---Allocating memory---\n");
 
   int i;
   int Nf[Dim], alloc_size;
