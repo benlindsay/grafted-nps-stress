@@ -76,12 +76,12 @@ void calc_poly_density() {
   // Polymer matrix propagator //
   ///////////////////////////////
   if (nD > 0.0) {
-   Qd = diblock_discrete(smwa, smwb, qd, qddag, N, Nda);
-   integrate_diblock_discrete(qd, qddag, Qd, nD, rhoda, rhodb, smwa, smwb, 
-       N, Nda);
+    Qd = diblock_discrete(smwa, smwb, qd, qddag, N, Nda);
+    integrate_diblock_discrete(qd, qddag, Qd, nD, rhoda, rhodb,
+                               smwa, smwb, N, Nda);
   }
   else 
-   Qd = 1.0;
+    Qd = 1.0;
   
   if (nAH > 0.0) {
     Qha = homopolymer_discrete(smwa, qha, Nah);
@@ -138,5 +138,5 @@ void integrate_homopoly_discrete(complex<double>** q,
     }
 
     rh[i] *= exp(W[i]) * factor;
-  }//for ( i=0 ; i<ML
+  } // for ( i=0 ; i<ML
 } // End integrate_homopoly_discrete
