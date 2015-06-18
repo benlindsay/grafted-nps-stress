@@ -82,7 +82,7 @@ double simulate() {
         exit(1);
       }
       if (myrank == 0) {
-        printf( "Iteration: %d, H=%lf -log(Qd): %lf -log(Qha): %lf ",
+        printf("Iteration: %d, H=%lf -log(Qd): %lf -log(Qha): %lf ",
                 iter, real(H), real(-log(Qd)), real(-log(Qha)) );
         if (do_CL)
           printf(" + i%lf", imag(H));
@@ -90,9 +90,9 @@ double simulate() {
         fflush(stdout);
       }
       error = abs(H - Ho) / V ;
-      if (iter > 0 && myrank == 0) {
-        fprintf(otp,"%d %5.6lf %1.3e  %5.6lf %5.6lf " , 
-            iter, real(H), imag(H), real(-log(Qd)), real(-log(Qha)) ) ;
+      if (myrank == 0) {
+        fprintf(otp, "%d %5.6lf %1.3e  %5.6lf %5.6lf ", 
+            iter, real(H), imag(H), real(-log(Qd)), real(-log(Qha)) );
         fprintf(otp, "\n");
         fflush(otp);
       }
@@ -102,6 +102,7 @@ double simulate() {
     if (!do_CL && iter > 25 && error < 1.0E-10) {     
       if (myrank == 0) {
         printf("Tolerance reached. Error = %.4e\n", error);
+        printf("%d iterations\n", iter);
         printf("---Main loop complete---\n\n");
       }
       break;
