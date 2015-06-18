@@ -5,7 +5,7 @@ void write_outputs(void);
 void accumulate_all_averages(void);
 void update_1s(void);
 void update_Euler(void);
-void write_data(char*, complex<double>*);
+void write_data(char*, complex<double>*); // for debugging
 double brent_method(double, double, double);
 void change_L0(double);
 double simulate(void);
