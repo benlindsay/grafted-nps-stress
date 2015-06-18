@@ -99,7 +99,7 @@ double simulate() {
       write_outputs();
     }// Output
 
-    if (!do_CL && iter > 25 && error < 1.0E-10) {     
+    if (!do_CL && iter > 25 && error < error_tol) {     
       if (myrank == 0) {
         printf("Tolerance reached. Error = %.4e\n", error);
         printf("%d iterations\n", iter);
