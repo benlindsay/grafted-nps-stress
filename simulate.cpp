@@ -73,7 +73,7 @@ double simulate() {
     if (iter % print_freq == 0) {
       Ho = Hcur;
       H = Hcur = calc_H();
-      if (Hcur != Hcur) {
+      if (Hcur != Hcur) { // If Hcur is NaN
         printf("Crashed! iteration %d\n", iter);
         printf("H: %lf Qd: %lf\n", real(H), real(Qd));
         write_data_bin("crashed.wpl", wpl);
@@ -97,12 +97,11 @@ double simulate() {
         fflush(otp);
       }
       write_outputs();
-    }// Output
+    } // Output
 
     if (!do_CL && iter > 25 && error < error_tol) {     
       if (myrank == 0) {
         printf("Tolerance reached. Error = %.4e\n", error);
-        printf("%d iterations\n", iter);
         printf("---Main loop complete---\n\n");
       }
       break;
