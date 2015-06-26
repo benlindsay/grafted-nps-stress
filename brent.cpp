@@ -33,8 +33,8 @@ double brent_method(double lowerLimit, double upperLimit, double errorTol) {
   if (fa * fb >= 0 ) {
     if (myrank == 0) {
       printf("Bad length range for Brent's method! Change range and retry\n");
-      exit(1);
     }
+    exit(1);
   }
 
   // if |f(a)| < |f(b)| then swap (a,b) end if
