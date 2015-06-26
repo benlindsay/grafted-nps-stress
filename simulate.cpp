@@ -91,7 +91,7 @@ double simulate() {
       }
       error = abs(H - Ho) / V ;
       if (myrank == 0) {
-        fprintf(otp, "%d %5.6lf %1.3e  %5.6lf %5.6lf %5.6lf", 
+        fprintf(otp, "%d %5.6lf %1.3e  %5.6lf %5.6lf %1.3e", 
             iter, real(H), imag(H), real(-log(Qd)), real(-log(Qha)), error);
         fprintf(otp, "\n");
         fflush(otp);
