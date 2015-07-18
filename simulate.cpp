@@ -89,7 +89,7 @@ double simulate() {
         printf("\n");
         fflush(stdout);
       }
-      error = abs(H - Ho) / V ;
+      error = abs(H - Ho) / V / double(print_freq);
       if (myrank == 0) {
         fprintf(otp, "%d %5.6lf %1.3e  %5.6lf %5.6lf %1.3e", 
             iter, real(H), imag(H), real(-log(Qd)), real(-log(Qha)), error);
