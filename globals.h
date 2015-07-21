@@ -24,13 +24,14 @@ using namespace std;
 #ifndef MAIN
 extern
 #endif
-double dx[Dim], L[Dim], V, Vf, 
+double dx[Dim], L[Dim], V, Vf, V_1_fld_np,
        a_smear, a_squared, C, rho0, lam_mi, lam_pl,
-       kappaN, chiN, fD, nD, nAH, phiH,
+       kappaN, chiN, fD, nD, nAH, phiH, nP, nFP,
        n_samples, ic_pre[2], ic_dir[2], ic_period[2],
        top_wall_lamA, top_wall_lamB, bot_wall_lamA, bot_wall_lamB,
        wallT, wallXi, exp_nr_c[2][Dim],
        exp_nr_u[2][Dim], L_nr, R_nr, xi_nr,
+       *theta, *phi, *theta_weights, *phi_weights, np_frac, smwp_min,
        exp_nr_chiAPN, exp_nr_chiBPN,
        L_low, L_high, L_step, brent_tol, error_tol,
        L_ideal, min_H_over_V;
@@ -45,14 +46,17 @@ extern
 #endif
 complex<double> I, *wpl, *wa, *wb, *wabp, *wabm, *smwa, *smwb,
                 **qd, **qddag, **qha, 
-                Qd, *rhoha, *rhoda, *rhodb, Qha,
+                Qd, *rhoha, *rhoda, *rhodb, Qha, Qp,
                 *tmp, *tmp2, *gd, *gaa, *gab, *gbb,
                 *etap, *etam, 
                 *avg_rhoda, *avg_rhodb,
                 *avg_rhoha, 
                 *rho_surf, *surfH, *rho_exp_nr, *exp_nrH,
+                *rho_fld_np_c, *rho_fld_np, *fld_npH,
                 Hcur, *poly_bond_fft,
-                shift_wp , *hhat;
+                shift_wp , *hhat, **tmp_sph, ***Gamma_aniso, *Gamma_iso,
+                ***smwp_aniso, *smwp_iso, ***tmp_aniso, *tmp_iso,
+                ***exp_neg_smwp;
 
 #ifndef MAIN
 extern
@@ -61,7 +65,7 @@ int Nx[Dim], NxT[Dim], M, do_CL, iter,
     print_freq, itermax, sample_freq, sample_wait, update_scheme, 
     ML, NxL[Dim], zstart, size, myrank, nprocs,
     N, Nda, Ndb, Nah,
-    ic_flag[3], do_brent, do_film, n_exp_nr,
+    ic_flag[3], do_brent, do_film, np_type, n_exp_nr, do_fld_np, Nu,
     keep_fields, first_sim;  
 
 #ifdef PAR

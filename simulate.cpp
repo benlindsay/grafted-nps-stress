@@ -82,10 +82,9 @@ double simulate() {
         exit(1);
       }
       if (myrank == 0) {
-        printf("Iteration: %d, H=%lf -log(Qd): %lf -log(Qha): %lf ",
-                iter, real(H), real(-log(Qd)), real(-log(Qha)) );
-        if (do_CL)
-          printf(" + i%lf", imag(H));
+        printf("Iter: %d, H=%lf, -log(Qd)=%lf, -log(Qha)=%lf, -log(Qp)=%lf",
+                iter, real(H), real(-log(Qd)), real(-log(Qha)),
+                real(-log(Qp) + smwp_min) );
         printf("\n");
         fflush(stdout);
       }

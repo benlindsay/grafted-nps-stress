@@ -18,7 +18,6 @@ void fft_fwd_wrapper(complex<double>* in, complex<double>* out) {
   }
 #endif
 
-
   fftw_execute(fwd0);
 
   double norm = 1.0 / double(M);
@@ -34,8 +33,6 @@ void fft_fwd_wrapper(complex<double>* in, complex<double>* out) {
 #endif
 
 }
-
-
 
 // Backwards transform and normalization
 void fft_bck_wrapper(complex<double>* in, complex<double>* out) {
@@ -54,10 +51,8 @@ void fft_bck_wrapper(complex<double>* in, complex<double>* out) {
   }
 #endif
 
-
   // Perform fft
   fftw_execute(fbk0);
- 
 
   // Store output
 #ifdef PAR
@@ -70,5 +65,3 @@ void fft_bck_wrapper(complex<double>* in, complex<double>* out) {
 #endif
 
 }
-
-  

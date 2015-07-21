@@ -2,6 +2,7 @@
 void calc_P_constants(int);
 void read_resume_files(void);
 void init_particles(void);
+void sphere_init(void);
 void calc_gaa(complex<double>* , double);
 void calc_gbb(complex<double>* , double);
 void calc_gab(complex<double>* , double);
@@ -11,6 +12,8 @@ double cross_prod(double[Dim], double[Dim]);
 void write_data(char*, complex<double>*); // Added for debugging
 void init_negative_k(void) ;
 void init_fields(void);
+void init_Gamma_sphere(void);
+void init_Gamma_rod(void);
 void explicit_nanorod(double, double, double, double[Dim], double[Dim]);
 void explicit_nanosphere(double, double, double[Dim]);
 
@@ -19,18 +22,19 @@ void initialize_1() {
   if (myrank == 0) printf("\n---Initialization 1---\n");
 
   I = complex<double>(0.0,1.0);
+  N = Nda + Ndb;
+  fD = double(Nda) / double(N);
+  if (a_smear == -1.0) a_squared = 1.0 / double(N-1);
+  else a_squared = a_smear * a_smear;
+
+  // Initialize M, V, dx
   M = 1; V = 1.0;
   for (int i=0; i<Dim; i++) {
     M *= Nx[i];
     V *= L[i];
     dx[i] = L[i] / double(Nx[i]);
   }
-  
-  N = Nda + Ndb ;
-  fD = double(Nda) / double(N) ;
 
-  if (a_smear == -1.0) a_squared = 1.0 / double(N-1);
-  else a_squared = a_smear * a_smear;
 
   if (myrank == 0) {
     printf("V = %lf\n", V);
@@ -46,7 +50,7 @@ void initialize_1() {
 
 // Initializes fields and other variables
 void initialize_2() {
-  int i;
+  int i, j, k;
   double k2 , kv[Dim];
   double mdr2, mdr , r1[Dim], r2[Dim], dr[Dim] , x[Dim];
 
@@ -56,6 +60,12 @@ void initialize_2() {
   for (i=0; i<ML; i++) {
     k2 = get_k(i , kv);
     hhat[i] = exp(-k2 * a_squared / 2.0) ;
+  }
+
+  // Zero all densities //
+  for (i=0; i<ML; i++) {
+    rhoda[i] = rhodb[i] = rhoha[i] = rho_fld_np_c[i] = rho_fld_np[i] = 0.0;
+    rho_surf[i] = surfH[i] = rho_exp_nr[i] = exp_nrH[i] = 0.0;
   }
 
   // Initialize confining wall //
@@ -76,13 +86,7 @@ void initialize_2() {
     write_data_bin("rho_surf", rho_surf);
     fft_fwd_wrapper(rho_surf, surfH);
   }
-  else 
-    for (i=0; i<ML; i++)
-      rho_surf[i] = surfH[i] = 0.0;
 
-  // Initialize explicit nanorod density
-  for (i=0; i<ML; i++)
-    rho_exp_nr[i] = exp_nrH[i] = 0.0;
   // Loop over nanorods and add nanorod density to rho_exp_nr
   for (i=0; i<n_exp_nr; i++) {
     if (L_nr == R_nr)
@@ -95,7 +99,7 @@ void initialize_2() {
     write_data_bin("rho_exp_nr",  rho_exp_nr);
     fft_fwd_wrapper(rho_exp_nr, exp_nrH);
   }
-    
+
   // Initialize fields
   if (keep_fields && !first_sim) {
     // Do nothing if we're keeping the fields and it's not the first
@@ -110,21 +114,92 @@ void initialize_2() {
       else printf("Reinitialized fields\n");
     }
   }
+  
+  ////////////////////////
+  // Define the volumes //
+  ////////////////////////
 
-  // Define the "free" volume
-  Vf = V - real(integ_trapPBC( rho_surf ) + integ_trapPBC( rho_exp_nr ) );
+  double V_nps, V_1_exp_np, V_exp_nps, V_fld_nps, V_poly;
+  // Total volume of all explicit nanoparticles
+  V_exp_nps = real(integ_trapPBC(rho_exp_nr));
+  // "Free" Volume (everything excluding walls)
+  Vf = V - real(integ_trapPBC(rho_surf));
+  if (do_fld_np) {
+    // Total volume of all explicit and field-based nanoparticles
+    V_nps = np_frac * Vf;
+    // Total volume of all field-based nanoparticles (total np vol minus
+    // explicit np vol)
+    V_fld_nps = V_nps - V_exp_nps;
+    // Total volume taken up by polymer chains
+    V_poly = Vf * (1 - np_frac);
+  }
+  else {
+    // If not doing field-based nps, total volume of all nanoparticles is just
+    // the total volume of all explicit nanoparticles
+    V_nps = V_exp_nps;
+    // Total volume taken up by polymer chains. np_frac isn't applicable if
+    // not doing field-based nps, so just subtract explicit np volume from
+    // free volume
+    V_poly = Vf - V_nps;
+  }
+  // Volume of just one explicit nanoparticle if applicable
+  if (n_exp_nr > 0)
+    V_1_exp_np = V_exp_nps / double(n_exp_nr);
+  else
+    V_1_exp_np = 0;
 
-  // Number of molecules of each component
-  nD = C * Vf * ( 1.0 - phiH ) ;
-  nAH = C * Vf * phiH * double( N ) / double ( Nah ) ;
 
-  rho0 = ( nD * N + nAH * Nah ) / Vf ;
+  // Number of molecules (or nanoparticles) of each component
+  nD = C * V_poly * (1.0 - phiH); // # of diblock chains
+  nAH = C * Vf * phiH * double(N) / double(Nah);
+  rho0 = (nD*N + nAH*Nah) / V_poly;
+
+  // Initialize Gamma (and V_1_fld_np) if doing field-based nps
+  if (do_fld_np) {
+    if (np_type == 0) {
+      printf("Error! Input file says to do field-based nanoparticles but "
+             "uses np_type=0. np_type must be > 1 to use nanoparticles\n");
+      exit(1);
+    }
+    else if (np_type == 1) {
+      init_Gamma_sphere();
+    }
+    else if (np_type == 2) {
+      init_Gamma_rod();
+    }
+  }
+  
+  // Number of nanoparticles
+  if (n_exp_nr == 0 && !do_fld_np)
+    nP = 0;
+  else if (do_fld_np)
+    nP = V_nps / V_1_fld_np;
+  else
+    nP = V_nps / V_1_exp_np;
+
+  // Number of field-based nanoparticles
+  if (do_fld_np) {
+    nFP = nP - n_exp_nr;
+    if (nFP < 0) {
+      printf("The nanoparticle volume fraction you're using is lower than "
+             "the volume fraction taken up by the explicit nanoparticles\n");
+      exit(1);
+    }
+  }
+  else
+    nFP = 0.0;
 
   if (myrank == 0) {
     printf("Total V_segment actual: %lf\n", nD*N + nAH*Nah);
-    printf("Total V_segment theoretical: %lf\n", C * Vf * double(N));
+    printf("Total V_segment theoretical: %lf\n", C * V_poly * double(N));
     printf("V - Vf: %lf\n", V - Vf);
     printf("rho0 = %lf\n", rho0);
+    printf("V_1_exp_np = %lf\n", V_1_exp_np);
+    printf("V_1_fld_np = %lf\n", V_1_fld_np);
+    printf("nD = %lf\n", nD);
+    printf("nP = %lf\n", nP);
+    printf("n_exp_nr = %d\n", n_exp_nr);
+    printf("nFP = %lf\n", nFP);
   }
 
   // Initialize Debye functions
@@ -146,15 +221,11 @@ void initialize_2() {
 
   iter = 0;
 
-  // Zero all densities //
-  for (i=0; i<ML; i++)
-    rhoda[i] = rhodb[i] = rhoha[i] = 0.0;
-
   if (myrank == 0) {
     printf("---Initialization 2 complete---\n\n");
     fflush(stdout);
   }
-}
+} // initialize_2
 
 // Initializes fields based on pattern specified in input file, then
 // overwrites with restart file values if present.
@@ -239,7 +310,89 @@ void explicit_nanosphere(double R, double xi, double center[Dim]) {
     dr2 = pbc_mdr2(x, center, dr);
     dr_abs = sqrt(dr2);
 
-    // Compute explicit nanorod density
+    // Compute explicit nanosphere density (excluding rho0)
     rho_exp_nr[i] += 0.5 * erfc( (dr_abs-R)/xi );
   }
-}
+} // explicit_nanosphere
+
+// Initialize Gamma_iso for spherical (isotropic) particles
+void init_Gamma_sphere() {
+  if (Dim < 3 && myrank == 0) {
+    printf("Field-based anisotropic nanoparticles currently only supported"
+           " in 3D\n");
+    exit(1);
+  }
+
+  int nn[Dim];
+  double dr[Dim], x[Dim], origin[Dim] = { 0.0 };
+
+  for (int i=0; i<ML; i++) {
+    // Get distance from nanorod center to current position (dr)
+    int i_global = unstack_stack(i);
+    unstack(i_global, nn);
+    for (int j=0; j<Dim; j++)
+      x[j] = double(nn[j])*dx[j];
+    double dr2 = pbc_mdr2(x, origin, dr);
+    double dr_abs = sqrt(dr2);
+
+    // Compute nanosphere density (including rho0)
+    Gamma_iso[i] = 0.5 * rho0 * erfc( (dr_abs-R_nr)/xi_nr );
+  }
+  // Calculate volume of 1 nanosphere for use later
+  V_1_fld_np = real(integ_trapPBC(Gamma_iso));
+  // Fourier transform Gamma_iso and leave it that way. It's only used for
+  // convolutions which are all done in k-space anyway.
+  fft_fwd_wrapper(Gamma_iso, Gamma_iso);
+} // init_Gamma_sphere
+
+// Initialize Gamma_aniso for nanorods (anisotropic)
+void init_Gamma_rod() {
+  if (Dim < 3 && myrank == 0) {
+    printf("Field-based anisotropic nanoparticles currently only supported"
+           " in 3D\n");
+    exit(1);
+  }
+
+  // Read legendre abscissa and weights once with processor 0
+  if (myrank == 0) {
+    sphere_init();
+  }     
+  // Broadcast the values to all other processors
+  MPI_Bcast(theta,           Nu, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Bcast(theta_weights,   Nu, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Bcast(phi,           2*Nu, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Bcast(phi_weights,   2*Nu, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  // Compute nanorod density (including rho0)
+  double localsum = 0.0;
+  for (int i=0; i<Nu; i++) {
+    for (int j=0; j<2*Nu; j++) {
+      for (int k=0; k<ML; k++) {
+        double r[Dim], u[Dim], u_dot_r, u_cross_r;
+        get_r(k, r);
+        u[0] = sin(theta[i]) * cos(phi[j]);
+        u[1] = sin(theta[i]) * sin(phi[j]);
+        u[2] = cos(theta[i]);
+        u_dot_r = abs(dot_prod(u, r));
+        u_cross_r = abs(cross_prod(u, r));
+        Gamma_aniso[i][j][k] = 0.25 * rho0
+          * erfc( (u_dot_r-0.5*L_nr) / xi_nr )
+          * erfc( (u_cross_r-R_nr) / xi_nr );
+      } // k
+      localsum += real(integ_trapPBC(Gamma_aniso[i][j]));
+      // Fourier transform Gamma_aniso and leave it that way. It's only used
+      // for convolutions which are all done in k-space anyway.
+      fft_fwd_wrapper(Gamma_aniso[i][j], Gamma_aniso[i][j]);
+    } // j
+  } // i
+  double globalsum = localsum;
+#ifdef PAR
+  // Add all localsums from each processor together to get the globalsum
+  MPI_Allreduce(&localsum, &globalsum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  MPI_Barrier(MPI_COMM_WORLD);
+#endif
+  double avg_Gamma = globalsum / double(2*Nu*Nu);
+  // Calculate average volume of 1 nanorod for use later
+  V_1_fld_np = avg_Gamma / rho0;
+} // init_Gamma_rod

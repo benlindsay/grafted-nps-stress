@@ -9,16 +9,32 @@ complex<double> calc_H() {
   int i;
 
   Hcur = wpl_part() + wab_part()  ;
-  if ( nD > 0.0 )
+
+  // Add diblock part if applicable
+  if (nD > 0.0)
     Hcur += - nD*log(Qd) ;
-  if ( nAH > 0.0 )
+
+  // Add homopolymer part if applicable
+  if (nAH > 0.0)
     Hcur += - nAH * log(Qha);
-  if ( Hcur != Hcur )
-    cout << Hcur << " " << wpl_part() << " " << wab_part() << endl;
+
+  // Add field-based nanoparticle part if applicable. Note that smwp_min,
+  // which was originally the minimum value of the smeared wp field (smwp),
+  // is subtracted off here because when we subtracted smwp_min from smwp,
+  // that made the value stored in Qp actually Qp * exp(smwp_min).
+  if (nFP > 0.0)
+    Hcur += - nP * (log(Qp) - smwp_min);
+
+  // Exit if H is NaN
+  if ( Hcur != Hcur ) {
+    printf("Hcur is NaN!");
+    printf("real(Hcur) = %lf\nreal(wpl_part) = %lf\nreal(wab_part)=%lf\n",
+            real(Hcur),       real(wpl_part()),     real(wab_part())      );
+    exit(1);
+  }
 
   return Hcur ;
 }
-
 
 complex<double> wpl_part() {
 

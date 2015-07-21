@@ -7,94 +7,77 @@ void update_1s( ) {
   int i ;
   complex<double> evar , F, A , numer, denom ;
 
-  if ( nD > 0.0 ) {
-    fft_fwd_wrapper( rhoda , rhoda ) ;
-    fft_fwd_wrapper( rhodb , rhodb ) ;
+  if (nD > 0.0) {
+    fft_fwd_wrapper(rhoda, rhoda);
+    fft_fwd_wrapper(rhodb, rhodb);
   }
    
-  if ( nAH > 0.0 ) 
-    fft_fwd_wrapper( rhoha, rhoha) ; 
+  if (nAH > 0.0) 
+    fft_fwd_wrapper(rhoha, rhoha); 
+
+  if (nFP > 0.0)
+    fft_fwd_wrapper(rho_fld_np, rho_fld_np);
  
+  fft_fwd_wrapper(wpl, wpl);
 
-  fft_fwd_wrapper( wpl , wpl ) ;
-
-  if ( chiN > 0.0 ) {
-    fft_fwd_wrapper( wabm , wabm ) ;
-    fft_fwd_wrapper( wabp , wabp ) ;
+  if (chiN > 0.0) {
+    fft_fwd_wrapper(wabm, wabm);
+    fft_fwd_wrapper(wabp, wabp);
   }
 
+  if (do_CL) 
+    generate_1s_noise(etap, lam_pl);
 
-  if ( do_CL ) 
-    generate_1s_noise( etap , lam_pl ) ;
-
-
-  for ( i=0 ; i<ML ; i++ ) {
-    // Update w+ field //
-    if ( i == 0 && myrank == 0 ) 
+  // Update w+ field //
+  for (i=0; i<ML; i++) {
+    if (i == 0 && myrank == 0) // FIGURE OUT WHY THIS IS HERE
       evar = 1.0 ;
     else
       evar = 0.0 ;
     
-    F = ( kappaN <= 0.0 ? 0.0 : C * wpl[i] / kappaN ) 
-        - I * evar * C 
-        + I * hhat[i] / double(N) * ( rhoha[i] + rhoda[i] + rhodb[i] )
-        + I * surfH[i] * C + I * exp_nrH[i] * C; 
-
-
-    A = ( kappaN <= 0.0 ? 0.0 : C / kappaN )
-      + nD * double(N) * hhat[i] * hhat[i] * ( gaa[i] + 2.0 * gab[i] + gbb[i] ) / V
-      + nAH * double(Nah * Nah) / double(N) * hhat[i] * hhat[i] * gd[i] / V ;
-
-    numer = wpl[i] - lam_pl * ( F - A * wpl[i] ) ;
-    
-    if ( do_CL ) 
-      numer += etap[i] ;
-
-    denom = 1.0 + lam_pl * A ;
-    wpl[i] = numer / denom ; 
-
+    F = (kappaN <= 0.0 ? 0.0 : C*wpl[i]/kappaN) 
+      + I * C * (surfH[i] + exp_nrH[i] + rho_fld_np[i] - evar)
+      + I*hhat[i]/double(N) * (rhoha[i] + rhoda[i] + rhodb[i]);
+    A = (kappaN <= 0.0 ? 0.0 : C/kappaN)
+      + nD * double(N) * hhat[i] * hhat[i] * (gaa[i] + 2.0 * gab[i] + gbb[i]) / V
+      + nAH * double(Nah * Nah) / double(N) * hhat[i] * hhat[i] * gd[i] / V;
+    numer = wpl[i] - lam_pl * (F - A * wpl[i]);
+    if (do_CL) 
+      numer += etap[i];
+    denom = 1.0 + lam_pl * A;
+    wpl[i] = numer / denom; 
   }
   
   // Update AB fields //
-  if ( chiN > 0.0 ) {
-    if ( do_CL ) {
-      generate_1s_noise( etap , lam_pl ) ;
-      generate_1s_noise( etam , lam_mi ) ;
+  if (chiN > 0.0) {
+    if (do_CL) {
+      generate_1s_noise(etap, lam_pl);
+      generate_1s_noise(etam, lam_mi);
     }
 
     for ( i=0 ; i<ML ; i++ ) {
       // AB+ //
       F = 2.0 * C * wabp[i] / chiN
-          + I * hhat[i] / double(N) * ( rhoda[i] + rhodb[i] + rhoha[i] ) ;
-      
+        + I * rho_fld_np[i] // CHECK TO MAKE SURE THIS IS RIGHT!!!
+        + I * hhat[i] / double(N) * (rhoda[i] + rhodb[i] + rhoha[i]);
       A = 2.0 * C / chiN 
-        + nD * double(N) * hhat[i] * hhat[i] * ( gaa[i] + 2.0 * gab[i] + gbb[i] ) / V 
+        + nD*double(N)*hhat[i]*hhat[i] * (gaa[i] + 2.0*gab[i] + gbb[i]) / V 
         + nAH * Nah * Nah / double(N) * hhat[i] * hhat[i] * gd[i] / V ;
-
       numer = wabp[i] - lam_pl * ( F - A * wabp[i] ) ;
-
       if ( do_CL )
         numer += etap[i] ;
-
       denom = 1.0 + lam_pl * A ;
-      
       wabp[i] = numer / denom ;
-
-      
 
       // AB- //
       F = 2.0 * C * wabm[i] / chiN
+          + rho_fld_np[i] // CHECK TO MAKE SURE THIS IS RIGHT!!!
           + hhat[i] / double(N) * ( rhodb[i] - rhoda[i] - rhoha[i] ) ;
-
       A = 2.0 * C / chiN ;
-      
       numer = wabm[i] - lam_mi * ( F - A * wabm[i] ) ;
-      
       if ( do_CL ) 
         numer += etam[i] ;
-
       denom = 1.0 + lam_mi * A ;
-      
       wabm[i] = numer / denom ;
     }
   }
@@ -104,8 +87,6 @@ void update_1s( ) {
       wabp[i] = wabm[i] = 0.0 ;
   }
 
-
-
   fft_bck_wrapper( wpl , wpl ) ;
 
   if ( chiN > 0.0 ) {
@@ -113,9 +94,7 @@ void update_1s( ) {
     fft_bck_wrapper( wabp , wabp ) ;
   }
 
-
   calc_poly_density() ;
-
 }
 
 

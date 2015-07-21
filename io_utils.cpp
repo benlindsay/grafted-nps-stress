@@ -42,6 +42,10 @@ void write_outputs() {
     write_data_bin("rho_exp_nr", rho_exp_nr);
   }
 
+  if (nFP > 0.0) {
+
+  }
+
   if (do_CL && iter >= sample_freq) {
     int frame;
     char nm[20];

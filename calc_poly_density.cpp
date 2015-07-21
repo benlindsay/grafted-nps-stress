@@ -17,6 +17,13 @@ void integrate_brush_homopoly_discrete(complex<double>**, complex<double>**,
 complex<double> grafted_nanoparticles( complex<double>*, complex<double>*,
     complex<double>*, complex<double>**, complex<double>**, complex<double>*,
     complex<double>*, complex<double>*, double , double , int ) ;
+void generate_smwp_iso(complex<double>*, complex<double>*,
+    complex<double>*);
+void generate_smwp_aniso(complex<double>*, complex<double>***,
+    complex<double>***);
+void integ_sphere_posits(complex<double>***, complex<double>*);
+void np_density_sphere(void);
+void np_density_rod(void);
 
 void calc_poly_density() {
 
@@ -89,6 +96,27 @@ void calc_poly_density() {
   }
   else 
     Qha = 1.0;
+
+  //////////////////////////////////////////////////////////////
+  // Nanoparticle partition function and density calculations //
+  //////////////////////////////////////////////////////////////
+
+  // Generate smwp, which is the wa field convolved with Gamma (assuming the
+  // nanoparticles are chemically identical to A).
+  if (do_fld_np) {
+    if (np_type == 1) {
+      // For spherical particles, no orientation dependence
+      generate_smwp_iso(wa, Gamma_iso, smwp_iso);
+      np_density_sphere();
+    }
+    else if (np_type == 2) {
+      // Orientation dependence for rods or other anisotropic particles
+      generate_smwp_aniso(wa, Gamma_aniso, smwp_aniso);
+      np_density_rod();
+    }
+  }
+
+  
 } // End calc_poly_density
 
 ///////////////////////////////////////////////////////
@@ -112,13 +140,13 @@ void integrate_diblock_discrete(complex<double>** q, complex<double> **qdag,
         rda[i] += q[j][i] * qdag[Ns-j-1][i];
       else
         rdb[i] += q[j][i] * qdag[Ns-j-1][i];
-    }
+    } // j
 
     rda[i] *= exp(wA[i]) * factor;
     rdb[i] *= exp(wB[i]) * factor;
 
-  }//for ( i=0 ; i<ML
-} // End integrate_diblock_discrete
+  } // i
+} // integrate_diblock_discrete
 
 void integrate_homopoly_discrete(complex<double>** q,
     complex<double> Q, complex<double> nK, complex<double>* rh,
@@ -140,3 +168,131 @@ void integrate_homopoly_discrete(complex<double>** q,
     rh[i] *= exp(W[i]) * factor;
   } // for ( i=0 ; i<ML
 } // End integrate_homopoly_discrete
+
+// Generate particle field convolved with Gamma for isotropic particles
+//
+// Given a w field (i.e. wa) in real space and smGamma, the Gamma function
+// in k-space, this generates smwp, the particle field convolved with Gamma,
+// as a function of position
+void generate_smwp_iso(complex<double>* w, complex<double>* smGamma,
+                         complex<double>* smwp) {
+
+  int i, j, k;
+
+  // Fourier transform w to prepare for convolution
+  fft_fwd_wrapper(w, w);
+  for(i=0; i<ML; i++){
+    // Multiply w and Gamma in k-space. Extra V is necessary
+    smwp[i] = w[k] * smGamma[i] * V;  
+    // Inverse fourier transform smwp to conclude convolution
+    fft_bck_wrapper(smwp, smwp);
+  } // i
+
+  // Shift smwp so the minimum is 0. This avoids numerical difficulties.
+  // This is corrected for when Qp is calculated. First, find current
+  // processor's minimum:
+  smwp_min = 1000.0;
+  for (i=0; i<ML; i++) {
+    if (real(smwp[i]) < smwp_min)
+      smwp_min = real(smwp[i]) ;
+  }
+
+#ifdef PAR
+  // Next, find the global minimum. Replace smwp_min in this processor with
+  // that global minimum across all processors.
+  MPI_Allreduce(&smwp_min, &smwp_min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+  MPI_Barrier(MPI_COMM_WORLD);
+#endif
+
+  // Finally, subtract off the global minimum from all values in smwp
+  for (i=0; i<ML; i++) {
+    smwp[i] -= smwp_min;
+  }
+
+} // generate_smwp_iso
+
+// Generate particle field convolved with Gamma for anisotropic particles
+//
+// Given a w field (i.e. wa) in real space and smGamma, the Gamma function
+// in k-space, this generates smwp, the particle field convolved with Gamma,
+// as a function of orientation and position
+void generate_smwp_aniso(complex<double>* w, complex<double>*** smGamma,
+                         complex<double>*** smwp) {
+
+  int i, j, k;
+
+  // Fourier transform w to prepare for convolution
+  fft_fwd_wrapper(w, w);
+  for(i=0; i<Nu; i++){
+    for(j=0; j<2*Nu; j++){
+      for(k=0; k<ML; k++){
+        // Multiply w and Gamma in k-space. Extra V is necessary
+        smwp[i][j][k] = w[k] * smGamma[i][j][k] * V;  
+      } // k
+      // Inverse fourier transform smwp to conclude convolution
+      fft_bck_wrapper(smwp[i][j], smwp[i][j]);
+    } // j  
+  } // i
+
+  // Shift smwp so the minimum is 0. This avoids numerical difficulties.
+  // This is corrected for when Qp is calculated. First, find current
+  // processor's minimum:
+  double smwp_min = 1000.0;
+  for (i=0; i<Nu; i++) {
+    for (j=0; j<2*Nu; j++) {
+      for (k=0; k<ML; k++) {
+        if (real(smwp[i][j][k]) < smwp_min)
+          smwp_min = real(smwp[i][j][k]) ;
+      }
+    }
+  }
+
+#ifdef PAR
+  // Next, find the global minimum. Replace smwp_min in this processor with
+  // that global minimum across all processors.
+  MPI_Barrier(MPI_COMM_WORLD);
+  MPI_Allreduce(&smwp_min, &smwp_min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+#endif
+
+  // Finally, subtract off the global minimum from all values in smwp
+  // Store the exponential of the negative smeared field for use in calculating
+  // the partition function and such
+  for (i=0; i<Nu; i++) {
+    for (j=0; j<2*Nu; j++) {
+      for (k=0; k<ML; k++) {
+        smwp[i][j][k] -= smwp_min;
+        exp_neg_smwp[i][j][k] = exp(-smwp[i][j][k]);
+      }
+    }
+  }
+
+} // generate_smwp_aniso
+
+// Calculate density of field-based nanospheres
+void np_density_sphere() {
+
+}
+
+// Calculate density of field-based nanorods
+void np_density_rod() {
+  int i, j, k;
+  integ_sphere_posits(exp_neg_smwp, rho_fld_np_c);
+  Qp = integ_trapPBC(rho_fld_np_c) / (4.0 * PI * V);
+  for (i=0; i<ML; i++) {
+    rho_fld_np_c[i] *= nFP / (4.0 * PI * V * Qp);
+    rho_fld_np[i] = 0.0;
+  }
+  for (i=0; i<Nu; i++) {
+    for (j=0; j<2*Nu; j++) {
+      fft_fwd_wrapper(exp_neg_smwp[i][j], tmp);
+      for (k=0; k<ML; k++) {
+        rho_fld_np[k] += tmp[k] * Gamma_aniso[i][j][k] * theta_weights[i]
+                         * phi_weights[j];
+      }
+    }
+  }
+  for (i=0; i<ML; i++) {
+    rho_fld_np[i] *= V * nFP / (4.0 * PI * V * Qp);
+  }
+  fft_bck_wrapper(rho_fld_np, rho_fld_np);
+}

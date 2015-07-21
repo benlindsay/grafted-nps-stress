@@ -33,11 +33,15 @@
 0.5 0.5  Top wall interaction parameters, lambda_A, lambda_B
 0.5 0.5  Bottom wall interaction parameters, lambda_A, lambda_B
 
-# Explicit nanorod parameters
-1                n_exp_nr, number of nanorods
-8.0 0.75 0.3     L_nr, R_nr, xi_nr for all nrs, nanosphere if L=R
-30.0 60.0        Nanorod exp_nr_chiAPN, exp_nr_chiBPN for all nrs
-5.7 4.9364 6.5   Nanorod center x, y, z for nr 1
-0.0 0.0 1.0      Nanorod orientation vector x, y, z for nr 1
-5.7 4.9364 6.5   Nanorod center x, y, z for nr 2
-0.0 0.0 1.0      Nanorod orientation vector x, y, z for nr 2
+# Nanoparticle parameters
+2                np_type, 0=no nps, 1=sphere, 2=nanorod
+0                n_exp_nr, number of explicit nanoparticles
+1                do_fld_np, 1 for field-based particles, 0 for no
+12               Nu, number of points per pi for spherical integration
+0.005            np_frac, volume fraction of field-based nps
+8.0 0.75 0.3     L_nr, R_nr, xi_nr for all nps
+30.0 60.0        Nanorod exp_nr_chiAPN, exp_nr_chiBPN for all nps
+5.7 4.9364 6.5   Nanorod center x, y, z for np 1
+0.0 0.0 1.0      Nanorod orientation vector x, y, z for np 1
+5.7 4.9364 6.5   Nanorod center x, y, z for np 2
+0.0 0.0 1.0      Nanorod orientation vector x, y, z for np 2

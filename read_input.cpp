@@ -90,8 +90,12 @@ void read_input() {
   fgets(tt, 80, inp);
   fgets(tt, 80, inp);
   
-  // Explicit nanorod parameters
-  fscanf(inp, "%d", &n_exp_nr); fgets(tt, 80, inp);
+  // Nanoparticle parameters
+  fscanf(inp, "%d", &np_type);                             fgets(tt, 80, inp);
+  fscanf(inp, "%d", &n_exp_nr);                            fgets(tt, 80, inp);
+  fscanf(inp, "%d", &do_fld_np);                           fgets(tt, 80, inp);
+  fscanf(inp, "%d", &Nu);                                  fgets(tt, 80, inp);
+  fscanf(inp, "%lf", &np_frac);                            fgets(tt, 80, inp);
   fscanf(inp, "%lf %lf %lf", &L_nr, &R_nr, &xi_nr);        fgets(tt, 80, inp);
   fscanf(inp, "%lf %lf", &exp_nr_chiAPN, &exp_nr_chiBPN);  fgets(tt, 80, inp);
   for (j=0; j<2; j++) {

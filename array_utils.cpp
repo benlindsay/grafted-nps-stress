@@ -25,18 +25,15 @@ void accumulate_all_averages() {
   n_samples += 1.0;
 }
 
-
 void initialize_averages( complex<double> *avg ) {
   for (int i=0; i<ML; i++)
     avg[i] = 0.0;
 }
 
-
 void accumulate_average_array( complex<double> *avg , complex<double>* dat ) {
   for (int i=0; i<ML; i++) 
     avg[i] += dat[i];
 }
-
 
 // Takes integer "id" in [0, ML] and finds the correct 
 // unstacked integer value in [0, M]
@@ -71,7 +68,7 @@ int stack_local(int x[Dim]) {
 }
 
 // Stacks vector x into 1D array index in [ 0, M ]
-int stack( int x[Dim] ) { 
+int stack( int x[Dim] ) {
   if (Dim==1)
     return x[0];
   else if (Dim==2)
@@ -228,8 +225,6 @@ double get_k_alias( int id , double k[Dim] ) {
 
 }
 
-
-
 // Receives index id in [ 0 , ML ] and returns 
 // proper k-value, whether running in parallel or not
 double get_k(int id, double k[Dim]) {
@@ -301,10 +296,6 @@ double get_k_global(int id2, double k[Dim]) {
   return kmag;
 
 }
-
-
-
-
 
 // Sets the average of tp to zero
 void zero_average(complex<double>* tp) {
@@ -389,9 +380,51 @@ void allocate(void) {
   tmp2 = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   total_alloced += alloc_size * sizeof(complex<double>) * 2;
 
+  // Allocate tmp_sph (size = Nu x 2Nu complex<double>'s)
+  // and Gamma (size = Nu x 2Nu x alloc_size complex<double>'s)
+  tmp_sph = (complex<double>**) fftw_malloc(Nu * sizeof(complex<double>*));
+  tmp_aniso = (complex<double>***) fftw_malloc(Nu * sizeof(complex<double>**));
+  Gamma_aniso = (complex<double>***) fftw_malloc(Nu * sizeof(complex<double>**));
+  smwp_aniso = (complex<double>***) fftw_malloc(Nu * sizeof(complex<double>**));
+  exp_neg_smwp = (complex<double>***) fftw_malloc(Nu * sizeof(complex<double>**));
+  for (i=0; i<Nu; i++) {
+    tmp_sph[i] = (complex<double>*) fftw_malloc(2*Nu * sizeof(complex<double>));
+    tmp_aniso[i] = (complex<double>**)
+                     fftw_malloc(2*Nu * sizeof(complex<double>*));
+    Gamma_aniso[i] = (complex<double>**)
+                     fftw_malloc(2*Nu * sizeof(complex<double>*));
+    smwp_aniso[i] = (complex<double>**)
+                    fftw_malloc(2*Nu * sizeof(complex<double>*));
+    exp_neg_smwp[i] = (complex<double>**)
+                    fftw_malloc(2*Nu * sizeof(complex<double>*));
+    for (int j=0; j<2*Nu; j++) {
+      tmp_aniso[i][j] = (complex<double>*)
+                    fftw_malloc(alloc_size*sizeof(complex<double>));
+      Gamma_aniso[i][j] = (complex<double>*)
+                    fftw_malloc(alloc_size*sizeof(complex<double>));
+      smwp_aniso[i][j] = (complex<double>*)
+                    fftw_malloc(alloc_size*sizeof(complex<double>));
+      exp_neg_smwp[i][j] = (complex<double>*)
+                    fftw_malloc(alloc_size*sizeof(complex<double>));
+    }
+  }
+  total_alloced += 2 * Nu * Nu * sizeof(complex<double>);
+  total_alloced += 4 * 2 * Nu * Nu * alloc_size * sizeof(complex<double>);
+
+  // Allocate theta and phi stuff
+  theta = (double*) malloc(Nu * sizeof(double));
+  theta_weights = (double*) malloc(Nu * sizeof(double));
+  phi = (double*) malloc(2 * Nu * sizeof(double));
+  phi_weights = (double*) malloc(2 * Nu * sizeof(double));
+  total_alloced += 6 * Nu * sizeof(double);
+
   // Allocate the density operators
   rho_surf = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
-  rho_exp_nr= (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
+  rho_exp_nr = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
+  rho_fld_np_c = (complex<double>*)
+                 fftw_malloc(alloc_size * sizeof(complex<double>));
+  rho_fld_np = (complex<double>*)
+               fftw_malloc(alloc_size * sizeof(complex<double>));
   surfH = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   exp_nrH = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   rhoda = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
@@ -445,8 +478,6 @@ void allocate(void) {
     fflush(stdout);
   }
 }
-
-
 
 ///////////////////////////////////////////////////////////////
 // Calculates the gradient of a field in the "dir" direction //
