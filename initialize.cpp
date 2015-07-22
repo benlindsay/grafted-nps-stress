@@ -365,7 +365,7 @@ void init_Gamma_rod() {
   MPI_Barrier(MPI_COMM_WORLD);
 
   // Compute nanorod density (including rho0)
-  double localsum = 0.0;
+  double sum = 0.0;
   for (int i=0; i<Nu; i++) {
     for (int j=0; j<2*Nu; j++) {
       for (int k=0; k<ML; k++) {
@@ -383,20 +383,14 @@ void init_Gamma_rod() {
           * erfc( (u_dot_r-0.5*L_nr) / xi_nr )
           * erfc( (u_cross_r-R_nr) / xi_nr );
       } // k
-      localsum += real(integ_trapPBC(Gamma_aniso[i][j]));
+      sum += real(integ_trapPBC(Gamma_aniso[i][j]));
       // Fourier transform Gamma_aniso and leave it that way. It's only used
       // for convolutions which are all done in k-space anyway.
       fft_fwd_wrapper(Gamma_aniso[i][j], Gamma_aniso[i][j]);
     } // j
   } // i
 
-  double globalsum = localsum;
-#ifdef PAR
-  // Add all localsums from each processor together to get the globalsum
-  MPI_Allreduce(&localsum, &globalsum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif
-  double avg_Gamma = globalsum / double(2*Nu*Nu);
+  double avg_Gamma = sum / double(2*Nu*Nu);
 
   // Calculate average volume of 1 nanorod for use later
   V_1_fld_np = avg_Gamma / rho0;
