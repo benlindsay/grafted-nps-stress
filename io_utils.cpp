@@ -38,12 +38,13 @@ void write_outputs() {
     write_data_bin("rhoha_c", rhoha);
   }
 
-  if ( n_exp_nr > 0 && iter == 1) {
+  if (n_exp_nr > 0 && iter == 1) {
     write_data_bin("rho_exp_nr", rho_exp_nr);
   }
 
-  if (nFP > 0.0) {
-
+  if (do_fld_np) {
+    write_data_bin("rho_fld_np", rho_fld_np);
+    write_data_bin("rho_fld_np_c", rho_fld_np_c);
   }
 
   if (do_CL && iter >= sample_freq) {
