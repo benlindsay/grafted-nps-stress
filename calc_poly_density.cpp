@@ -115,7 +115,8 @@ void calc_poly_density() {
       Qp = np_density_rod();
     }
   }
-
+  else
+    Qp = 1.0;
   
 } // End calc_poly_density
 
