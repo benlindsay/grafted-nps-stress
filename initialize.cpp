@@ -16,6 +16,7 @@ void init_Gamma_sphere(void);
 void init_Gamma_rod(void);
 void explicit_nanorod(double, double, double, double[Dim], double[Dim]);
 void explicit_nanosphere(double, double, double[Dim]);
+complex<double> integ_sphere_trapPBC(complex<double>***);
 
 void initialize_1() {
 
@@ -364,6 +365,16 @@ void init_Gamma_rod() {
   MPI_Bcast(phi_weights,   2*Nu, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Barrier(MPI_COMM_WORLD);
 
+  // For debugging. When done, delete from here to...
+  for (int i=0; i<ML; i++) {
+    if (myrank == 0 && i == 0)
+      tmp[i] = 1 / (dx[0]*dx[1]*dx[2]);
+    else
+      tmp[i] = 0;
+  }
+  fft_fwd_wrapper(tmp, tmp);
+  // ...here.
+
   // Compute nanorod density (including rho0)
   double localsum = 0.0;
   for (int i=0; i<Nu; i++) {
@@ -371,11 +382,14 @@ void init_Gamma_rod() {
       for (int k=0; k<ML; k++) {
         double r[Dim], u[Dim], u_dot_r, u_cross_r;
         get_r(k, r);
+        // Convert from spherical coords to x, y, and z
         u[0] = sin(theta[i]) * cos(phi[j]);
         u[1] = sin(theta[i]) * sin(phi[j]);
         u[2] = cos(theta[i]);
+        // Get absolute values of dot and cross products of u and r
         u_dot_r = abs(dot_prod(u, r));
         u_cross_r = abs(cross_prod(u, r));
+        // Nanorod density equation
         Gamma_aniso[i][j][k] = 0.25 * rho0
           * erfc( (u_dot_r-0.5*L_nr) / xi_nr )
           * erfc( (u_cross_r-R_nr) / xi_nr );
@@ -384,6 +398,12 @@ void init_Gamma_rod() {
       // Fourier transform Gamma_aniso and leave it that way. It's only used
       // for convolutions which are all done in k-space anyway.
       fft_fwd_wrapper(Gamma_aniso[i][j], Gamma_aniso[i][j]);
+      // Check used for debugging. When done, delete from here to...
+      for (int k=0; k<ML; k++) {
+        tmp_aniso[i][j][k] = V * tmp[k] * Gamma_aniso[i][j][k];
+      }
+      fft_bck_wrapper(tmp_aniso[i][j], tmp_aniso[i][j]);
+      // ...here.
     } // j
   } // i
   double globalsum = localsum;
@@ -395,4 +415,10 @@ void init_Gamma_rod() {
   double avg_Gamma = globalsum / double(2*Nu*Nu);
   // Calculate average volume of 1 nanorod for use later
   V_1_fld_np = avg_Gamma / rho0;
+  // Check used for debugging. When done, delete from here to...
+  double dum1 = 4 * PI * rho0 * V_1_fld_np;
+  complex<double> dum2 = integ_sphere_trapPBC(tmp_aniso);
+  printf("4pi*rho0*V_nr = %lf, integral(Gamma convolved with delta) = %lf\n",
+                          dum1,                                   real(dum2) );
+  // ...here.
 } // init_Gamma_rod
