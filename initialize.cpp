@@ -16,7 +16,6 @@ void init_Gamma_sphere(void);
 void init_Gamma_rod(void);
 void explicit_nanorod(double, double, double, double[Dim], double[Dim]);
 void explicit_nanosphere(double, double, double[Dim]);
-complex<double> integ_sphere_trapPBC(complex<double>***);
 
 void initialize_1() {
 
@@ -365,16 +364,6 @@ void init_Gamma_rod() {
   MPI_Bcast(phi_weights,   2*Nu, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Barrier(MPI_COMM_WORLD);
 
-  // For debugging. When done, delete from here to...
-  for (int i=0; i<ML; i++) {
-    if (myrank == 0 && i == 0)
-      tmp[i] = 1 / (dx[0]*dx[1]*dx[2]);
-    else
-      tmp[i] = 0;
-  }
-  fft_fwd_wrapper(tmp, tmp);
-  // ...here.
-
   // Compute nanorod density (including rho0)
   double localsum = 0.0;
   for (int i=0; i<Nu; i++) {
@@ -398,14 +387,9 @@ void init_Gamma_rod() {
       // Fourier transform Gamma_aniso and leave it that way. It's only used
       // for convolutions which are all done in k-space anyway.
       fft_fwd_wrapper(Gamma_aniso[i][j], Gamma_aniso[i][j]);
-      // Check used for debugging. When done, delete from here to...
-      for (int k=0; k<ML; k++) {
-        tmp_aniso[i][j][k] = V * tmp[k] * Gamma_aniso[i][j][k];
-      }
-      fft_bck_wrapper(tmp_aniso[i][j], tmp_aniso[i][j]);
-      // ...here.
     } // j
   } // i
+
   double globalsum = localsum;
 #ifdef PAR
   // Add all localsums from each processor together to get the globalsum
@@ -413,12 +397,8 @@ void init_Gamma_rod() {
   MPI_Barrier(MPI_COMM_WORLD);
 #endif
   double avg_Gamma = globalsum / double(2*Nu*Nu);
+
   // Calculate average volume of 1 nanorod for use later
   V_1_fld_np = avg_Gamma / rho0;
-  // Check used for debugging. When done, delete from here to...
-  double dum1 = 4 * PI * rho0 * V_1_fld_np;
-  complex<double> dum2 = integ_sphere_trapPBC(tmp_aniso);
-  printf("4pi*rho0*V_nr = %lf, integral(Gamma convolved with delta) = %lf\n",
-                          dum1,                                   real(dum2) );
-  // ...here.
+
 } // init_Gamma_rod
