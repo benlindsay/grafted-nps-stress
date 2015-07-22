@@ -22,12 +22,12 @@ complex<double> calc_H() {
   // which was originally the minimum value of the smeared wp field (smwp),
   // is subtracted off here because when we subtracted smwp_min from smwp,
   // that made the value stored in Qp actually Qp * exp(smwp_min).
-  if (nFP > 0.0)
+  if (do_fld_np)
     Hcur += - nP * (log(Qp) - smwp_min);
 
   // Exit if H is NaN
   if ( Hcur != Hcur ) {
-    printf("Hcur is NaN!");
+    printf("Hcur is NaN!\n");
     printf("real(Hcur) = %lf\nreal(wpl_part) = %lf\nreal(wab_part)=%lf\n",
             real(Hcur),       real(wpl_part()),     real(wab_part())      );
     exit(1);

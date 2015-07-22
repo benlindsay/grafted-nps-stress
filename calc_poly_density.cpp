@@ -22,8 +22,8 @@ void generate_smwp_iso(complex<double>*, complex<double>*,
 void generate_smwp_aniso(complex<double>*, complex<double>***,
     complex<double>***);
 void integ_sphere_posits(complex<double>***, complex<double>*);
-void np_density_sphere(void);
-void np_density_rod(void);
+complex<double> np_density_sphere(void);
+complex<double> np_density_rod(void);
 
 void calc_poly_density() {
 
@@ -107,12 +107,12 @@ void calc_poly_density() {
     if (np_type == 1) {
       // For spherical particles, no orientation dependence
       generate_smwp_iso(wa, Gamma_iso, smwp_iso);
-      np_density_sphere();
+      Qp = np_density_sphere();
     }
     else if (np_type == 2) {
       // Orientation dependence for rods or other anisotropic particles
       generate_smwp_aniso(wa, Gamma_aniso, smwp_aniso);
-      np_density_rod();
+      Qp = np_density_rod();
     }
   }
 
@@ -269,15 +269,16 @@ void generate_smwp_aniso(complex<double>* w, complex<double>*** smGamma,
 } // generate_smwp_aniso
 
 // Calculate density of field-based nanospheres
-void np_density_sphere() {
-
+complex<double> np_density_sphere() {
+  return 0.0;
 }
 
 // Calculate density of field-based nanorods
-void np_density_rod() {
+complex<double> np_density_rod() {
   int i, j, k;
+  complex<double> Qrod;
   integ_sphere_posits(exp_neg_smwp, rho_fld_np_c);
-  Qp = integ_trapPBC(rho_fld_np_c) / (4.0 * PI * V);
+  Qrod = integ_trapPBC(rho_fld_np_c) / (4.0 * PI * V);
   for (i=0; i<ML; i++) {
     rho_fld_np_c[i] *= nFP / (4.0 * PI * V * Qp);
     rho_fld_np[i] = 0.0;
@@ -295,4 +296,6 @@ void np_density_rod() {
     rho_fld_np[i] *= V * nFP / (4.0 * PI * V * Qp);
   }
   fft_bck_wrapper(rho_fld_np, rho_fld_np);
+
+  return Qrod;
 }
