@@ -156,16 +156,16 @@ void initialize_2() {
 
   // Initialize Gamma (and V_1_fld_np) if doing field-based nps
   if (do_fld_np) {
-    if (np_type == 0) {
-      printf("Error! Input file says to do field-based nanoparticles but "
-             "uses np_type=0. np_type must be > 1 to use nanoparticles\n");
-      exit(1);
-    }
-    else if (np_type == 1) {
+    if (np_type == 1) {
       init_Gamma_sphere();
     }
     else if (np_type == 2) {
       init_Gamma_rod();
+    }
+    else {
+      printf("np_type=%d is not an acceptable value. Use 1 for spheres and 2 "
+             "for rods.\n", np_type);
+      exit(1);
     }
   }
   
