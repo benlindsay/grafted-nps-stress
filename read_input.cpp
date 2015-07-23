@@ -111,7 +111,7 @@ void read_input() {
     }
     fgets(tt, 80, inp);
     dm2 = sqrt(dm1);
-    if (dm2 == 0) {
+    if (dm2 == 0 && myrank == 0) {
       printf("Nanorod orientation vector must be nonzero\n");
       exit(1);
     }
