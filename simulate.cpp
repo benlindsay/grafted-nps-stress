@@ -82,16 +82,23 @@ double simulate() {
         exit(1);
       }
       if (myrank == 0) {
-        printf("Iter: %d, H=%lf, -log(Qd)=%lf, -log(Qha)=%lf, -log(Qp)=%lf",
-                iter, real(H), real(-log(Qd)), real(-log(Qha)),
-                real(-log(Qp) + smwp_min) );
+        printf("Iter: %d, H=%lf", iter, real(H) );
+        if (do_CL)
+          printf(" + i%lf", imag(H) );
+        if (nD > 0.0)
+          printf(", -log(Qd)=%lf", real(-log(Qd)) );
+        if (nAH > 0.0)
+          printf(", -log(Qha)=%lf", real(-log(Qha)) );
+        if (do_fld_np)
+          printf(", -log(Qp)=%lf", real(-log(Qp)+smwp_min) );
         printf("\n");
         fflush(stdout);
       }
       error = abs(H - Ho) / V / double(print_freq);
       if (myrank == 0) {
-        fprintf(otp, "%d %5.6lf %1.3e  %5.6lf %5.6lf %1.3e", 
-            iter, real(H), imag(H), real(-log(Qd)), real(-log(Qha)), error);
+        fprintf(otp, "%d %5.6lf %1.3e %5.6lf %5.6lf %5.6lf %1.3e", 
+                iter, real(H), imag(H), real(-log(Qd)), real(-log(Qha)),
+                real(-log(Qp)+smwp_min), error);
         fprintf(otp, "\n");
         fflush(otp);
       }

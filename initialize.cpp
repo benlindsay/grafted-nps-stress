@@ -382,6 +382,9 @@ void init_Gamma_rod() {
         Gamma_aniso[i][j][k] = 0.25 * rho0
           * erfc( (u_dot_r-0.5*L_nr) / xi_nr )
           * erfc( (u_cross_r-R_nr) / xi_nr );
+        // Multiply by V so we don't have to do it more expensively during
+        // convolution
+        Gamma_aniso[i][j][k] *= V;
       } // k
       sum += real(integ_trapPBC(Gamma_aniso[i][j]));
       // Fourier transform Gamma_aniso and leave it that way. It's only used

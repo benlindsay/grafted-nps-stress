@@ -27,9 +27,16 @@ complex<double> calc_H() {
 
   // Exit if H is NaN
   if ( Hcur != Hcur ) {
-    printf("Hcur is NaN!\n");
-    printf("real(Hcur) = %lf\nreal(wpl_part) = %lf\nreal(wab_part)=%lf\n",
-            real(Hcur),       real(wpl_part()),     real(wab_part())      );
+    if (myrank == 0) {
+      printf("Hcur is NaN!\n");
+      printf("real(Hcur) = %lf\n", real(Hcur));
+      printf("real(wpl_part) = %lf\n", real(wpl_part()) );
+      printf("real(wab_part)=%lf\n", real(wab_part()) );
+      printf("real(-nD*log(Qd))=%lf\n", real(-nD*log(Qd)) );
+      printf("real(-nAH*log(Qha))=%lf\n", real(-nAH*log(Qha)) );
+      printf("real(-nP*[log(Qp)-smwp_min])=%lf\n",
+              real(-nP*(log(Qp)-smwp_min)) );
+    }
     exit(1);
   }
 

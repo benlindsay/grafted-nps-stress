@@ -30,13 +30,16 @@ void update_1s( ) {
 
   // Update w+ field //
   for (i=0; i<ML; i++) {
-    if (i == 0 && myrank == 0) // FIGURE OUT WHY THIS IS HERE
+    // The 1 at the k=0 mode takes care of the delta function arising from
+    // taking a fourier transform of a constant
+    if (i == 0 && myrank == 0)
       evar = 1.0 ;
     else
       evar = 0.0 ;
     
     F = (kappaN <= 0.0 ? 0.0 : C*wpl[i]/kappaN) 
-      + I * C * (surfH[i] + exp_nrH[i] + rho_fld_np[i] - evar)
+      + I * C * (surfH[i] + exp_nrH[i] - evar)
+      + I * rho_fld_np[i] / double(N)
       + I*hhat[i]/double(N) * (rhoha[i] + rhoda[i] + rhodb[i]);
     A = (kappaN <= 0.0 ? 0.0 : C/kappaN)
       + nD * double(N) * hhat[i] * hhat[i] * (gaa[i] + 2.0 * gab[i] + gbb[i]) / V
@@ -58,7 +61,7 @@ void update_1s( ) {
     for ( i=0 ; i<ML ; i++ ) {
       // AB+ //
       F = 2.0 * C * wabp[i] / chiN
-        + I * rho_fld_np[i] // CHECK TO MAKE SURE THIS IS RIGHT!!!
+        + I * rho_fld_np[i] / double(N)
         + I * hhat[i] / double(N) * (rhoda[i] + rhodb[i] + rhoha[i]);
       A = 2.0 * C / chiN 
         + nD*double(N)*hhat[i]*hhat[i] * (gaa[i] + 2.0*gab[i] + gbb[i]) / V 
@@ -71,8 +74,8 @@ void update_1s( ) {
 
       // AB- //
       F = 2.0 * C * wabm[i] / chiN
-          + rho_fld_np[i] // CHECK TO MAKE SURE THIS IS RIGHT!!!
-          + hhat[i] / double(N) * ( rhodb[i] - rhoda[i] - rhoha[i] ) ;
+          + rho_fld_np[i] / double(N) // CHECK TO MAKE SURE THIS IS RIGHT!!!
+          + hhat[i] / double(N) * ( rhodb[i] - rhoda[i] - rhoha[i] );
       A = 2.0 * C / chiN ;
       numer = wabm[i] - lam_mi * ( F - A * wabm[i] ) ;
       if ( do_CL ) 

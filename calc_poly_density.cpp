@@ -115,8 +115,10 @@ void calc_poly_density() {
       Qp = np_density_rod();
     }
   }
-  else
+  else {
     Qp = 1.0;
+    smwp_min = 0.0;
+  }
   
 } // End calc_poly_density
 
@@ -192,16 +194,17 @@ void generate_smwp_iso(complex<double>* w, complex<double>* smGamma,
   // Shift smwp so the minimum is 0. This avoids numerical difficulties.
   // This is corrected for when Qp is calculated. First, find current
   // processor's minimum:
-  smwp_min = 1000.0;
+  double smwp_min_local = 1000.0;
   for (i=0; i<ML; i++) {
-    if (real(smwp[i]) < smwp_min)
-      smwp_min = real(smwp[i]) ;
+    if (real(smwp[i]) < smwp_min_local)
+      smwp_min_local = real(smwp[i]) ;
   }
 
 #ifdef PAR
   // Next, find the global minimum. Replace smwp_min in this processor with
   // that global minimum across all processors.
-  MPI_Allreduce(&smwp_min, &smwp_min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+  MPI_Allreduce(&smwp_min_local, &smwp_min, 1,
+                MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
   MPI_Barrier(MPI_COMM_WORLD);
 #endif
 
@@ -227,8 +230,10 @@ void generate_smwp_aniso(complex<double>* w, complex<double>*** smGamma,
   for(i=0; i<Nu; i++){
     for(j=0; j<2*Nu; j++){
       for(k=0; k<ML; k++){
-        // Multiply w and Gamma in k-space. Extra V is necessary
-        smwp[i][j][k] = w[k] * smGamma[i][j][k] * V;  
+        // Multiply w and Gamma in k-space. Extra V is not necessary because
+        // it was already multiplied into Gamma during initialization. It's
+        // cheaper that way.
+        smwp[i][j][k] = w[k] * smGamma[i][j][k];
       } // k
       // Inverse fourier transform smwp to conclude convolution
       fft_bck_wrapper(smwp[i][j], smwp[i][j]);
