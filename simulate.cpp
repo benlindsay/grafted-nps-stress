@@ -81,6 +81,7 @@ double simulate() {
         write_data_bin("crashed.wabm", wabm);
         exit(1);
       }
+      error = abs(H - Ho) / V / double(print_freq);
       if (myrank == 0) {
         printf("Iter: %d, H=%lf", iter, real(H) );
         if (do_CL)
@@ -91,10 +92,9 @@ double simulate() {
           printf(", -log(Qha)=%lf", real(-log(Qha)) );
         if (do_fld_np)
           printf(", -log(Qp)=%lf", real(-log(Qp)+smwp_min) );
-        printf("\n");
+        printf("error=%1.3e\n", error);
         fflush(stdout);
       }
-      error = abs(H - Ho) / V / double(print_freq);
       if (myrank == 0) {
         fprintf(otp, "%d %5.6lf %1.3e %5.6lf %5.6lf %5.6lf %1.3e", 
                 iter, real(H), imag(H), real(-log(Qd)), real(-log(Qha)),

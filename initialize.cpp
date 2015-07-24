@@ -170,6 +170,8 @@ void initialize_2() {
   // Initialize Gamma (and V_1_fld_np) if doing field-based nps
   if (do_fld_np) {
     if (np_type == 1) {
+      printf("Field-based nanospheres are currently not supported.\n");
+      exit(1);
       init_Gamma_sphere();
     }
     else if (np_type == 2) {
