@@ -92,7 +92,7 @@ double simulate() {
           printf(", -log(Qha)=%lf", real(-log(Qha)) );
         if (do_fld_np)
           printf(", -log(Qp)=%lf", real(-log(Qp)+smwp_min) );
-        printf("error=%1.3e\n", error);
+        printf(", err=%1.1e\n", error);
         fflush(stdout);
       }
       if (myrank == 0) {
