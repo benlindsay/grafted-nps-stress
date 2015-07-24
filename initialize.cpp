@@ -429,9 +429,11 @@ void init_Gamma_rod() {
     } // j
   } // i
 
+  // Get the average of integral of Gamma[i][j]
   double avg_Gamma = sum / double(2*Nu*Nu);
 
-  // Calculate average volume of 1 nanorod for use later
-  V_1_fld_np = avg_Gamma / rho0;
+  // Calculate average volume of 1 nanorod for use later by dividing out rho0
+  // and V
+  V_1_fld_np = avg_Gamma / rho0 / V;
 
 } // init_Gamma_rod

@@ -130,5 +130,8 @@ void read_input() {
       exp_nr_u[j][i] /= dm2;
   }
   fclose(inp);
-  if (myrank == 0) printf("---Reading of bcp.input complete---\n");
+  if (myrank == 0) {
+    printf("---Reading of bcp.input complete---\n");
+    fflush(stdout);
+  }
 }
