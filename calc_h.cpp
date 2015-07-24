@@ -45,13 +45,14 @@ complex<double> calc_H() {
 
 complex<double> wpl_part() {
 
-  int i ;
+  int i;
 
-  for ( i=0 ; i<ML ; i++ ) 
-    tmp2[i] = ( kappaN <= 0.0 ? 0.0 : wpl[i] * wpl[i] * C / kappaN / 2.0 )
-      - I * C * ( 1.0 - rho_surf[i] - rho_exp_nr[i] ) * wpl[i] ;
+  for (i=0; i<ML; i++) {
+    tmp2[i] = ( kappaN<=0.0 ? 0.0 : wpl[i]*wpl[i]*C/kappaN/2.0 )
+      - I * C * ( 1.0 - rho_surf[i] - rho_exp_nr[i] ) * wpl[i];
+  }
 
-  return integ_trapPBC( tmp2 ) ;
+  return integ_trapPBC(tmp2);
 
 }
 

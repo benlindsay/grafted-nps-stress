@@ -299,7 +299,7 @@ complex<double> np_density_rod() {
     }
   }
   for (i=0; i<ML; i++) {
-    rho_fld_np[i] *= V * nFP / (4.0 * PI * V * Qp);
+    rho_fld_np[i] *= V * nFP / (4.0 * PI * V * Qrod);
   }
   fft_bck_wrapper(rho_fld_np, rho_fld_np);
 

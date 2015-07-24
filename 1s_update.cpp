@@ -15,7 +15,7 @@ void update_1s( ) {
   if (nAH > 0.0) 
     fft_fwd_wrapper(rhoha, rhoha); 
 
-  if (nFP > 0.0)
+  if (do_fld_np)
     fft_fwd_wrapper(rho_fld_np, rho_fld_np);
  
   fft_fwd_wrapper(wpl, wpl);

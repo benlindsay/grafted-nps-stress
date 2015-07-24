@@ -324,7 +324,7 @@ void allocate(void) {
   for (i=0; i<Dim; i++) 
     Nf[i] = Nx[Dim-i-1];
 
-  int total_alloced = 0 ;
+  long long total_alloced = 0 ;
 
   ptrdiff_t Dm = Dim, Nfp[Dim], NxLtp, ztp;
   for (i=0; i<Dim; i++)

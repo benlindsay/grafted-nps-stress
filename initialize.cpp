@@ -130,6 +130,14 @@ void initialize_2() {
   // "Free" Volume (everything excluding walls)
   Vf = V - real(integ_trapPBC(rho_surf));
   if (do_fld_np) {
+    // Error-check np_frac
+    if (np_frac < 0.0) {
+      if (myrank == 0) printf("Negative np_frac is not allowed\n");
+      exit(1);
+    }
+    else if (np_frac == 0.0 && myrank == 0)
+      printf("WARNING: You turned on field-based nanoparticles but set "
+             "np_frac to 0. That's just plain silly.\n");
     // Total volume of all explicit and field-based nanoparticles
     V_nps = np_frac * Vf;
     // Total volume of all field-based nanoparticles (total np vol minus
