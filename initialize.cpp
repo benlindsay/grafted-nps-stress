@@ -277,7 +277,7 @@ void init_fields() {
 }
 
 // Initialize 1 explicit nanorod
-void explicit_nanorod(double L, double R, double xi,
+void explicit_nanorod(double len, double rad, double xi,
                       double center[Dim], double u[Dim]) {
   int i_global;
   int nn[Dim];
@@ -285,38 +285,57 @@ void explicit_nanorod(double L, double R, double xi,
   double dr[Dim], x[Dim];
 
   for (int i=0; i<ML; i++) {
-    // Get distance from nanorod center to current position (dr)
+    // Get nn, the int array showing which point in the each dimension we're at
     i_global = unstack_stack(i);
     unstack(i_global, nn);
-    for (int j=0; j<Dim; j++)
-      x[j] = double(nn[j])*dx[j];
+
+    for (int j=0; j<Dim; j++) {
+      // Get x, the current position
+      x[j] = double(nn[j]) * dx[j];
+
+      // Multiply center (values between 0 and 1) by L to get the absolute
+      // center point of the particle
+      center[j] *= L[j];
+    }
+
+    // Get dr, the distance vector from nanorod center to current position
     pbc_mdr2(x, center, dr);
 
     // Compute explicit nanorod density
     u_dot_r = dot_prod(u, dr);
     u_cross_r = cross_prod(u, dr);
-    rho_exp_nr[i] += 0.25 * erfc( (fabs(u_dot_r)-0.5*L)/xi )
-      * erfc( (fabs(u_cross_r)-R)/xi );
+    rho_exp_nr[i] += 0.25 * erfc( (fabs(u_dot_r)-0.5*len)/xi )
+                          * erfc( (fabs(u_cross_r)-rad)/xi );
   }
-}
+} // explicit_nanorod
 
 // Initialize 1 explicit nanosphere
-void explicit_nanosphere(double R, double xi, double center[Dim]) {
+void explicit_nanosphere(double rad, double xi, double center[Dim]) {
   int i_global;
   int nn[Dim];
   double dr2, dr_abs, dr[Dim], x[Dim];
 
   for (int i=0; i<ML; i++) {
-    // Get distance from nanorod center to current position (dr)
+    // Get nn, the int array showing which point in the each dimension we're at
     i_global = unstack_stack(i);
     unstack(i_global, nn);
-    for (int j=0; j<Dim; j++)
-      x[j] = double(nn[j])*dx[j];
+
+    for (int j=0; j<Dim; j++) {
+      // Get x, the current position
+      x[j] = double(nn[j]) * dx[j];
+
+      // Multiply center (values between 0 and 1) by L to get the absolute
+      // center point of the particle
+      center[j] *= L[j];
+    }
+
+    // Get dr_abs, the magnitude of the distance from nanorod center to current
+    // position
     dr2 = pbc_mdr2(x, center, dr);
     dr_abs = sqrt(dr2);
 
     // Compute explicit nanosphere density (excluding rho0)
-    rho_exp_nr[i] += 0.5 * erfc( (dr_abs-R)/xi );
+    rho_exp_nr[i] += 0.5 * erfc( (dr_abs-rad)/xi );
   }
 } // explicit_nanosphere
 
@@ -328,7 +347,7 @@ void init_Gamma_sphere() {
     exit(1);
   }
 
-  if (R_nr <= 0.0) {
+  if (R_nr <= 0.0 && myrank == 0) {
     printf("R_nr=%lf is invalid. Try again\n", R_nr);
     exit(1);
   }
@@ -364,7 +383,9 @@ void init_Gamma_rod() {
   }
 
   if (L_nr <= 0.0 || R_nr <= 0.0) {
-    printf("L_nr=%lf, R_nr=%lf is invalid. Try again\n", L_nr, R_nr);
+    if (myrank == 0) {
+      printf("L_nr=%lf, R_nr=%lf is invalid. Try again\n", L_nr, R_nr);
+    }
     exit(1);
   }
 

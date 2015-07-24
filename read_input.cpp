@@ -99,8 +99,17 @@ void read_input() {
   fscanf(inp, "%lf %lf %lf", &L_nr, &R_nr, &xi_nr);        fgets(tt, 80, inp);
   fscanf(inp, "%lf %lf", &exp_nr_chiAPN, &exp_nr_chiBPN);  fgets(tt, 80, inp);
   for (j=0; j<2; j++) {
-    for (i=0; i<Dim; i++)
+    for (i=0; i<Dim; i++) {
       fscanf(inp, "%lf", &exp_nr_c[j][i]);
+      if (exp_nr_c[j][i] < 0.0 || exp_nr_c[j][i] > 1.0) {
+        if (myrank == 0) {
+          printf("Nanorod center[%d]=%lf isn't valid. Must be between 0 and 1 "
+                 "since it's a fraction relative to L[%d]\n", i,
+                 exp_nr_c[j][i], i);
+        }
+        exit(1);
+      }
+    }
     fgets(tt, 80, inp);
 
     dm1=0;
