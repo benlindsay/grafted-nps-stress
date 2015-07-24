@@ -328,6 +328,11 @@ void init_Gamma_sphere() {
     exit(1);
   }
 
+  if (R_nr <= 0.0) {
+    printf("R_nr=%lf is invalid. Try again\n", R_nr);
+    exit(1);
+  }
+
   int nn[Dim];
   double dr[Dim], x[Dim], origin[Dim] = { 0.0 };
 
@@ -355,6 +360,11 @@ void init_Gamma_rod() {
   if (Dim < 3 && myrank == 0) {
     printf("Field-based anisotropic nanoparticles currently only supported"
            " in 3D\n");
+    exit(1);
+  }
+
+  if (L_nr <= 0.0 || R_nr <= 0.0) {
+    printf("L_nr=%lf, R_nr=%lf is invalid. Try again\n", L_nr, R_nr);
     exit(1);
   }
 
