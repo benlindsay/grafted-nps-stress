@@ -284,19 +284,19 @@ void explicit_nanorod(double len, double rad, double xi,
   double u_dot_r, u_cross_r;
   double dr[Dim], x[Dim];
 
+  // Multiply center (values between 0 and 1) by L to get the absolute
+  // center point of the particle
+  for (int i=0; i<Dim; i++)
+    center[i] *= L[i];
+
   for (int i=0; i<ML; i++) {
     // Get nn, the int array showing which point in the each dimension we're at
     i_global = unstack_stack(i);
     unstack(i_global, nn);
 
-    for (int j=0; j<Dim; j++) {
-      // Get x, the current position
+    // Get x, the current position
+    for (int j=0; j<Dim; j++)
       x[j] = double(nn[j]) * dx[j];
-
-      // Multiply center (values between 0 and 1) by L to get the absolute
-      // center point of the particle
-      center[j] *= L[j];
-    }
 
     // Get dr, the distance vector from nanorod center to current position
     pbc_mdr2(x, center, dr);
@@ -315,19 +315,19 @@ void explicit_nanosphere(double rad, double xi, double center[Dim]) {
   int nn[Dim];
   double dr2, dr_abs, dr[Dim], x[Dim];
 
+  // Multiply center (values between 0 and 1) by L to get the absolute
+  // center point of the particle
+  for (int i=0; i<Dim; i++)
+    center[i] *= L[i];
+
   for (int i=0; i<ML; i++) {
     // Get nn, the int array showing which point in the each dimension we're at
     i_global = unstack_stack(i);
     unstack(i_global, nn);
 
-    for (int j=0; j<Dim; j++) {
-      // Get x, the current position
+    // Get x, the current position
+    for (int j=0; j<Dim; j++)
       x[j] = double(nn[j]) * dx[j];
-
-      // Multiply center (values between 0 and 1) by L to get the absolute
-      // center point of the particle
-      center[j] *= L[j];
-    }
 
     // Get dr_abs, the magnitude of the distance from nanorod center to current
     // position
