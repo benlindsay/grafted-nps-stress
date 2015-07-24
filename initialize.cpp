@@ -89,10 +89,15 @@ void initialize_2() {
 
   // Loop over nanorods and add nanorod density to rho_exp_nr
   for (i=0; i<n_exp_nr; i++) {
-    if (L_nr == R_nr)
+    if (np_type == 1)
       explicit_nanosphere(R_nr, xi_nr, exp_nr_c[i]);
-    else
+    else if (np_type == 2)
       explicit_nanorod(L_nr, R_nr, xi_nr, exp_nr_c[i], exp_nr_u[i]);
+    else {
+      printf("np_type must be 1 (spheres) or 2 (rods) if n_exp_nr>0 and/or"
+             " do_fld_np is set to 1 (true). Exiting...\n");
+      exit(1);
+    }
   }
   // If there are nanorods (and/or nanospheres) write data and take FT
   if (n_exp_nr>0) {
