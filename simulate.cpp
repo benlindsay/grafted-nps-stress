@@ -147,7 +147,9 @@ double simulate() {
     fflush(stdout);
   }
 
-  if (first_sim) first_sim = 0;
+  // The first simulation is complete by this point so set first_sim to 0
+  // no matter what it's current value is
+  first_sim = 0;
 
   return H_over_V;
 }
