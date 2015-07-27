@@ -286,7 +286,7 @@ complex<double> np_density_rod() {
   integ_sphere_posits(exp_neg_smwp, rho_fld_np_c);
   Qrod = integ_trapPBC(rho_fld_np_c) / (4.0 * PI * V);
   for (i=0; i<ML; i++) {
-    rho_fld_np_c[i] *= nFP / (4.0 * PI * V * Qp);
+    rho_fld_np_c[i] *= nFP / (4.0 * PI * V * Qrod);
     rho_fld_np[i] = 0.0;
   }
   for (i=0; i<Nu; i++) {
