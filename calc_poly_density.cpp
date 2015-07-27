@@ -286,7 +286,7 @@ complex<double> np_density_rod() {
   integ_sphere_posits(exp_neg_smwp, rho_fld_np_c);
   Qrod = integ_trapPBC(rho_fld_np_c) / (4.0 * PI * V);
   for (i=0; i<ML; i++) {
-    rho_fld_np_c[i] *= nFP / (4.0 * PI * V * Qp);
+    rho_fld_np_c[i] *= nFP / (4.0 * PI * V * Qrod);
     rho_fld_np[i] = 0.0;
   }
   for (i=0; i<Nu; i++) {
@@ -302,6 +302,15 @@ complex<double> np_density_rod() {
     rho_fld_np[i] *= V * nFP / (4.0 * PI * V * Qrod);
   }
   fft_bck_wrapper(rho_fld_np, rho_fld_np);
+
+  // Sanity check
+  complex<double> np_check = integ_trapPBC(rho_fld_np_c);
+  complex<double> npVp_over_N_check = integ_trapPBC(rho_fld_np);
+  if (myrank==0) {
+    printf("nP=%lf, np_check=%lf\n", nP, real(np_check));
+    printf("nP*Vp/N = %lf, npVp_over_N_check=%lf\n",
+        nP*V_1_fld_np/N, real(npVp_over_N_check) );
+  }
 
   return Qrod;
 }
