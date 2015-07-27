@@ -286,18 +286,28 @@ void init_fields() {
   read_resume_files();
 }
 
-// Initialize 1 explicit nanorod
+// Initialize 1 explicit nanorod by adding appropriate densities to the
+// rho_exp_nr array
+// 
+// INPUTS:
+//    len         Nanorod length
+//    rad         Nanorod radius
+//    xi          Thickness of interface between nanorod and surroundings
+//    rel_center  Position vector for the nanosphere center. Relative to the
+//                  length of each dimension (values from 0 to 1)
+//    u           Nanorod orientation vector in cartesian coordinates. Points
+//                  along long axis of nanorod. Must be unit vector.
 void explicit_nanorod(double len, double rad, double xi,
-                      double center[Dim], double u[Dim]) {
+                      double rel_center[Dim], double u[Dim]) {
   int i_global;
   int nn[Dim];
   double u_dot_r, u_cross_r;
-  double dr[Dim], x[Dim];
+  double center[Dim], dr[Dim], x[Dim];
 
   // Multiply center (values between 0 and 1) by L to get the absolute
   // center point of the particle
   for (int i=0; i<Dim; i++)
-    center[i] *= L[i];
+    center[i] = rel_center[i] * L[i];
 
   for (int i=0; i<ML; i++) {
     // Get nn, the int array showing which point in the each dimension we're at
@@ -319,16 +329,24 @@ void explicit_nanorod(double len, double rad, double xi,
   }
 } // explicit_nanorod
 
-// Initialize 1 explicit nanosphere
-void explicit_nanosphere(double rad, double xi, double center[Dim]) {
+// Initialize 1 explicit nanosphere by adding appropriate densities to the
+// rho_exp_nr array
+// 
+// INPUTS:
+//    rad         Nanosphere radius
+//    xi          Thickness of interface between nanosphere and surroundings
+//    rel_center  Position vector for the nanosphere center. Relative to the
+//                  length of each dimension (values from 0 to 1)
+void explicit_nanosphere(double rad, double xi, double rel_center[Dim]) {
   int i_global;
   int nn[Dim];
-  double dr2, dr_abs, dr[Dim], x[Dim];
+  double dr2, dr_abs;
+  double center[Dim], dr[Dim], x[Dim];
 
-  // Multiply center (values between 0 and 1) by L to get the absolute
+  // Multiply rel_center (values between 0 and 1) by L to get the absolute
   // center point of the particle
   for (int i=0; i<Dim; i++)
-    center[i] *= L[i];
+    center[i] = rel_center[i] * L[i];
 
   for (int i=0; i<ML; i++) {
     // Get nn, the int array showing which point in the each dimension we're at
