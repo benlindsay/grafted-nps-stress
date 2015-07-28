@@ -283,12 +283,25 @@ complex<double> np_density_sphere() {
 complex<double> np_density_rod() {
   int i, j, k;
   complex<double> Qrod;
+
+  // Store integral over u of exp(-smwp) in rho_fld_np_c. rho_fld_np_c will
+  // still be missing a factor of 1 / (4*PI*V*Qp)
   integ_sphere_posits(exp_neg_smwp, rho_fld_np_c);
-  Qrod = integ_trapPBC(rho_fld_np_c) / (4.0 * PI * V);
+
+  // Store integral over u and r of exp(-smwp) in the variable Qrod.
+  // Qrod will still need a factor of 1 / (4*PI*V) before it represents Qp,
+  // so currently Qrod = 4*PI*V*Qp (see Koski JCP Paper Eq. 34)
+  Qrod = integ_trapPBC(rho_fld_np_c);
+
   for (i=0; i<ML; i++) {
-    rho_fld_np_c[i] *= nFP / (4.0 * PI * V * Qrod);
+    // Equation: rho_fld_np_c = nP / (4 * PI * V * Qp) * exp(-smwp)
+    // (see Eq 35 in Koski JCP paper)
+    rho_fld_np_c[i] *= nFP / Qrod;
+
+    // Set rho_fld_np to 0 to prepare for the += stuff coming up
     rho_fld_np[i] = 0.0;
   }
+
   for (i=0; i<Nu; i++) {
     for (j=0; j<2*Nu; j++) {
       fft_fwd_wrapper(exp_neg_smwp[i][j], tmp);
@@ -298,10 +311,18 @@ complex<double> np_density_rod() {
       }
     }
   }
+  
   for (i=0; i<ML; i++) {
-    rho_fld_np[i] *= V * nFP / (4.0 * PI * V * Qrod);
+    // Not sure if there should be another factor of V or not...
+    // Qrod still represents 4*PI*V*Qp here
+    rho_fld_np[i] *= nFP / Qrod;
   }
+
+  // Convert rho_fld_np back to real space
   fft_bck_wrapper(rho_fld_np, rho_fld_np);
+
+  // Now multiply Qrod by 1/(4*PI*V) so it actually represents Qp
+  Qrod = Qrod / (4.0 * PI * V);
 
   // Sanity check
   complex<double> np_check = integ_trapPBC(rho_fld_np_c);
@@ -315,6 +336,6 @@ complex<double> np_density_rod() {
     printf("C = %lf, C_check_easy=%lf, C_check_hard=%lf\n",
                  C,  real(C_check_easy), real(C_check_hard) );
   }
-
+  
   return Qrod;
 }
