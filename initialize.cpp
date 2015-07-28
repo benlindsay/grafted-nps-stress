@@ -165,7 +165,7 @@ void initialize_2() {
   // Number of molecules (or nanoparticles) of each component
   nD = C * V_poly * (1.0 - phiH); // # of diblock chains
   nAH = C * Vf * phiH * double(N) / double(Nah);
-  rho0 = (nD*N + nAH*Nah) / V_poly;
+  rho0 = C * N;
 
   // Initialize Gamma (and V_1_fld_np) if doing field-based nps
   if (do_fld_np) {
