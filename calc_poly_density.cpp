@@ -313,7 +313,6 @@ complex<double> np_density_rod() {
   }
   
   for (i=0; i<ML; i++) {
-    // Not sure if there should be another factor of V or not...
     // Qrod still represents 4*PI*V*Qp here
     rho_fld_np[i] *= nFP / Qrod;
   }
@@ -324,5 +323,18 @@ complex<double> np_density_rod() {
   // Now multiply Qrod by 1/(4*PI*V) so it actually represents Qp
   Qrod = Qrod / (4.0 * PI * V);
 
+  // Sanity check
+  complex<double> np_check = integ_trapPBC(rho_fld_np_c);
+  complex<double> npVp_check = integ_trapPBC(rho_fld_np);
+  complex<double> C_check_easy = (nD + nP*V_1_fld_np/double(N)) / V;
+  complex<double> C_check_hard = (nD + npVp_check / double(N)) / V;
+  if (myrank==0) {
+    printf("nP=%lf, np_check=%lf\n", nP, real(np_check));
+    printf("nP*Vp = %lf, npVp_check=%lf\n",
+        nP*V_1_fld_np, real(npVp_check) );
+    printf("C = %lf, C_check_easy=%lf, C_check_hard=%lf\n",
+                 C,  real(C_check_easy), real(C_check_hard) );
+  }
+  
   return Qrod;
 }

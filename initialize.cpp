@@ -3,6 +3,7 @@ void calc_P_constants(int);
 void read_resume_files(void);
 void init_particles(void);
 void sphere_init(void);
+complex<double> integ_sphere(complex<double>**);
 void calc_gaa(complex<double>* , double);
 void calc_gbb(complex<double>* , double);
 void calc_gab(complex<double>* , double);
@@ -164,8 +165,13 @@ void initialize_2() {
 
   // Number of molecules (or nanoparticles) of each component
   nD = C * V_poly * (1.0 - phiH); // # of diblock chains
-  nAH = C * Vf * phiH * double(N) / double(Nah);
-  rho0 = C * N;
+  if (Nah > 0.0)
+    nAH = C * Vf * phiH * double(N) / double(Nah);
+  else
+    nAH = 0.0;
+
+  // Define rho0
+  rho0 = N * C;
 
   // Initialize Gamma (and V_1_fld_np) if doing field-based nps
   if (do_fld_np) {
@@ -186,16 +192,22 @@ void initialize_2() {
   
   // Number of nanoparticles
   if (n_exp_nr == 0 && !do_fld_np)
-    nP = 0;
+    nP = 0.0;
   else if (do_fld_np)
-    nP = V_nps / V_1_fld_np;
+    // Define nP based on nP*Vp/V = rho0*np_frac
+    nP = rho0 * np_frac * V / V_1_fld_np;
   else
     nP = V_nps / V_1_exp_np;
 
   // Number of field-based nanoparticles
   if (do_fld_np) {
+    if (n_exp_nr > 0) {
+      printf("WARNING: Code is currently not set up to correctly handle "
+             "simulations with both explicit and field-based nanoparticles "
+             "turned on!");
+    }
     nFP = nP - n_exp_nr;
-    if (nFP < 0) {
+    if (nFP < 0.0) {
       printf("The nanoparticle volume fraction you're using is lower than "
              "the volume fraction taken up by the explicit nanoparticles\n");
       exit(1);
@@ -222,7 +234,7 @@ void initialize_2() {
   calc_gbb(gbb, fD);
   calc_gab(gab, fD);
   
-  calc_gd( gd, double(Nah-1)/double(N-1) );
+  if (Nah > 0) calc_gd( gd, double(Nah-1)/double(N-1) );
 
   ///////////////////////////////
   // Set up bonding potentials //
@@ -429,7 +441,6 @@ void init_Gamma_rod() {
   MPI_Barrier(MPI_COMM_WORLD);
 
   // Compute nanorod density (including rho0)
-  double sum = 0.0;
   for (int i=0; i<Nu; i++) {
     for (int j=0; j<2*Nu; j++) {
       for (int k=0; k<ML; k++) {
@@ -450,18 +461,17 @@ void init_Gamma_rod() {
         // convolution
         Gamma_aniso[i][j][k] *= V;
       } // k
-      sum += real(integ_trapPBC(Gamma_aniso[i][j]));
+      tmp_sph[i][j] = integ_trapPBC(Gamma_aniso[i][j]);
       // Fourier transform Gamma_aniso and leave it that way. It's only used
       // for convolutions which are all done in k-space anyway.
       fft_fwd_wrapper(Gamma_aniso[i][j], Gamma_aniso[i][j]);
     } // j
   } // i
 
-  // Get the average of integral of Gamma[i][j]
-  double avg_Gamma = sum / double(2*Nu*Nu);
-
-  // Calculate average volume of 1 nanorod for use later by dividing out rho0
-  // and V
-  V_1_fld_np = avg_Gamma / rho0 / V;
+  // Calculate average volume of 1 nanorod based on 
+  // Vp = integral ( dr * 1/(4PI) * integral( du * Gamma ) )
+  // The extra V in the denominator is to cancel out the extra V included in
+  // Gamma to speed up convolution later
+  V_1_fld_np = real( integ_sphere(tmp_sph) ) / (4 * PI * V);
 
 } // init_Gamma_rod
