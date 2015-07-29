@@ -56,7 +56,7 @@ complex<double> I, *wpl, *wa, *wb, *wabp, *wabm, *smwa, *smwb,
                 Hcur, *poly_bond_fft,
                 shift_wp , *hhat, **tmp_sph, ***Gamma_aniso, *Gamma_iso,
                 ***smwp_aniso, *smwp_iso, ***tmp_aniso, *tmp_iso,
-                ***exp_neg_smwp;
+                *exp_neg_smwp_iso, ***exp_neg_smwp_aniso;
 
 #ifndef MAIN
 extern

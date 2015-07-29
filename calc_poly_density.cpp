@@ -18,12 +18,12 @@ complex<double> grafted_nanoparticles( complex<double>*, complex<double>*,
     complex<double>*, complex<double>**, complex<double>**, complex<double>*,
     complex<double>*, complex<double>*, double , double , int ) ;
 void generate_smwp_iso(complex<double>*, complex<double>*,
-    complex<double>*);
+    complex<double>*, complex<double>*);
 void generate_smwp_aniso(complex<double>*, complex<double>***,
-    complex<double>***);
+    complex<double>***, complex<double>***);
 void integ_sphere_posits(complex<double>***, complex<double>*);
-complex<double> np_density_sphere(void);
-complex<double> np_density_rod(void);
+complex<double> np_density_sphere(complex<double>*, complex<double>*);
+complex<double> np_density_rod(complex<double>***, complex<double>***);
 
 void calc_poly_density() {
 
@@ -106,20 +106,20 @@ void calc_poly_density() {
   if (do_fld_np) {
     if (np_type == 1) {
       // For spherical particles, no orientation dependence
-      generate_smwp_iso(wa, Gamma_iso, smwp_iso);
-      Qp = np_density_sphere();
+      generate_smwp_iso(wa, Gamma_iso, smwp_iso, exp_neg_smwp_iso);
+      Qp = np_density_sphere(Gamma_iso, exp_neg_smwp_iso);
     }
     else if (np_type == 2) {
       // Orientation dependence for rods or other anisotropic particles
-      generate_smwp_aniso(wa, Gamma_aniso, smwp_aniso);
-      Qp = np_density_rod();
+      generate_smwp_aniso(wa, Gamma_aniso, smwp_aniso, exp_neg_smwp_aniso);
+      Qp = np_density_rod(Gamma_aniso, exp_neg_smwp_aniso);
     }
   }
   else {
     Qp = 1.0;
     smwp_min = 0.0;
   }
-  
+
 } // End calc_poly_density
 
 ///////////////////////////////////////////////////////
@@ -174,22 +174,24 @@ void integrate_homopoly_discrete(complex<double>** q,
 
 // Generate particle field convolved with Gamma for isotropic particles
 //
-// Given a w field (i.e. wa) in real space and smGamma, the Gamma function
-// in k-space, this generates smwp, the particle field convolved with Gamma,
-// as a function of position
-void generate_smwp_iso(complex<double>* w, complex<double>* smGamma,
-                         complex<double>* smwp) {
+// Given a w field (i.e. wa) in real space and GammaH, the Gamma function
+// in k-space (with extra V factor included), this generates smwp, the particle
+// field convolved with Gamma, as a function of position
+void generate_smwp_iso(complex<double>* w, complex<double>* GammaH,
+                       complex<double>* smwp, complex<double>* exp_neg_smwp) {
 
   int i, j, k;
 
   // Fourier transform w to prepare for convolution
   fft_fwd_wrapper(w, w);
-  for(i=0; i<ML; i++){
-    // Multiply w and Gamma in k-space. Extra V is necessary
-    smwp[i] = w[k] * smGamma[i] * V;  
-    // Inverse fourier transform smwp to conclude convolution
-    fft_bck_wrapper(smwp, smwp);
-  } // i
+
+  // Multiply w and Gamma in k-space. Extra V is not necessary because V was
+  // already multiplied into Gamma during initialization
+  for (i=0; i<ML; i++)
+    smwp[i] = w[k] * GammaH[i];  
+
+  // Inverse fourier transform smwp to conclude convolution
+  fft_bck_wrapper(smwp, smwp);
 
   // Shift smwp so the minimum is 0. This avoids numerical difficulties.
   // This is corrected for when Qp is calculated. First, find current
@@ -203,25 +205,31 @@ void generate_smwp_iso(complex<double>* w, complex<double>* smGamma,
 #ifdef PAR
   // Next, find the global minimum. Replace smwp_min in this processor with
   // that global minimum across all processors.
-  MPI_Allreduce(&smwp_min_local, &smwp_min, 1,
-                MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+  MPI_Allreduce(&smwp_min_local, &smwp_min, 1, MPI_DOUBLE, MPI_MIN,
+                MPI_COMM_WORLD);
   MPI_Barrier(MPI_COMM_WORLD);
+#else
+  // If no parallelization, the local minimum is already the global minimum
+  smwp_min = smwp_min_local;
 #endif
 
-  // Finally, subtract off the global minimum from all values in smwp
+  // Finally, subtract off the global minimum from all values in smwp and
+  // store the exponential of the negative adjusted smeared field in
+  // exp_neg_smwp for use later
   for (i=0; i<ML; i++) {
     smwp[i] -= smwp_min;
+    exp_neg_smwp[i] = exp(-smwp[i]);
   }
+} // END generate_smwp_iso
 
-} // generate_smwp_iso
 
 // Generate particle field convolved with Gamma for anisotropic particles
 //
-// Given a w field (i.e. wa) in real space and smGamma, the Gamma function
+// Given a w field (i.e. wa) in real space and GammaH, the Gamma function
 // in k-space, this generates smwp, the particle field convolved with Gamma,
 // as a function of orientation and position
-void generate_smwp_aniso(complex<double>* w, complex<double>*** smGamma,
-                         complex<double>*** smwp) {
+void generate_smwp_aniso(complex<double>* w, complex<double>*** GammaH,
+    complex<double>*** smwp, complex<double>*** exp_neg_smwp) {
 
   int i, j, k;
 
@@ -233,7 +241,7 @@ void generate_smwp_aniso(complex<double>* w, complex<double>*** smGamma,
         // Multiply w and Gamma in k-space. Extra V is not necessary because
         // it was already multiplied into Gamma during initialization. It's
         // cheaper that way.
-        smwp[i][j][k] = w[k] * smGamma[i][j][k];
+        smwp[i][j][k] = w[k] * GammaH[i][j][k];
       } // k
       // Inverse fourier transform smwp to conclude convolution
       fft_bck_wrapper(smwp[i][j], smwp[i][j]);
@@ -243,12 +251,12 @@ void generate_smwp_aniso(complex<double>* w, complex<double>*** smGamma,
   // Shift smwp so the minimum is 0. This avoids numerical difficulties.
   // This is corrected for when Qp is calculated. First, find current
   // processor's minimum:
-  double smwp_min = 1000.0;
+  double smwp_min_local = 1000.0;
   for (i=0; i<Nu; i++) {
     for (j=0; j<2*Nu; j++) {
       for (k=0; k<ML; k++) {
-        if (real(smwp[i][j][k]) < smwp_min)
-          smwp_min = real(smwp[i][j][k]) ;
+        if (real(smwp[i][j][k]) < smwp_min_local)
+          smwp_min_local = real(smwp[i][j][k]) ;
       }
     }
   }
@@ -256,8 +264,12 @@ void generate_smwp_aniso(complex<double>* w, complex<double>*** smGamma,
 #ifdef PAR
   // Next, find the global minimum. Replace smwp_min in this processor with
   // that global minimum across all processors.
+  MPI_Allreduce(&smwp_min_local, &smwp_min, 1, MPI_DOUBLE, MPI_MIN,
+                MPI_COMM_WORLD);
   MPI_Barrier(MPI_COMM_WORLD);
-  MPI_Allreduce(&smwp_min, &smwp_min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+#else
+  // If no parallelization, the local minimum is already the global minimum
+  smwp_min = smwp_min_local;
 #endif
 
   // Finally, subtract off the global minimum from all values in smwp
@@ -271,16 +283,47 @@ void generate_smwp_aniso(complex<double>* w, complex<double>*** smGamma,
       }
     }
   }
+} // END generate_smwp_aniso
 
-} // generate_smwp_aniso
 
 // Calculate density of field-based nanospheres
-complex<double> np_density_sphere() {
-  return 0.0;
+complex<double> np_density_sphere(complex<double>* GammaH,
+                                  complex<double>* exp_neg_smwp) {
+  int i;
+  complex<double> Qsphere;
+
+  // Store integral of exp(-smwp) over r in Qsphere. Qsphere will still need
+  // a factor of 1/V before it represents Qp, so currently Qsphere = Qp * V
+  // (see Koski JCP Paper Eq. 20)
+  Qsphere = integ_trapPBC(exp_neg_smwp);
+
+  for (i=0; i<ML; i++) {
+    // Koski JCP paper Eq. 26. Qsphere is still Qp * V
+    rho_fld_np_c[i] = exp_neg_smwp[i] * nFP / Qsphere;
+  }
+
+  // Now divide by V so Qsphere represents Qp
+  Qsphere /= V;
+
+  // store FFT(rho_fld_np_c) in rho_fld_np to prepare for convolution with
+  // Gamma
+  fft_fwd_wrapper(rho_fld_np_c, rho_fld_np);
+
+  // Multiply by GammaH (Gamma*V in k-space). Extra V usually required in
+  // convolution not necessary because GammaH already contains V
+  for (i=0; i<ML; i++) {
+    rho_fld_np[i] *= GammaH[i];
+  }
+
+  // Return rho_fld_np to real space
+  fft_bck_wrapper(rho_fld_np, rho_fld_np);
+  
+  return Qsphere;
 }
 
 // Calculate density of field-based nanorods
-complex<double> np_density_rod() {
+complex<double> np_density_rod(complex<double>*** GammaH,
+                               complex<double>*** exp_neg_smwp) {
   int i, j, k;
   complex<double> Qrod;
 
@@ -323,18 +366,5 @@ complex<double> np_density_rod() {
   // Now multiply Qrod by 1/(4*PI*V) so it actually represents Qp
   Qrod = Qrod / (4.0 * PI * V);
 
-  // Sanity check
-  complex<double> np_check = integ_trapPBC(rho_fld_np_c);
-  complex<double> npVp_check = integ_trapPBC(rho_fld_np);
-  complex<double> C_check_easy = (nD + nP*V_1_fld_np/double(N)) / V;
-  complex<double> C_check_hard = (nD + npVp_check / double(N)) / V;
-  if (myrank==0) {
-    printf("nP=%lf, np_check=%lf\n", nP, real(np_check));
-    printf("nP*Vp = %lf, npVp_check=%lf\n",
-        nP*V_1_fld_np, real(npVp_check) );
-    printf("C = %lf, C_check_easy=%lf, C_check_hard=%lf\n",
-                 C,  real(C_check_easy), real(C_check_hard) );
-  }
-  
   return Qrod;
 }

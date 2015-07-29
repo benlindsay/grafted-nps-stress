@@ -176,8 +176,6 @@ void initialize_2() {
   // Initialize Gamma (and V_1_fld_np) if doing field-based nps
   if (do_fld_np) {
     if (np_type == 1) {
-      printf("Field-based nanospheres are currently not supported.\n");
-      exit(1);
       init_Gamma_sphere();
     }
     else if (np_type == 2) {
@@ -406,13 +404,20 @@ void init_Gamma_sphere() {
 
     // Compute nanosphere density (including rho0)
     Gamma_iso[i] = 0.5 * rho0 * erfc( (dr_abs-R_nr)/xi_nr );
+    
+    // Multiply in factor of V because this will speed up convolution
+    // calculations later, which all need a factor of V
+    Gamma_iso[i] *= V;
   }
-  // Calculate volume of 1 nanosphere for use later
-  V_1_fld_np = real(integ_trapPBC(Gamma_iso));
+
+  // Calculate volume of 1 nanosphere for use later. The 1/V factor is to
+  // cancel out the extra factor of V multiplied in above.
+  V_1_fld_np = real(integ_trapPBC(Gamma_iso)) / V;
+
   // Fourier transform Gamma_iso and leave it that way. It's only used for
   // convolutions which are all done in k-space anyway.
   fft_fwd_wrapper(Gamma_iso, Gamma_iso);
-} // init_Gamma_sphere
+} // END init_Gamma_sphere
 
 // Initialize Gamma_aniso for nanorods (anisotropic)
 void init_Gamma_rod() {

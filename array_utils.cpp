@@ -366,13 +366,13 @@ void allocate(void) {
   wb = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   smwa = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   smwb = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
-  wabp = ( complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
-  wabm = ( complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
+  wabp = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
+  wabm = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   total_alloced += alloc_size * sizeof(complex<double>) * 7;
   
   if (do_CL) {
-    etap = ( complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
-    etam = ( complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
+    etap = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
+    etam = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
     total_alloced += alloc_size * sizeof(complex<double>) * 2;
   }
 
@@ -380,9 +380,19 @@ void allocate(void) {
   tmp2 = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   total_alloced += alloc_size * sizeof(complex<double>) * 2;
 
-  if (do_fld_np) {
-    // Allocate tmp_sph (size = Nu x 2Nu complex<double>'s)
-    // and Gamma (size = Nu x 2Nu x alloc_size complex<double>'s)
+  // Arrays required for spherical nanoparticles (no orientation dependence)
+  if (do_fld_np && np_type == 1) {
+    Gamma_iso = (complex<double>*)
+                fftw_malloc(alloc_size*sizeof(complex<double>));
+    smwp_iso = (complex<double>*)
+               fftw_malloc(alloc_size*sizeof(complex<double>));
+    exp_neg_smwp_iso = (complex<double>*)
+                       fftw_malloc(alloc_size*sizeof(complex<double>));
+    total_alloced += alloc_size * sizeof(complex<double>) * 3;
+  }
+
+  // Arrays required for nanorods (orientation dependent)
+  if (do_fld_np && np_type == 2) {
     tmp_sph = (complex<double>**)
               fftw_malloc(Nu * sizeof(complex<double>*));
     tmp_aniso = (complex<double>***)
@@ -391,8 +401,8 @@ void allocate(void) {
                   fftw_malloc(Nu * sizeof(complex<double>**));
     smwp_aniso = (complex<double>***)
                  fftw_malloc(Nu * sizeof(complex<double>**));
-    exp_neg_smwp = (complex<double>***)
-                   fftw_malloc(Nu * sizeof(complex<double>**));
+    exp_neg_smwp_aniso = (complex<double>***)
+                         fftw_malloc(Nu * sizeof(complex<double>**));
     for (i=0; i<Nu; i++) {
       tmp_sph[i] = (complex<double>*)
                    fftw_malloc(2*Nu * sizeof(complex<double>));
@@ -402,8 +412,8 @@ void allocate(void) {
                        fftw_malloc(2*Nu * sizeof(complex<double>*));
       smwp_aniso[i] = (complex<double>**)
                       fftw_malloc(2*Nu * sizeof(complex<double>*));
-      exp_neg_smwp[i] = (complex<double>**)
-                        fftw_malloc(2*Nu * sizeof(complex<double>*));
+      exp_neg_smwp_aniso[i] = (complex<double>**)
+                              fftw_malloc(2*Nu * sizeof(complex<double>*));
       for (int j=0; j<2*Nu; j++) {
         tmp_aniso[i][j] = (complex<double>*)
                           fftw_malloc(alloc_size*sizeof(complex<double>));
@@ -411,8 +421,8 @@ void allocate(void) {
                             fftw_malloc(alloc_size*sizeof(complex<double>));
         smwp_aniso[i][j] = (complex<double>*)
                            fftw_malloc(alloc_size*sizeof(complex<double>));
-        exp_neg_smwp[i][j] = (complex<double>*)
-                             fftw_malloc(alloc_size*sizeof(complex<double>));
+        exp_neg_smwp_aniso[i][j] = (complex<double>*)
+                              fftw_malloc(alloc_size*sizeof(complex<double>));
       }
     }
     total_alloced += 2 * Nu * Nu * sizeof(complex<double>);
@@ -424,7 +434,7 @@ void allocate(void) {
     phi = (double*) malloc(2 * Nu * sizeof(double));
     phi_weights = (double*) malloc(2 * Nu * sizeof(double));
     total_alloced += 6 * Nu * sizeof(double);
-  } // if (do_fld_np)
+  } // if (do_fld_np && np_type == 2)
 
   // Allocate the density operators
   rho_surf = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));

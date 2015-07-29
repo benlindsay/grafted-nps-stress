@@ -33,6 +33,19 @@ double simulate() {
 #endif
 
   calc_poly_density();
+  // Field nanoparticle sanity check
+  complex<double> np_check = integ_trapPBC(rho_fld_np_c);
+  complex<double> npVp_check = integ_trapPBC(rho_fld_np);
+  complex<double> C_check_easy = (nD + nP*V_1_fld_np/double(N)) / V;
+  complex<double> C_check_hard = (nD + npVp_check / double(N)) / V;
+  if (myrank==0) {
+    printf("Field-based nanoparticle calculations sanity check:\n");
+    printf("nP=%lf, np_check=%lf\n", nP, real(np_check));
+    printf("nP*Vp = %lf, npVp_check=%lf\n",
+            nP*V_1_fld_np, real(npVp_check) );
+    printf("C = %lf, C_check_easy=%lf, C_check_hard=%lf\n\n",
+            C,  real(C_check_easy), real(C_check_hard) );
+  }
 
   double smrhodadb = real( integ_trapPBC(rhoda)+integ_trapPBC(rhodb) );
   double smrhoha = real( integ_trapPBC(rhoha) );
