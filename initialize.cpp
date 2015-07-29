@@ -164,7 +164,12 @@ void initialize_2() {
 
   // Number of molecules (or nanoparticles) of each component
   nD = C * V_poly * (1.0 - phiH); // # of diblock chains
-  nAH = C * Vf * phiH * double(N) / double(Nah);
+  if (Nah > 0.0)
+    nAH = C * Vf * phiH * double(N) / double(Nah);
+  else
+    nAH = 0.0;
+
+  // Define rho0
   rho0 = N * C;
 
   // Initialize Gamma (and V_1_fld_np) if doing field-based nps
@@ -186,16 +191,22 @@ void initialize_2() {
   
   // Number of nanoparticles
   if (n_exp_nr == 0 && !do_fld_np)
-    nP = 0;
+    nP = 0.0;
   else if (do_fld_np)
-    nP = V_nps / V_1_fld_np;
+    // Define nP based on nP*Vp/V = rho0*np_frac
+    nP = rho0 * np_frac * V / V_1_fld_np;
   else
     nP = V_nps / V_1_exp_np;
 
   // Number of field-based nanoparticles
   if (do_fld_np) {
+    if (n_exp_nr > 0) {
+      printf("WARNING: Code is currently not set up to correctly handle "
+             "simulations with both explicit and field-based nanoparticles "
+             "turned on!");
+    }
     nFP = nP - n_exp_nr;
-    if (nFP < 0) {
+    if (nFP < 0.0) {
       printf("The nanoparticle volume fraction you're using is lower than "
              "the volume fraction taken up by the explicit nanoparticles\n");
       exit(1);
@@ -222,7 +233,7 @@ void initialize_2() {
   calc_gbb(gbb, fD);
   calc_gab(gab, fD);
   
-  calc_gd( gd, double(Nah-1)/double(N-1) );
+  if (Nah > 0) calc_gd( gd, double(Nah-1)/double(N-1) );
 
   ///////////////////////////////
   // Set up bonding potentials //
@@ -462,6 +473,6 @@ void init_Gamma_rod() {
 
   // Calculate average volume of 1 nanorod for use later by dividing out rho0
   // and V
-  V_1_fld_np = avg_Gamma / rho0 / V;
+  V_1_fld_np = avg_Gamma / V;
 
 } // init_Gamma_rod

@@ -96,6 +96,7 @@ void read_input() {
   fscanf(inp, "%d", &np_type);                             fgets(tt, 80, inp);
   fscanf(inp, "%d", &Nu);                                  fgets(tt, 80, inp);
   fscanf(inp, "%lf", &np_frac);                            fgets(tt, 80, inp);
+  if (!do_fld_np) np_frac = 0.0;
   fscanf(inp, "%lf %lf %lf", &L_nr, &R_nr, &xi_nr);        fgets(tt, 80, inp);
   fscanf(inp, "%lf %lf", &exp_nr_chiAPN, &exp_nr_chiBPN);  fgets(tt, 80, inp);
   for (j=0; j<2; j++) {

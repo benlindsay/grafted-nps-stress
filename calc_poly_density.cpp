@@ -327,7 +327,7 @@ complex<double> np_density_rod() {
   // Sanity check
   complex<double> np_check = integ_trapPBC(rho_fld_np_c);
   complex<double> npVp_check = integ_trapPBC(rho_fld_np);
-  complex<double> C_check_easy = (nD + nP*V_1_fld_np / double(N))/V;
+  complex<double> C_check_easy = (nD + nP*V_1_fld_np/double(N)) / V;
   complex<double> C_check_hard = (nD + npVp_check / double(N)) / V;
   if (myrank==0) {
     printf("nP=%lf, np_check=%lf\n", nP, real(np_check));
