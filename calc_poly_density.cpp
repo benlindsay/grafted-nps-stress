@@ -313,7 +313,6 @@ complex<double> np_density_rod() {
   }
   
   for (i=0; i<ML; i++) {
-    // Not sure if there should be another factor of V or not...
     // Qrod still represents 4*PI*V*Qp here
     rho_fld_np[i] *= nFP / Qrod;
   }

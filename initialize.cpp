@@ -3,6 +3,7 @@ void calc_P_constants(int);
 void read_resume_files(void);
 void init_particles(void);
 void sphere_init(void);
+complex<double> integ_sphere(complex<double>**);
 void calc_gaa(complex<double>* , double);
 void calc_gbb(complex<double>* , double);
 void calc_gab(complex<double>* , double);
@@ -440,7 +441,6 @@ void init_Gamma_rod() {
   MPI_Barrier(MPI_COMM_WORLD);
 
   // Compute nanorod density (including rho0)
-  double sum = 0.0;
   for (int i=0; i<Nu; i++) {
     for (int j=0; j<2*Nu; j++) {
       for (int k=0; k<ML; k++) {
@@ -461,18 +461,17 @@ void init_Gamma_rod() {
         // convolution
         Gamma_aniso[i][j][k] *= V;
       } // k
-      sum += real(integ_trapPBC(Gamma_aniso[i][j]));
+      tmp_sph[i][j] = integ_trapPBC(Gamma_aniso[i][j]);
       // Fourier transform Gamma_aniso and leave it that way. It's only used
       // for convolutions which are all done in k-space anyway.
       fft_fwd_wrapper(Gamma_aniso[i][j], Gamma_aniso[i][j]);
     } // j
   } // i
 
-  // Get the average of integral of Gamma[i][j]
-  double avg_Gamma = sum / double(2*Nu*Nu);
-
-  // Calculate average volume of 1 nanorod for use later by dividing out rho0
-  // and V
-  V_1_fld_np = avg_Gamma / V;
+  // Calculate average volume of 1 nanorod based on 
+  // Vp = integral ( dr * 1/(4PI) * integral( du * Gamma ) )
+  // The extra V in the denominator is to cancel out the extra V included in
+  // Gamma to speed up convolution later
+  V_1_fld_np = real( integ_sphere(tmp_sph) ) / (4 * PI * V);
 
 } // init_Gamma_rod
