@@ -74,7 +74,7 @@ void update_1s( ) {
 
       // AB- //
       F = 2.0 * C * wabm[i] / chiN
-          + rho_fld_np[i] / double(N) // CHECK TO MAKE SURE THIS IS RIGHT!!!
+          + rho_fld_np[i] / double(N)
           + hhat[i] / double(N) * ( rhodb[i] - rhoda[i] - rhoha[i] );
       A = 2.0 * C / chiN ;
       numer = wabm[i] - lam_mi * ( F - A * wabm[i] ) ;
