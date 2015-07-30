@@ -188,7 +188,7 @@ void generate_smwp_iso(complex<double>* w, complex<double>* GammaH,
   // Multiply w and Gamma in k-space. Extra V is not necessary because V was
   // already multiplied into Gamma during initialization
   for (i=0; i<ML; i++)
-    smwp[i] = w[k] * GammaH[i];  
+    smwp[i] = w[i] * GammaH[i];
 
   // Inverse fourier transform smwp to conclude convolution
   fft_bck_wrapper(smwp, smwp);
