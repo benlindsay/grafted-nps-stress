@@ -64,8 +64,8 @@ void calc_poly_density() {
 
     // If doing explicit nanorods, add nanorod interaction terms to fields
     if (n_exp_nr > 0) {
-      wa[i] += exp_nr_chiAPN / double(N) * rho_exp_nr[i];
-      wb[i] += exp_nr_chiBPN / double(N) * rho_exp_nr[i];
+      wa[i] += exp_nr_chiAPN / double(N) * rho_exp_nr[i] * C;
+      wb[i] += exp_nr_chiBPN / double(N) * rho_exp_nr[i] * C;
     }
   }
 
