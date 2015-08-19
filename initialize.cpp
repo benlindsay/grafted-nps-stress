@@ -197,13 +197,8 @@ void initialize_2() {
   else
     nP = V_nps / V_1_exp_np;
 
-  // Number of field-based nanoparticles
   if (do_fld_np) {
-    if (n_exp_nr > 0) {
-      printf("WARNING: Code is currently not set up to correctly handle "
-             "simulations with both explicit and field-based nanoparticles "
-             "turned on!");
-    }
+    // Number of field-based nanoparticles = total - explicit
     nFP = nP - n_exp_nr;
     if (nFP < 0.0) {
       printf("The nanoparticle volume fraction you're using is lower than "
@@ -379,12 +374,6 @@ void explicit_nanosphere(double rad, double xi, double rel_center[Dim]) {
 
 // Initialize Gamma_iso for spherical (isotropic) particles
 void init_Gamma_sphere() {
-  if (Dim < 3 && myrank == 0) {
-    printf("Field-based anisotropic nanoparticles currently only supported"
-           " in 3D\n");
-    exit(1);
-  }
-
   if (R_nr <= 0.0 && myrank == 0) {
     printf("R_nr=%lf is invalid. Try again\n", R_nr);
     exit(1);
