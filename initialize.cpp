@@ -24,7 +24,7 @@ void initialize_1() {
 
   I = complex<double>(0.0,1.0);
   N = Nda + Ndb;
-  fD = double(Nda) / double(N);
+  fD = ( N>0 ? double(Nda) / double(N) : 0.0 );
   if (a_smear == -1.0) a_squared = 1.0 / double(N-1);
   else a_squared = a_smear * a_smear;
 
@@ -145,7 +145,7 @@ void initialize_2() {
     // explicit np vol)
     V_fld_nps = V_nps - V_exp_nps;
     // Total volume taken up by polymer chains
-    V_poly = Vf * (1 - np_frac);
+    V_poly = Vf * (1.0 - np_frac);
   }
   else {
     // If not doing field-based nps, total volume of all nanoparticles is just
@@ -160,7 +160,7 @@ void initialize_2() {
   if (n_exp_nr > 0)
     V_1_exp_np = V_exp_nps / double(n_exp_nr);
   else
-    V_1_exp_np = 0;
+    V_1_exp_np = 0.0;
 
 
   // Number of molecules (or nanoparticles) of each component
@@ -201,8 +201,9 @@ void initialize_2() {
     // Number of field-based nanoparticles = total - explicit
     nFP = nP - n_exp_nr;
     if (nFP < 0.0) {
-      printf("The nanoparticle volume fraction you're using is lower than "
-             "the volume fraction taken up by the explicit nanoparticles\n");
+      if (myrank == 0)
+        printf("The nanoparticle volume fraction you're using is lower than "
+               "the volume fraction taken up by the explicit nanoparticles\n");
       exit(1);
     }
   }
@@ -410,9 +411,10 @@ void init_Gamma_sphere() {
 
 // Initialize Gamma_aniso for nanorods (anisotropic)
 void init_Gamma_rod() {
-  if (Dim < 3 && myrank == 0) {
-    printf("Field-based anisotropic nanoparticles currently only supported"
-           " in 3D\n");
+  if (Dim < 3) {
+    if (myrank == 0)
+      printf("Field-based anisotropic nanoparticles currently only supported"
+             " in 3D\n");
     exit(1);
   }
 
