@@ -37,16 +37,18 @@ double simulate() {
   if (do_fld_np) {
     // Field nanoparticle sanity check
     complex<double> np_check = integ_trapPBC(rho_fld_np_c)
-                             + double(n_exp_nr);
+                               + double(n_exp_nr);
     complex<double> npVp_check = integ_trapPBC(rho_fld_np) 
                                + integ_trapPBC(rho_exp_nr) * rho0;
-    complex<double> C_check_easy = (nD + nP*V_1_fld_np/double(N)) / V;
-    complex<double> C_check_hard = (nD + npVp_check / double(N)) / V;
+    complex<double> C_check_easy = ( nD + nAH*Nah/double(N)
+                                     + nP*V_1_fld_np/double(N) ) / Vf;
+    complex<double> C_check_hard = ( nD + nAH*Nah/double(N)
+                                     + npVp_check / double(N) ) / Vf;
     if (myrank==0) {
       printf("Field-based nanoparticle calculations sanity check:\n");
       printf("nP=%lf, np_check=%lf\n", nP, real(np_check));
       printf("nFP = %lf, n_exp_nr = %d, nFP + n_exp_nr = %lf =? nP\n",
-                    nFP,       n_exp_nr,      nFP + n_exp_nr );
+              nFP,       n_exp_nr,      nFP + n_exp_nr );
       printf("nP*Vp = %lf, npVp_check=%lf\n",
               nP*V_1_fld_np , real(npVp_check) );
       printf("C = %lf, C_check_easy=%lf, C_check_hard=%lf\n\n",

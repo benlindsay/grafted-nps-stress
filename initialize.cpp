@@ -144,18 +144,16 @@ void initialize_2() {
     // Total volume of all field-based nanoparticles (total np vol minus
     // explicit np vol)
     V_fld_nps = V_nps - V_exp_nps;
-    // Total volume taken up by polymer chains
-    V_poly = Vf * (1.0 - np_frac);
   }
   else {
     // If not doing field-based nps, total volume of all nanoparticles is just
     // the total volume of all explicit nanoparticles
     V_nps = V_exp_nps;
-    // Total volume taken up by polymer chains. np_frac isn't applicable if
-    // not doing field-based nps, so just subtract explicit np volume from
-    // free volume
-    V_poly = Vf - V_nps;
+    // Set np_frac = volume of explicit nanoparticles / free volume
+    np_frac = V_nps / Vf;
   }
+  // Total volume taken up by polymer chains
+  V_poly = Vf * (1.0 - np_frac);
   // Volume of just one explicit nanoparticle if applicable
   if (n_exp_nr > 0)
     V_1_exp_np = V_exp_nps / double(n_exp_nr);
@@ -164,7 +162,7 @@ void initialize_2() {
 
 
   // Number of molecules (or nanoparticles) of each component
-  nD = C * V_poly * (1.0 - phiH); // # of diblock chains
+  nD = C * Vf * (1.0 - phiH - np_frac); // # of diblock chains
   if (Nah > 0.0)
     nAH = C * Vf * phiH * double(N) / double(Nah);
   else
@@ -193,7 +191,7 @@ void initialize_2() {
     nP = 0.0;
   else if (do_fld_np)
     // Define nP based on nP*Vp/V = rho0*np_frac
-    nP = rho0 * np_frac * V / V_1_fld_np;
+    nP = rho0 * np_frac * Vf / V_1_fld_np;
   else
     nP = V_nps / V_1_exp_np;
 
