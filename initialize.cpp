@@ -258,9 +258,9 @@ void init_fields() {
 
     // Sine and cosine pattern
     if (ic_flag[0] < -1) {
-      if (real(rho_surf[i] + rho_exp_nr[i]) > 0.01)
+      if (real(rho_surf[i] + rho_exp_nr[i]) > 0.5)
         // -1 if there's some wall or nanorod present
-        wabm[i] = -1;
+        wabm[i] = 0.0;
       else {
         wabm[i] = 1.0;
         for (int j=0; j<2; j++) { // initial condition flag sets
