@@ -5,6 +5,16 @@
 # the location variable to the correct value so you check against the right
 # makefile
 
+# Make sure hooks in .git/hooks are up to date with hooks in Hooks folder
+for f in Hooks/*; do
+    fname="$(basename $f)"
+    if [ ! -f ".git/hooks/$fname" ]; then
+        echo "WARNING: $fname does not exist in .git/hooks"
+    elif [ "$(diff $f .git/hooks/$fname)" != "" ]; then
+        echo "WARNING: .git/hooks/$fname is not up to date with $f"
+    fi
+done
+
 # HOSTNAME_SHORT is an environment variable you should set to something like
 # rrlogin, walnut, comet, darter, or stampede to differentiate between clusters
 : ${HOSTNAME_SHORT:?"Need to set HOSTNAME_SHORT for git hooks to work"}
