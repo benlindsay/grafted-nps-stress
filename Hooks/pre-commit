@@ -1,0 +1,21 @@
+# If you copy this script into .git/hooks then a commit will fail if your
+# makefile doesn't match the appropriate makefile in the Makefiles folder. This
+# ensures that it will be safe for the post-merge hook to copy the appropriate
+# makefile from Makefiles into the repo's main directory. Make sure to change
+# the location variable to the correct value so you check against the right
+# makefile
+
+# HOSTNAME_SHORT is an environment variable you should set to something like
+# rrlogin, walnut, comet, darter, or stampede to differentiate between clusters
+: ${HOSTNAME_SHORT:?"Need to set HOSTNAME_SHORT for git hooks to work"}
+
+file="Makefiles/makefile-$HOSTNAME_SHORT"
+
+if [ ! -f "$file" ]; then
+    echo -n "$file does not exist. Execute 'cp makefile $file' then try again."
+fi
+
+if [ "$(diff makefile $file)" != "" ]; then
+    echo "makefile and $file don't match. Aborting commit."
+    exit 1
+fi

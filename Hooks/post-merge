@@ -1,0 +1,17 @@
+# If you copy this script into .git/hooks then the appropriate makefile from
+# the Makefiles folder will be copied into your repo's main directory. Make
+# sure the pre-commit hook is in .git/hooks as well to make sure your makefiles
+# are up to date.
+
+# HOSTNAME_SHORT is an environment variable you should set to something like
+# rrlogin, walnut, comet, darter, or stampede to differentiate between clusters
+: ${HOSTNAME_SHORT:?"Need to set HOSTNAME_SHORT for git hooks to work"}
+
+file="Makefiles/makefile-$HOSTNAME_SHORT"
+
+if [ -f "$file" ]; then
+    echo "Copying $file into main directory"
+    cp -v "$file" makefile
+else
+    echo "WARNING: $file doesn't exist. makefile may not be up to date"
+fi
