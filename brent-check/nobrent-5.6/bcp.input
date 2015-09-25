@@ -1,0 +1,47 @@
+# Main parameters
+30 30  Na, Nb length of each diblock's block
+0.0 0  phiAH, Nah
+0.2  a, smearing length, 0 for no smearing, -1 for a = Rg/(NA+NB-1)^.5
+6.0  C, total system density (based on diblock N, Rg)
+
+# Interaction parameters
+30.0  chiN
+360.0     kappaN, strength of compressibility potential
+
+#Init field cond flags (0=zero, -1=rand, -2=cosine, -3=sine, -4=factor of 1)
+-2 -15.0 0 1.0  flag 1, prefactor, direction (x=0, y=1, z=2), # periods
+-4 6.0 1 1.0  flag 2, prefactor, direction (0, 1, 2), # periods
+1   keep_fields  0=re-initialize fields for each sim, 1=keep prev. w's
+
+# Simulation parameters
+49 243  Nx, # grid points in each direction
+5.6 25.0   L, box dimension in each direction
+0         do_brent flag
+5.5 6.0 0.2 0.1  L_min, L_max, L_step, brent_tol, brent's method stuff
+0.01   lam_pl, step size on the w+ fields
+0.005  lam_mi, step size on the w- fields
+1000000    itermax, max. # of iterations
+100       print_freq
+50 0  sample_freq, sample_wait
+1E-11  error_tol
+1       Update scheme (0 = Euler, 1=1S)
+0        do_CL 
+
+# Film parameters
+0        do_film flag, creates walls in dim-1 direction
+2.0 0.5  Wall thickness, interfacial width
+0.5 0.5  Top wall interaction parameters, lambda_A, lambda_B
+0.5 0.5  Bottom wall interaction parameters, lambda_A, lambda_B
+
+# Nanoparticle parameters
+1                n_exp_nr, number of explicit nanoparticles
+1                do_fld_np, 1 for field-based particles, 0 for no
+1                np_type, 1=sphere, 2=nanorod
+12               Nu, number of points per pi for spherical integration
+0.05            np_frac, volume fraction of field-based nps
+0.0 1.000 0.2     L_nr, R_nr, xi_nr for all nps
+0.0 30.0        Nanorod exp_nr_chiAPN, exp_nr_chiBPN for all nps
+0.5 0.5   Nanorod center x, y, z for np 1
+0.0 1.0      Nanorod orientation vector x, y, z for np 1
+0.5 0.75   Nanorod center x, y, z for np 2
+0.0 1.0      Nanorod orientation vector x, y, z for np 2
