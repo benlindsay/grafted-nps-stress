@@ -47,7 +47,7 @@ void write_outputs() {
     write_data_bin("rho_fld_np_c", rho_fld_np_c);
   }
 
-  if (do_CL && iter >= sample_freq) {
+  if (do_CL && iter >= sample_wait) {
     int frame;
     char nm[20];
     frame = iter / print_freq;
@@ -55,9 +55,12 @@ void write_outputs() {
       write_avg_data_bin("avg_rhoda", avg_rhoda);
       write_avg_data_bin("avg_rhodb", avg_rhodb);
     }
-        
     if (nAH > 0.0) {
       write_avg_data_bin("avg_rhoha", avg_rhoha);
+    }
+    if (do_fld_np) {
+      write_data_bin("avg_rho_fld_np", rho_fld_np);
+      write_data_bin("avg_rho_fld_np_c", rho_fld_np_c);
     }
   }
 

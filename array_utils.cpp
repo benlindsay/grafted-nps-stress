@@ -16,11 +16,15 @@ void accumulate_all_averages() {
     initialize_averages( avg_rhoda );
     initialize_averages( avg_rhodb );
     initialize_averages( avg_rhoha );
+    initialize_averages( avg_rho_fld_np );
+    initialize_averages( avg_rho_fld_np_c );
   }
 
   accumulate_average_array( avg_rhoda , rhoda );
   accumulate_average_array( avg_rhodb , rhodb );
   accumulate_average_array( avg_rhoha , rhoha );
+  accumulate_average_array( avg_rho_fld_np , rho_fld_np );
+  accumulate_average_array( avg_rho_fld_np_c , rho_fld_np_c );
 
   n_samples += 1.0;
 }
@@ -451,9 +455,16 @@ void allocate(void) {
   total_alloced += alloc_size * sizeof(complex<double>) * 7;
 
   if ( do_CL ) {
-    avg_rhoda = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
-    avg_rhodb = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
-    avg_rhoha = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
+    avg_rhoda = (complex<double>*)
+                fftw_malloc(alloc_size*sizeof(complex<double>));
+    avg_rhodb = (complex<double>*)
+                fftw_malloc(alloc_size*sizeof(complex<double>));
+    avg_rhoha = (complex<double>*)
+                fftw_malloc(alloc_size*sizeof(complex<double>));
+    avg_rho_fld_np = (complex<double>*)
+                     fftw_malloc(alloc_size*sizeof(complex<double>));
+    avg_rho_fld_np_c = (complex<double>*)
+                       fftw_malloc(alloc_size*sizeof(complex<double>));
     total_alloced += alloc_size * sizeof(complex<double>) * 3;
   }
 
