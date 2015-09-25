@@ -12,7 +12,9 @@
 file="Makefiles/makefile-$HOSTNAME_SHORT"
 
 if [ ! -f "$file" ]; then
-    echo -n "$file does not exist. Execute 'cp makefile $file' then try again."
+    echo "$file does not exist. Aborting commit."
+    echo "Execute 'cp makefile $file' then try again."
+    exit 1
 fi
 
 if [ "$(diff makefile $file)" != "" ]; then

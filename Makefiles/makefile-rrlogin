@@ -1,3 +1,4 @@
+# Blah
 # To use this makefile, set FFTWHOME as an environment variable containing the
 # path to the FFTW3 software. The contents of this directory should be the
 # usual "bin include lib share". In the Comet cluster, FFTWHOME is
