@@ -65,9 +65,15 @@ void gauss_legendre_init( double* x , double *w , double a , double b , int N) {
 
   FILE *inp ;
   char tt[350] ;
+  char *home;
   int i,j ;
 
-  inp = fopen( "/home/lindsb/bin/lgvalues-abscissa.txt" , "r" ) ;
+  home = getenv("HOME");
+
+  // Make sure 'lgvalues-abscissa.txt' and 'lgvalues-weights.txt' are in ~/bin
+  strcpy(tt, home);
+  strcat(tt, "/bin/lgvalues-abscissa.txt");
+  inp = fopen( tt , "r" );
   if ( inp == NULL ) {
     printf("Failed to find gauss-legendre abscissa file!\n");
     exit(1) ;
@@ -99,7 +105,9 @@ void gauss_legendre_init( double* x , double *w , double a , double b , int N) {
 
   fclose( inp ) ;
 
-  inp = fopen( "/home/lindsb/bin/lgvalues-weights.txt" , "r" ) ;
+  strcpy(tt, home);
+  strcat(tt, "/bin/lgvalues-weights.txt");
+  inp = fopen( tt , "r" );
   if ( inp == NULL ) {
     printf("Failed to find gauss-legendre weights file!\n");
     exit(1) ;
