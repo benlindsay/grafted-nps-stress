@@ -465,7 +465,7 @@ void allocate(void) {
                      fftw_malloc(alloc_size*sizeof(complex<double>));
     avg_rho_fld_np_c = (complex<double>*)
                        fftw_malloc(alloc_size*sizeof(complex<double>));
-    total_alloced += alloc_size * sizeof(complex<double>) * 3;
+    total_alloced += alloc_size * sizeof(complex<double>) * 5;
   }
 
   // Debye functions
