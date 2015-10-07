@@ -59,8 +59,8 @@ void write_outputs() {
       write_avg_data_bin("avg_rhoha", avg_rhoha);
     }
     if (do_fld_np) {
-      write_data_bin("avg_rho_fld_np", rho_fld_np);
-      write_data_bin("avg_rho_fld_np_c", rho_fld_np_c);
+      write_data_bin("avg_rho_fld_np", avg_rho_fld_np);
+      write_data_bin("avg_rho_fld_np_c", avg_rho_fld_np_c);
     }
   }
 
