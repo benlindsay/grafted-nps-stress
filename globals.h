@@ -3,6 +3,7 @@
 #include <iostream>
 //#include "malloc.h"
 #include <cstdlib>
+#include <string.h>
 
 #ifdef PAR
 #include "mpi.h"
@@ -17,7 +18,7 @@
 #define PI 3.14159265358979323846263383
 using namespace std;
 
-#define Dim 2 //Dimension of my system
+#define Dim 3 //Dimension of my system
 
 
 // Global variables
