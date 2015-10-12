@@ -71,7 +71,7 @@ double simulate() {
 
   Ho = calc_H();
 
-  if (myrank == 0) printf("Starting H: %lf\n\n", Ho);
+  if (myrank == 0) printf("Starting H: %lf\n\n", real(Ho));
 
   write_outputs();
 
