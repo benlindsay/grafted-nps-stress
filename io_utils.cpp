@@ -42,6 +42,12 @@ void write_outputs() {
     write_data_bin("rho_exp_nr", rho_exp_nr);
   }
 
+  for (int i=0; i<ML; i++) {
+    tmp[i] = rhoda[i] + rhodb[i] + rhoha[i] + rho0 * rho_surf[i]
+             + rho0 * rho_exp_nr[i] + rho_fld_np[i];
+  }
+  write_data_bin("rho_tot", tmp);
+
   if (do_fld_np) {
     write_data_bin("rho_fld_np", rho_fld_np);
     write_data_bin("rho_fld_np_c", rho_fld_np_c);
@@ -49,7 +55,7 @@ void write_outputs() {
 
   if (do_CL && iter >= sample_wait) {
     int frame;
-    char nm[20];
+    char nm[50];
     frame = iter / print_freq;
     if (nD > 0.0) {
       write_avg_data_bin("avg_rhoda", avg_rhoda);
@@ -59,8 +65,8 @@ void write_outputs() {
       write_avg_data_bin("avg_rhoha", avg_rhoha);
     }
     if (do_fld_np) {
-      write_data_bin("avg_rho_fld_np", avg_rho_fld_np);
-      write_data_bin("avg_rho_fld_np_c", avg_rho_fld_np_c);
+      write_avg_data_bin("avg_rho_fld_np", avg_rho_fld_np);
+      write_avg_data_bin("avg_rho_fld_np_c", avg_rho_fld_np_c);
     }
   }
 
@@ -70,13 +76,37 @@ void write_outputs() {
   
 } // end write_outputs
 
+// Saves average densities with the iteration number in the name
+void save_averages() {
+  char nm[50];
+  if (nD > 0.0) {
+    sprintf(nm, "avg_rhoda_%d", iter);
+    write_avg_data_bin(nm, avg_rhoda);
+
+    sprintf(nm, "avg_rhodb_%d", iter);
+    write_avg_data_bin(nm, avg_rhodb);
+  }
+  if (nAH > 0.0) {
+    sprintf(nm, "avg_rhoha_%d", iter);
+    write_avg_data_bin(nm, avg_rhoha);
+  }
+  if (do_fld_np) {
+    sprintf(nm, "avg_rho_fld_np_%d", iter);
+    write_avg_data_bin(nm, avg_rho_fld_np);
+
+    sprintf(nm, "avg_rho_fld_np_c_%d", iter);
+    write_avg_data_bin(nm, avg_rho_fld_np_c);
+  }
+}
+
 // If running in parallel, this routine searches each file for
 // the starting spatial position for this specific processor, 
 // then it reads in ML data points.
 void read_one_resume_file(FILE *inp, complex<double> *w ) {
-  int i,j, nn[Dim];
 
+  int i,j, nn[Dim];
   double dr, di, bgn[Dim], dm[Dim];
+  char tt[256];
 
 #ifdef PAR
   unstack(unstack_stack(0), nn);
@@ -84,42 +114,38 @@ void read_one_resume_file(FILE *inp, complex<double> *w ) {
     bgn[i] = dx[i] * double(nn[i]);
 #endif
 
-  for (i=0; i<M; i++) {
+  // Set starting line as global index
+  int startline = unstack_stack(0);
+  // Since an extra line is added in the 2D output files for each distinct
+  // value of y for gnuplot compatibility, account for those if Dim=2
+  if (Dim == 2) {
+    startline += nn[1];
+  }
+
+  // Skip to starting line
+  for (i=0; i<startline; i++)
+    fgets(tt, 256, inp);
+
+  // Loop over all ML points and fill w
+  for (i=0; i<ML; i++) {
     for (j=0; j<Dim; j++)
       fscanf(inp,"%lf ", &dm[j]);
     fscanf(inp, "%lf %lf\n", &dr, &di);
-
-#ifndef PAR
-    w[i] = dr + I*di;
-#else
-    double diff = 0.0;
-
-    for (j=0; j<Dim; j++)
-      diff += fabs(bgn[j] - dm[j]);
-
-    if (diff < 0.001) {
-      w[0] = dr + I*di;
-      printf("Processor %d reading from line %d\n", myrank, i+1);
-      break;
+    if (i == 0) {
+      // Print line and position info for starting line
+      printf("Processor %d reading from line %d. x = [ ", myrank, i+1);
+      for (j=0; j<Dim; j++)
+        printf("%lf ", dm[j]);
+      printf("]\n");
     }
-#endif
-
-  }//for (i=0; i<M[0];
-
-#ifdef PAR
-  for (i=1; i<ML; i++) {
-    for (j=0; j<Dim; j++)
-      fscanf(inp,"%lf ", &dm[j]);
-    fscanf(inp, "%lf %lf\n", &dr, &di);
     w[i] = dr + I * di;
   }
-#endif
 
 } // end read_one_resume_file
 
 void read_resume_files() {
   FILE *inp;
-  char nm[20];
+  char nm[50];
   int iter_file_flag = 0, i , j;
 
   inp = fopen("wpl.res","r");
@@ -170,7 +196,7 @@ void write_kdata(char* nmi, complex<double> *dt) {
   int i,j, nn[Dim] ;
   double k2, kv[Dim];
   FILE *otp;
-  char nm[20];
+  char nm[50];
 #ifndef PAR
   sprintf( nm , "%s.dat", nmi);
 #else
@@ -199,7 +225,7 @@ void write_avg_kdata(char* nmi, complex<double> *dt) {
   int i,j, nn[Dim] ;
   double k2, kv[Dim];
   FILE *otp;
-  char nm[20];
+  char nm[50];
 #ifndef PAR
   sprintf( nm , "%s.dat", nmi);
 #else
@@ -228,7 +254,7 @@ void write_avg_data(char* nmi, complex<double> *dt) {
 
   int i,j, nn[Dim];
   FILE *otp;
-  char nm[20];
+  char nm[50];
 #ifndef PAR
   sprintf( nm , "%s.dat", nmi);
 #else
@@ -255,7 +281,7 @@ void write_avg_data_bin(char* nmi, complex<double> *dt) {
 
   int i,j, nn[Dim];
   FILE *otp;
-  char nm[20];
+  char nm[50];
   
   sprintf( nm , "%s.p%d.bin" , nmi, myrank);
   otp = fopen(nm, "wb");
@@ -281,7 +307,7 @@ void write_data_bin(char* nmi, complex<double> *dt) {
 
   int i,j, nn[Dim];
   FILE *otp;
-  char nm[20];
+  char nm[50];
   
   sprintf(nm, "%s.p%d.bin", nmi, myrank);
   otp = fopen(nm, "wb");
@@ -305,7 +331,7 @@ void write_data(char* nmi, complex<double> *dt) {
 
   int i,j, nn[Dim];
   FILE *otp;
-  char nm[20];
+  char nm[50];
 #ifndef PAR
   sprintf(nm, "%s.dat", nmi);
 #else
@@ -332,7 +358,7 @@ void append_data(char* nmi, complex<double> *dt) {
 
   int i,j, nn[Dim];
   FILE *otp;
-  char nm[20];
+  char nm[50];
 #ifndef PAR
   sprintf(nm, "%s.dat", nmi);
 #else
