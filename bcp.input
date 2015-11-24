@@ -41,7 +41,7 @@
 0.005            np_frac, volume fraction of field-based nps
 8.0 0.75 0.3     L_nr, R_nr, xi_nr for all nps
 30.0 60.0        Nanorod exp_nr_chiAPN, exp_nr_chiBPN for all nps
-5.7 4.9364 6.5   Nanorod center x, y, z for np 1
+0.5 0.5 0.25   Nanorod center x, y, z for np 1
 0.0 0.0 1.0      Nanorod orientation vector x, y, z for np 1
-5.7 4.9364 6.5   Nanorod center x, y, z for np 2
+0.5 0.5 0.75   Nanorod center x, y, z for np 2
 0.0 0.0 1.0      Nanorod orientation vector x, y, z for np 2

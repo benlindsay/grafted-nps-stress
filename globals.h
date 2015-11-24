@@ -9,7 +9,7 @@
 #include "mpi.h"
 #include "fftw3-mpi.h"
 #else
-#include "fftw3.h"
+#include <fftw3.h>
 #endif
 
 #define min(A,B) ((A)<(B) ? (A) : (B) )
