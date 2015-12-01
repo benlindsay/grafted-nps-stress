@@ -37,6 +37,8 @@
 0                n_exp_nr, number of explicit nanoparticles
 0                do_fld_np, 1 for field-based particles, 0 for no
 2                np_type, 1=sphere, 2=nanorod
+0.0              sigma
+10               Ng
 12               Nu, number of points per pi for spherical integration
 0.005            np_frac, volume fraction of field-based nps
 8.0 0.75 0.3     L_nr, R_nr, xi_nr for all nps

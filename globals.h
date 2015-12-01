@@ -9,7 +9,7 @@
 #include "mpi.h"
 #include "fftw3-mpi.h"
 #else
-#include <fftw3.h>
+#include "fftw3.h"
 #endif
 
 #define min(A,B) ((A)<(B) ? (A) : (B) )
@@ -25,7 +25,7 @@ using namespace std;
 #ifndef MAIN
 extern
 #endif
-double dx[Dim], L[Dim], V, Vf, V_1_fld_np,
+double dx[Dim], L[Dim], V, Vf, V_1_fld_np, V_1_exp_np,
        a_smear, a_squared, C, rho0, lam_mi, lam_pl,
        kappaN, chiN, fD, nD, nAH, phiH, nP, nFP,
        n_samples, ic_pre[2], ic_dir[2], ic_period[2],
@@ -35,7 +35,8 @@ double dx[Dim], L[Dim], V, Vf, V_1_fld_np,
        *theta, *phi, *theta_weights, *phi_weights, np_frac, smwp_min,
        exp_nr_chiAPN, exp_nr_chiBPN,
        L_low, L_high, L_step, brent_tol, error_tol,
-       L_ideal, min_H_over_V;
+       L_ideal, min_H_over_V,
+       sigma, ng_per_np;
 
 #ifndef MAIN
 extern
@@ -46,18 +47,20 @@ FILE *brent_otp, *dot;
 extern
 #endif
 complex<double> I, *wpl, *wa, *wb, *wabp, *wabm, *smwa, *smwb,
-                **qd, **qddag, **qha, 
-                Qd, *rhoha, *rhoda, *rhodb, Qha, Qp,
+                **qd, **qddag, **qha, **qg, **qgdag,
+                Qd, *rhoha, *rhoda, *rhodb, *rhoga, Qha, Qp,
                 *tmp, *tmp2, *gd, *gaa, *gab, *gbb,
                 *etap, *etam, 
-                *avg_rhoda, *avg_rhodb, *avg_rhoha, 
+                *avg_rhoda, *avg_rhodb, *avg_rhoha, *avg_rhoga,
+                *avg_grafts, *avg_expl_grafts,
                 *avg_rho_fld_np, *avg_rho_fld_np_c,
                 *rho_surf, *surfH, *rho_exp_nr, *exp_nrH,
                 *rho_fld_np_c, *rho_fld_np, *fld_npH,
                 Hcur, *poly_bond_fft,
                 shift_wp , *hhat, **tmp_sph, ***Gamma_aniso, *Gamma_iso,
                 ***smwp_aniso, *smwp_iso, ***tmp_aniso, *tmp_iso,
-                *exp_neg_smwp_iso, ***exp_neg_smwp_aniso;
+                *exp_neg_smwp_iso, ***exp_neg_smwp_aniso,
+                *gamma_vir, *expl_grafts, *grafts;
 
 #ifndef MAIN
 extern
@@ -65,7 +68,7 @@ extern
 int Nx[Dim], NxT[Dim], M, do_CL, iter, 
     print_freq, itermax, sample_freq, sample_wait, update_scheme, 
     ML, NxL[Dim], zstart, size, myrank, nprocs,
-    N, Nda, Ndb, Nah,
+    N, Ng, Nda, Ndb, Nah,
     ic_flag[3], do_brent, do_film, np_type, n_exp_nr, do_fld_np, Nu,
     keep_fields, first_sim;  
 

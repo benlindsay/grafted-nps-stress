@@ -67,6 +67,7 @@ void initialize_2() {
   for (i=0; i<ML; i++) {
     rhoda[i] = rhodb[i] = rhoha[i] = rho_fld_np_c[i] = rho_fld_np[i] = 0.0;
     rho_surf[i] = surfH[i] = rho_exp_nr[i] = exp_nrH[i] = 0.0;
+    grafts[i] = expl_grafts[i] = rhoga[i] = 0.0;
   }
 
   // Initialize confining wall //
@@ -103,6 +104,7 @@ void initialize_2() {
   // If there are nanorods (and/or nanospheres) write data and take FT
   if (n_exp_nr>0) {
     write_data_bin("rho_exp_nr",  rho_exp_nr);
+    write_data_bin("expl_grafts", expl_grafts);
     fft_fwd_wrapper(rho_exp_nr, exp_nrH);
   }
 
@@ -125,7 +127,7 @@ void initialize_2() {
   // Define the volumes //
   ////////////////////////
 
-  double V_nps, V_1_exp_np, V_exp_nps, V_fld_nps, V_poly;
+  double V_nps, V_exp_nps, V_fld_nps, V_poly, V_1_exp_np_bare, V_1_fld_np_bare;
   // Total volume of all explicit nanoparticles
   V_exp_nps = real(integ_trapPBC(rho_exp_nr));
   // "Free" Volume (everything excluding walls)
@@ -155,8 +157,10 @@ void initialize_2() {
   // Total volume taken up by polymer chains
   V_poly = Vf * (1.0 - np_frac);
   // Volume of just one explicit nanoparticle if applicable
-  if (n_exp_nr > 0)
+  if (n_exp_nr > 0) {
     V_1_exp_np = V_exp_nps / double(n_exp_nr);
+    V_1_exp_np_bare = V_1_exp_np;
+  }
   else
     V_1_exp_np = 0.0;
 
@@ -175,6 +179,7 @@ void initialize_2() {
   if (do_fld_np) {
     if (np_type == 1) {
       init_Gamma_sphere();
+      V_1_fld_np_bare = V_1_fld_np;
     }
     else if (np_type == 2) {
       init_Gamma_rod();
@@ -186,6 +191,35 @@ void initialize_2() {
     }
   }
   
+  // Normalize expl_grafts and grafts
+  complex<double> norm;
+  if (sigma > 0.0) {
+    norm = integ_trapPBC(grafts);
+    if (n_exp_nr > 0) {
+      norm += integ_trapPBC(expl_grafts) / double(n_exp_nr);
+    }
+    fft_fwd_wrapper(grafts, grafts);
+  }
+  for (i=0; i<ML; i++) {
+    if (sigma > 0.0) {
+      grafts[i] *= V/norm;
+      expl_grafts[i] *= 1.0/norm;
+    }
+  }
+
+  // Adjust nanoparticle volumes to include grafted chains
+  if (sigma > 0.0) {
+    if (Dim == 2)
+      ng_per_np = sigma * 2.0 * PI * R_nr;
+    else if (Dim == 3)
+      ng_per_np = sigma * 4.0 * PI * R_nr * R_nr;
+
+    V_1_fld_np += double(Ng) * ng_per_np;
+    V_1_exp_np += double(Ng) * ng_per_np / double(N) / C;
+  }
+  else
+    ng_per_np = 0.0;
+
   // Number of nanoparticles
   if (n_exp_nr == 0 && !do_fld_np)
     nP = 0.0;
@@ -214,7 +248,9 @@ void initialize_2() {
     printf("V - Vf: %lf\n", V - Vf);
     printf("rho0 = %lf\n", rho0);
     printf("V_1_exp_np = %lf\n", V_1_exp_np);
+    printf("V_1_exp_np_bare = %lf\n", V_1_exp_np_bare);
     printf("V_1_fld_np = %lf\n", V_1_fld_np);
+    printf("V_1_fld_np_bare = %lf\n", V_1_fld_np_bare);
     printf("nD = %lf\n", nD);
     printf("nP = %lf\n", nP);
     printf("n_exp_nr = %d\n", n_exp_nr);
@@ -368,6 +404,10 @@ void explicit_nanosphere(double rad, double xi, double rel_center[Dim]) {
 
     // Compute explicit nanosphere density (excluding rho0)
     rho_exp_nr[i] += 0.5 * erfc( (dr_abs-rad)/xi );
+
+    double exp_arg = ( dr_abs - R_nr - xi_nr ) / xi_nr ;
+    expl_grafts[i] += exp( -exp_arg * exp_arg ) ;
+
   }
 } // explicit_nanosphere
 
@@ -391,8 +431,12 @@ void init_Gamma_sphere() {
     double dr_abs = sqrt(dr2);
 
     // Compute nanosphere density (including rho0)
-    Gamma_iso[i] = 0.5 * rho0 * erfc( (dr_abs-R_nr)/xi_nr );
-    
+    Gamma_iso[i] = 0.5 * C * double(N) * erfc( (dr_abs-R_nr)/xi_nr );
+
+    double exp_arg = ( dr_abs - R_nr - xi_nr ) / xi_nr ;
+
+    grafts[i] = exp( -exp_arg * exp_arg ) ;
+
     // Multiply in factor of V because this will speed up convolution
     // calculations later, which all need a factor of V
     Gamma_iso[i] *= V;

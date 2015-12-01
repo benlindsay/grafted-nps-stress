@@ -1,4 +1,5 @@
 #include "globals.h"
+double get_r(int , double*) ;
 
 complex<double> solvent_density( complex<double>* , complex<double>*, double ) ;
 complex<double> diblock_discrete( complex<double>* , complex<double>*,
@@ -24,6 +25,10 @@ void generate_smwp_aniso(complex<double>*, complex<double>***,
 void integ_sphere_posits(complex<double>***, complex<double>*);
 complex<double> np_density_sphere(complex<double>*, complex<double>*);
 complex<double> np_density_rod(complex<double>***, complex<double>***);
+complex<double> grafted_nanoparticles(complex<double>*, complex<double>*,
+    complex<double>*, complex<double>*, complex<double>**, complex<double>**,
+    complex<double>*, complex<double>*, complex<double>, complex<double>*,
+    complex<double>, double, int);
 
 void calc_poly_density() {
 
@@ -109,7 +114,10 @@ void calc_poly_density() {
     if (np_type == 1) {
       // For spherical particles, no orientation dependence
       generate_smwp_iso(wa, Gamma_iso, smwp_iso, exp_neg_smwp_iso);
-      Qp = np_density_sphere(Gamma_iso, exp_neg_smwp_iso);
+      // Qp = np_density_sphere(Gamma_iso, exp_neg_smwp_iso);
+      Qp = grafted_nanoparticles(smwp_iso, wa, grafts, Gamma_iso, qg, qgdag,
+                                 rho_fld_np_c, rho_fld_np, smwp_min, rhoga,
+                                 nFP, ng_per_np, Ng);
     }
     else if (np_type == 2) {
       // Orientation dependence for rods or other anisotropic particles

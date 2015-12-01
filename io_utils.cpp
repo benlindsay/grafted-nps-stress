@@ -40,6 +40,7 @@ void write_outputs() {
 
   if (n_exp_nr > 0 && iter == 1) {
     write_data_bin("rho_exp_nr", rho_exp_nr);
+    write_data_bin("expl_grafts", expl_grafts);
   }
 
   for (int i=0; i<ML; i++) {
@@ -51,11 +52,15 @@ void write_outputs() {
   if (do_fld_np) {
     write_data_bin("rho_fld_np", rho_fld_np);
     write_data_bin("rho_fld_np_c", rho_fld_np_c);
+    write_data_bin("grafts", grafts);
+  }
+
+  if (sigma > 0.0) {
+    write_data_bin("rhoga", rhoga);
   }
 
   if (do_CL && iter >= sample_wait) {
     int frame;
-    char nm[50];
     frame = iter / print_freq;
     if (nD > 0.0) {
       write_avg_data_bin("avg_rhoda", avg_rhoda);
@@ -68,6 +73,8 @@ void write_outputs() {
       write_avg_data_bin("avg_rho_fld_np", avg_rho_fld_np);
       write_avg_data_bin("avg_rho_fld_np_c", avg_rho_fld_np_c);
     }
+    if (do_CL)
+      write_avg_data_bin("avg_rhoga", avg_rhoga);
   }
 
   write_data_bin("wpl", wpl);
