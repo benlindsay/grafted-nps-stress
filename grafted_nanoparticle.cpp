@@ -20,7 +20,7 @@ complex<double> grafted_nanoparticles(
     complex<double> *rp , complex<double> *smrp, // Nanoparticle densities
     complex<double> shift_WP, // Shift of chx pot field of the NPs
     complex<double> *rhg, // Grafted chain densities
-    complex<double> npar,    // number of particles
+    double npar,    // number of particles
     double ngrafts_per_np, // Number of grafted chains 
     int Ng // Length of grafts
     )
@@ -107,14 +107,15 @@ complex<double> grafted_nanoparticles(
 
     // Calculate the total graft density
     for ( i=0 ; i<ML ; i++ ) 
-      tmp2[i] = graft_pts[i] * tmp2[i] / npar ;
+      tmp2[i] = (npar > 0.0 ? graft_pts[i] * tmp2[i] / npar : 0.0);
 
     fft_bck_wrapper( tmp2 , tmp2 ) ;
 
     // Include contribution from explicit particle if needed //
     if ( n_exp_nr > 0 ) {
-      for ( i=0 ; i<ML ; i++ ) 
+      for ( i=0 ; i<ML ; i++ ) {
         tmp2[i] += expl_grafts[i] ;
+      }
     }
 
     // Initial condition for the complimentary graft propagator

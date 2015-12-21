@@ -104,7 +104,8 @@ void read_input() {
   for (j=0; j<2; j++) {
     for (i=0; i<Dim; i++) {
       fscanf(inp, "%lf", &exp_nr_c[j][i]);
-      if (exp_nr_c[j][i] < 0.0 || exp_nr_c[j][i] > 1.0) {
+      if ( (n_exp_nr > 0) &&
+           (exp_nr_c[j][i] < 0.0 || exp_nr_c[j][i] > 1.0) ) {
         if (myrank == 0) {
           printf("Nanorod center[%d]=%lf isn't valid. Must be between 0 and 1 "
                  "since it's a fraction relative to L[%d]\n", i,
@@ -123,7 +124,7 @@ void read_input() {
     }
     fgets(tt, 80, inp);
     dm2 = sqrt(dm1);
-    if (dm2 == 0 && myrank == 0) {
+    if (n_exp_nr+do_fld_np > 0 && dm2 == 0 && myrank == 0) {
       printf("Nanorod orientation vector must be nonzero\n");
       exit(1);
     }

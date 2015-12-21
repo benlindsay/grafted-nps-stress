@@ -127,7 +127,7 @@ void initialize_2() {
   // Define the volumes //
   ////////////////////////
 
-  double V_nps, V_exp_nps, V_fld_nps, V_poly, V_1_exp_np_bare, V_1_fld_np_bare;
+  double V_nps, V_exp_nps, V_fld_nps, V_poly;
   // Total volume of all explicit nanoparticles
   V_exp_nps = real(integ_trapPBC(rho_exp_nr));
   // "Free" Volume (everything excluding walls)
@@ -159,18 +159,9 @@ void initialize_2() {
   // Volume of just one explicit nanoparticle if applicable
   if (n_exp_nr > 0) {
     V_1_exp_np = V_exp_nps / double(n_exp_nr);
-    V_1_exp_np_bare = V_1_exp_np;
   }
   else
     V_1_exp_np = 0.0;
-
-
-  // Number of molecules (or nanoparticles) of each component
-  nD = C * Vf * (1.0 - phiH - np_frac); // # of diblock chains
-  if (Nah > 0.0)
-    nAH = C * Vf * phiH * double(N) / double(Nah);
-  else
-    nAH = 0.0;
 
   // Define rho0
   rho0 = N * C;
@@ -179,7 +170,6 @@ void initialize_2() {
   if (do_fld_np) {
     if (np_type == 1) {
       init_Gamma_sphere();
-      V_1_fld_np_bare = V_1_fld_np;
     }
     else if (np_type == 2) {
       init_Gamma_rod();
@@ -196,29 +186,16 @@ void initialize_2() {
   if (sigma > 0.0) {
     norm = integ_trapPBC(grafts);
     if (n_exp_nr > 0) {
-      norm += integ_trapPBC(expl_grafts) / double(n_exp_nr);
+      norm += integ_trapPBC(expl_grafts);
     }
     fft_fwd_wrapper(grafts, grafts);
   }
   for (i=0; i<ML; i++) {
     if (sigma > 0.0) {
-      grafts[i] *= V/norm;
+      grafts[i] *= 1.0/norm;
       expl_grafts[i] *= 1.0/norm;
     }
   }
-
-  // Adjust nanoparticle volumes to include grafted chains
-  if (sigma > 0.0) {
-    if (Dim == 2)
-      ng_per_np = sigma * 2.0 * PI * R_nr;
-    else if (Dim == 3)
-      ng_per_np = sigma * 4.0 * PI * R_nr * R_nr;
-
-    V_1_fld_np += double(Ng) * ng_per_np;
-    V_1_exp_np += double(Ng) * ng_per_np / double(N) / C;
-  }
-  else
-    ng_per_np = 0.0;
 
   // Number of nanoparticles
   if (n_exp_nr == 0 && !do_fld_np)
@@ -228,6 +205,28 @@ void initialize_2() {
     nP = rho0 * np_frac * Vf / V_1_fld_np;
   else
     nP = V_nps / V_1_exp_np;
+
+  // Set ng_per_np and find phiG (grafted chain volume fraction)
+  double phiG;
+  if (sigma > 0.0) {
+    if (Dim == 2)
+      ng_per_np = sigma * 2.0 * PI * R_nr;
+    else if (Dim == 3)
+      ng_per_np = sigma * 4.0 * PI * R_nr * R_nr;
+
+    phiG = ng_per_np * nP * Ng / rho0 / Vf;
+  }
+  else {
+    ng_per_np = 0.0;
+    phiG = 0.0;
+  }
+
+  // Number of molecules of diblock and A homopolymer
+  nD = C * Vf * (1.0 - phiH - np_frac - phiG); // # of diblock chains
+  if (Nah > 0.0)
+    nAH = C * Vf * phiH * double(N) / double(Nah);
+  else
+    nAH = 0.0;
 
   if (do_fld_np) {
     // Number of field-based nanoparticles = total - explicit
@@ -243,18 +242,20 @@ void initialize_2() {
     nFP = 0.0;
 
   if (myrank == 0) {
-    printf("Total V_segment actual: %lf\n", nD*N + nAH*Nah);
+    printf("Total V_segment actual: %lf\n", nD*N + nAH*Nah + nP*ng_per_np*Ng);
     printf("Total V_segment theoretical: %lf\n", C * V_poly * double(N));
     printf("V - Vf: %lf\n", V - Vf);
     printf("rho0 = %lf\n", rho0);
     printf("V_1_exp_np = %lf\n", V_1_exp_np);
-    printf("V_1_exp_np_bare = %lf\n", V_1_exp_np_bare);
     printf("V_1_fld_np = %lf\n", V_1_fld_np);
-    printf("V_1_fld_np_bare = %lf\n", V_1_fld_np_bare);
     printf("nD = %lf\n", nD);
     printf("nP = %lf\n", nP);
     printf("n_exp_nr = %d\n", n_exp_nr);
     printf("nFP = %lf\n", nFP);
+    printf("Volume fraction of particles excluding grafts = %lf\n", np_frac);
+    printf("Volume fraction of grafts                     = %lf\n", phiG);
+    printf("Volume fraction of particles including grafts = %lf\n",
+            np_frac + phiG);
   }
 
   // Initialize Debye functions

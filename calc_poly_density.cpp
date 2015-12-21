@@ -28,7 +28,7 @@ complex<double> np_density_rod(complex<double>***, complex<double>***);
 complex<double> grafted_nanoparticles(complex<double>*, complex<double>*,
     complex<double>*, complex<double>*, complex<double>**, complex<double>**,
     complex<double>*, complex<double>*, complex<double>, complex<double>*,
-    complex<double>, double, int);
+    double, double, int);
 
 void calc_poly_density() {
 
@@ -110,20 +110,20 @@ void calc_poly_density() {
 
   // Generate smwp, which is the wa field convolved with Gamma (assuming the
   // nanoparticles are chemically identical to A).
-  if (do_fld_np) {
-    if (np_type == 1) {
-      // For spherical particles, no orientation dependence
-      generate_smwp_iso(wa, Gamma_iso, smwp_iso, exp_neg_smwp_iso);
-      // Qp = np_density_sphere(Gamma_iso, exp_neg_smwp_iso);
-      Qp = grafted_nanoparticles(smwp_iso, wa, grafts, Gamma_iso, qg, qgdag,
-                                 rho_fld_np_c, rho_fld_np, smwp_min, rhoga,
-                                 nFP, ng_per_np, Ng);
-    }
-    else if (np_type == 2) {
-      // Orientation dependence for rods or other anisotropic particles
-      generate_smwp_aniso(wa, Gamma_aniso, smwp_aniso, exp_neg_smwp_aniso);
-      Qp = np_density_rod(Gamma_aniso, exp_neg_smwp_aniso);
-    }
+  if (nP > 0.0 && np_type == 1) {
+    // For spherical particles, no orientation dependence. Do this stuff even
+    // if there are only explicit particles because currently the
+    // grafted_nanoparticles function handles grafts on both field-based and
+    // bare nanoparticles
+    generate_smwp_iso(wa, Gamma_iso, smwp_iso, exp_neg_smwp_iso);
+    Qp = grafted_nanoparticles(smwp_iso, smwa, grafts, Gamma_iso, qg, qgdag,
+                               rho_fld_np_c, rho_fld_np, smwp_min, rhoga,
+                               nFP, ng_per_np, Ng);
+  }
+  else if (do_fld_np && np_type == 2) {
+    // Orientation dependence for rods or other anisotropic particles
+    generate_smwp_aniso(wa, Gamma_aniso, smwp_aniso, exp_neg_smwp_aniso);
+    Qp = np_density_rod(Gamma_aniso, exp_neg_smwp_aniso);
   }
   else {
     Qp = 1.0;

@@ -17,7 +17,6 @@ void write_outputs() {
       tmp[i] *= hhat[i];
     fft_bck_wrapper(tmp, tmp);
     write_data_bin("rhoda", tmp);
-
     write_data_bin("rhoda_c", rhoda);
     
     fft_fwd_wrapper(rhodb, tmp);
@@ -25,7 +24,6 @@ void write_outputs() {
       tmp[i] *= hhat[i];
     fft_bck_wrapper(tmp, tmp);
     write_data_bin("rhodb", tmp);
-    
     write_data_bin("rhodb_c", rhodb);
   }
 
@@ -38,25 +36,24 @@ void write_outputs() {
     write_data_bin("rhoha_c", rhoha);
   }
 
+  if (sigma > 0.0) {
+    fft_fwd_wrapper(rhoga, tmp);
+    for (i=0; i<ML; i++) 
+      tmp[i] *= hhat[i];
+    fft_bck_wrapper(tmp, tmp);
+    write_data_bin("rhoga", tmp);
+    write_data_bin("rhoga_c", rhoga);
+  }
+
   if (n_exp_nr > 0 && iter == 1) {
     write_data_bin("rho_exp_nr", rho_exp_nr);
     write_data_bin("expl_grafts", expl_grafts);
   }
 
-  for (int i=0; i<ML; i++) {
-    tmp[i] = rhoda[i] + rhodb[i] + rhoha[i] + rho0 * rho_surf[i]
-             + rho0 * rho_exp_nr[i] + rho_fld_np[i];
-  }
-  write_data_bin("rho_tot", tmp);
-
   if (do_fld_np) {
     write_data_bin("rho_fld_np", rho_fld_np);
     write_data_bin("rho_fld_np_c", rho_fld_np_c);
     write_data_bin("grafts", grafts);
-  }
-
-  if (sigma > 0.0) {
-    write_data_bin("rhoga", rhoga);
   }
 
   if (do_CL && iter >= sample_wait) {

@@ -41,8 +41,10 @@ double simulate() {
     complex<double> npVp_check = integ_trapPBC(rho_fld_np) 
                                + integ_trapPBC(rho_exp_nr) * rho0;
     complex<double> C_check_easy = ( nD + nAH*Nah/double(N)
+                                     + ng_per_np * nP * Ng / double(N)
                                      + nP*V_1_fld_np/double(N) ) / Vf;
     complex<double> C_check_hard = ( nD + nAH*Nah/double(N)
+                                     + ng_per_np * nP * Ng / double(N)
                                      + npVp_check / double(N) ) / Vf;
     if (myrank==0) {
       printf("Field-based nanoparticle calculations sanity check:\n");
