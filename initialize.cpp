@@ -196,8 +196,12 @@ void initialize_2() {
   }
   for (i=0; i<ML; i++) {
     if (sigma > 0.0) {
-      grafts[i] *= V / fld_norm;
-      expl_grafts[i] *= 1.0 / exp_norm;
+      if (do_fld_np) {
+        grafts[i] *= V / fld_norm;
+      }
+      if (n_exp_nr > 0) {
+        expl_grafts[i] *= 1.0 / exp_norm;
+      }
     }
   }
 
@@ -260,6 +264,7 @@ void initialize_2() {
     printf("Volume fraction of grafts                     = %lf\n", phiG);
     printf("Volume fraction of particles including grafts = %lf\n",
             np_frac + phiG);
+    printf("# of grafts per np = %lf\n", ng_per_np);
   }
 
   // Initialize Debye functions

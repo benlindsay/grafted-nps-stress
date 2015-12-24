@@ -42,6 +42,7 @@ complex<double> calc_H() {
               real(-nP*(log(Qp)-smwp_min)) );
       printf("real(-n_exp_grafts*Qga_exp) = %lf\n",
               - double(n_exp_nr) * ng_per_np * real(Qga_exp) );
+      printf("real(Qga_exp) = %lf\n", real(Qga_exp));
     }
     exit(1);
   }
