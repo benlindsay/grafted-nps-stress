@@ -25,6 +25,10 @@ complex<double> calc_H() {
   if (do_fld_np)
     Hcur += - nP * (log(Qp) - smwp_min);
 
+  // Add contribution of chains grafted to explicit nanoparticles
+  if (n_exp_nr > 0 && sigma > 0.0)
+    Hcur += - double(n_exp_nr) * ng_per_np * real(Qga_exp);
+
   // Exit if H is NaN
   if ( Hcur != Hcur ) {
     if (myrank == 0) {
@@ -36,6 +40,8 @@ complex<double> calc_H() {
       printf("real(-nAH*log(Qha))=%lf\n", real(-nAH*log(Qha)) );
       printf("real(-nP*[log(Qp)-smwp_min])=%lf\n",
               real(-nP*(log(Qp)-smwp_min)) );
+      printf("real(-n_exp_grafts*Qga_exp) = %lf\n",
+              - double(n_exp_nr) * ng_per_np * real(Qga_exp) );
     }
     exit(1);
   }

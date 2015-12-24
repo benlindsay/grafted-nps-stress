@@ -15,8 +15,11 @@ void update_1s( ) {
   if (nAH > 0.0) 
     fft_fwd_wrapper(rhoha, rhoha); 
 
-  if (sigma > 0.0)
+  if (sigma > 0.0 && nFP > 0.0)
     fft_fwd_wrapper(rhoga, rhoga);
+
+  if (sigma > 0.0 && n_exp_nr > 0.0)
+    fft_fwd_wrapper(rhoga_exp, rhoga_exp);
 
   if (do_fld_np)
     fft_fwd_wrapper(rho_fld_np, rho_fld_np);
@@ -43,7 +46,8 @@ void update_1s( ) {
     F = (kappaN <= 0.0 ? 0.0 : C*wpl[i]/kappaN) 
       + I * C * (surfH[i] + exp_nrH[i] - evar)
       + I * rho_fld_np[i] / double(N)
-      + I*hhat[i]/double(N) * (rhoha[i] + rhoda[i] + rhoga[i] + rhodb[i]);
+      + I * hhat[i] / double(N) * (rhoha[i] + rhoda[i] +
+                                   rhoga[i] + rhoga_exp[i] + rhodb[i]);
     A = (kappaN <= 0.0 ? 0.0 : C/kappaN)
       + nD * double(N) * hhat[i] * hhat[i] * (gaa[i] + 2.0 * gab[i] + gbb[i]) / V
       + nAH * double(Nah * Nah) / double(N) * hhat[i] * hhat[i] * gd[i] / V;
@@ -65,7 +69,8 @@ void update_1s( ) {
       // AB+ //
       F = 2.0 * C * wabp[i] / chiN
         + I * rho_fld_np[i] / double(N)
-        + I * hhat[i] / double(N) * (rhoda[i] + rhodb[i] + rhoha[i] + rhoga[i]);
+        + I * hhat[i] / double(N) * (rhoda[i] + rhodb[i] +
+                                     rhoha[i] + rhoga[i] + rhoga_exp[i] );
       A = 2.0 * C / chiN 
         + nD*double(N)*hhat[i]*hhat[i] * (gaa[i] + 2.0*gab[i] + gbb[i]) / V 
         + nAH * Nah * Nah / double(N) * hhat[i] * hhat[i] * gd[i] / V ;
@@ -78,7 +83,8 @@ void update_1s( ) {
       // AB- //
       F = 2.0 * C * wabm[i] / chiN
           + rho_fld_np[i] / double(N)
-          + hhat[i] / double(N) * ( rhodb[i] - rhoda[i] - rhoha[i] - rhoga[i]);
+          + hhat[i] / double(N) * ( rhodb[i] - rhoda[i] - rhoha[i] -
+                                    rhoga[i] - rhoga_exp[i]);
       A = 2.0 * C / chiN ;
       numer = wabm[i] - lam_mi * ( F - A * wabm[i] ) ;
       if ( do_CL ) 

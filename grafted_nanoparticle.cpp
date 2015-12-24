@@ -11,7 +11,86 @@
  */
 complex<double> shift_field( complex<double>* ) ;
 
-complex<double> grafted_nanoparticles( 
+void graft_homopoly_free_ends(complex<double>* smwg, int Ng,
+                              complex<double>**q) {
+
+  // Equation 18 in H. Chao 2014 Soft Matter Paper
+  // wg is either wa or wb in real space depending on whether grafts are A or B
+
+  int i, j;
+
+  // Initial condition
+  for (i=0; i<ML; i++) 
+    q[0][i] = exp(-smwg[i]) ;
+
+  // Loop over all Ng segments in grafted chains
+  for (j=1; j<Ng; j++) {
+
+    // Convolve q with bond potential
+    fft_fwd_wrapper(q[j-1], q[j]);
+    for (i=0; i<ML; i++) 
+      q[j][i] *= poly_bond_fft[i];
+    fft_bck_wrapper(q[j], q[j]);
+
+    // Multiply by exp(-wa) or exp(-wb)
+    for (i=0; i<ML; i++)
+      q[j][i] *= exp(-smwg[i]);
+
+  }
+
+}
+
+complex<double> grafted_exp_nps(
+    double ngrafts_per_np,
+    int n_exp_np,
+    int Ng,
+    complex<double> *smwg,
+    complex<double> *expl_grafts,
+    complex<double> **q,
+    complex<double> **qdag,
+    complex<double> *rhog) {
+
+  int i, j;
+
+  // Initial condition for the complimentary graft propagator
+  for ( i=0 ; i<ML ; i++ ) 
+    qdag[0][i] = expl_grafts[i] * exp( -smwg[i] ) / q[Ng-1][i] ;
+
+  // Rest of the graft propagator
+  for ( j=1 ; j<Ng ; j++ ) {
+
+    fft_fwd_wrapper( qdag[j-1] , qdag[j] ) ;
+
+    for ( i=0 ; i<ML ; i++ ) 
+      qdag[j][i] *= poly_bond_fft[i] ;
+
+    fft_bck_wrapper( qdag[j] , qdag[j] ) ;
+
+    for ( i=0 ; i<ML ; i++ )
+      qdag[j][i] *= exp( -smwg[i] ) ;
+
+  }
+
+  // Calculate the grafted chain density
+  for ( i=0 ; i<ML ; i++ ) {
+    rhog[i] = 0.0 ;
+    for ( j=0 ; j<Ng ; j++ ) 
+      rhog[i] += q[j][i] * qdag[Ng-j-1][i] ;
+
+    rhog[i] *= ngrafts_per_np * n_exp_np * exp( +smwg[i] ) ;
+  }
+
+  // Factor for the partition function
+  for ( i=0 ; i<ML ; i++ ) 
+    tmp[i] =  expl_grafts[i] * log( q[N-1][i] );
+
+  Qga_exp = integ_trapPBC(tmp);
+
+  return Qga_exp ;
+
+}
+
+complex<double> grafted_fld_nps ( 
     complex<double> *WP,  // Potential felt by particle cores
     complex<double> *WG,  // Potential felt by grafts
     complex<double> *graft_pts,  // Graft distribution for one particle
@@ -57,24 +136,6 @@ complex<double> grafted_nanoparticles(
   // Grafted nanoparticles //
   else {
 
-    // First, get the propagator from the free end
-    for ( i=0 ; i<ML ; i++ ) 
-      q[0][i] = exp( -WG[i] ) ;
-
-    for ( j=1 ; j<Ng ; j++ ) {
-
-      fft_fwd_wrapper( q[j-1] , q[j]  ) ;
-
-      for ( i=0 ; i<ML ; i++ ) 
-        q[j][i] *= poly_bond_fft[i] ;
-
-      fft_bck_wrapper( q[j] , q[j] ) ;
-
-      for ( i=0 ; i<ML ; i++ )
-        q[j][i] *= exp( -WG[i] ) ;
-
-    }
-
     // Construct the full particle field 
     for ( i=0 ; i<ML ; i++ ) 
       tmp[i] = ngrafts_per_np * log( q[Ng-1][i] ) ;
@@ -99,28 +160,21 @@ complex<double> grafted_nanoparticles(
     for ( i=0 ; i<ML ; i++ ) 
       rp[i] = tmp[i] * npar / ( Qgp * V ) ;
 
-    fft_fwd_wrapper( rp , tmp2 ) ;
+    fft_fwd_wrapper( rp , tmp ) ;
     for ( i=0 ; i<ML ; i++ ) 
-      smrp[i] = gammaNP[i] * tmp2[i] ;
+      smrp[i] = gammaNP[i] * tmp[i] ;
 
     fft_bck_wrapper( smrp , smrp ) ;
 
     // Calculate the total graft density
     for ( i=0 ; i<ML ; i++ ) 
-      tmp2[i] = (npar > 0.0 ? graft_pts[i] * tmp2[i] / npar : 0.0);
+      tmp[i] = graft_pts[i] * tmp[i] / npar;
 
-    fft_bck_wrapper( tmp2 , tmp2 ) ;
-
-    // Include contribution from explicit particle if needed //
-    if ( n_exp_nr > 0 ) {
-      for ( i=0 ; i<ML ; i++ ) {
-        tmp2[i] += expl_grafts[i] ;
-      }
-    }
+    fft_bck_wrapper( tmp , tmp ) ;
 
     // Initial condition for the complimentary graft propagator
     for ( i=0 ; i<ML ; i++ ) 
-      qdag[0][i] = tmp2[i] * exp( -WG[i] ) / q[Ng-1][i] ;
+      qdag[0][i] = tmp[i] * exp( -WG[i] ) / q[Ng-1][i] ;
 
     // Rest of the graft propagator
     for ( j=1 ; j<Ng ; j++ ) {

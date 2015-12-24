@@ -182,18 +182,22 @@ void initialize_2() {
   }
   
   // Normalize expl_grafts and grafts
-  complex<double> norm;
+  complex<double> exp_norm, fld_norm;
+  write_data_bin("pre_expl_grafts", expl_grafts);
+  write_data_bin("pre_grafts", grafts);
   if (sigma > 0.0) {
-    norm = integ_trapPBC(grafts);
+    if (do_fld_np) {
+      fld_norm = integ_trapPBC(grafts);
+    }
     if (n_exp_nr > 0) {
-      norm += integ_trapPBC(expl_grafts);
+      exp_norm = integ_trapPBC(expl_grafts);
     }
     fft_fwd_wrapper(grafts, grafts);
   }
   for (i=0; i<ML; i++) {
     if (sigma > 0.0) {
-      grafts[i] *= 1.0/norm;
-      expl_grafts[i] *= 1.0/norm;
+      grafts[i] *= V / fld_norm;
+      expl_grafts[i] *= 1.0 / exp_norm;
     }
   }
 

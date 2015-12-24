@@ -1,0 +1,110 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.6	//
+AM	ran2.cpp	7;"	d	file:
+CC	makefile	/^CC = mpic++$/;"	m
+CFLAGS	makefile	/^CFLAGS = -O3 -w -Wall$/;"	m
+DFLAGS	makefile	/^DFLAGS = -DPAR$/;"	m
+Dim	globals.h	21;"	d
+EPS	ran2.cpp	17;"	d	file:
+IA1	ran2.cpp	9;"	d	file:
+IA2	ran2.cpp	10;"	d	file:
+IM1	ran2.cpp	5;"	d	file:
+IM2	ran2.cpp	6;"	d	file:
+IMM1	ran2.cpp	8;"	d	file:
+INCLUDE	makefile	/^INCLUDE = -I${FFTWHOME}\/include $/;"	m
+IQ1	ran2.cpp	11;"	d	file:
+IQ2	ran2.cpp	12;"	d	file:
+IR1	ran2.cpp	13;"	d	file:
+IR2	ran2.cpp	14;"	d	file:
+LDFLAGS	makefile	/^LDFLAGS = -limf -lm -lfftw3_mpi -lfftw3 -L${FFTWHOME}\/lib$/;"	m
+MAIN	main.cpp	1;"	d	file:
+NDIV	ran2.cpp	16;"	d	file:
+NTAB	ran2.cpp	15;"	d	file:
+OBJS	makefile	/^OBJS = ${SRCS:.cpp=.o}$/;"	m
+PI	globals.h	18;"	d
+RNMX	ran2.cpp	18;"	d	file:
+SRCS	makefile	/^SRCS = main.cpp calc_poly_density.cpp homopolymer_discrete.cpp \\$/;"	m
+accumulate_all_averages	array_utils.cpp	/^void accumulate_all_averages() {$/;"	f
+accumulate_average_array	array_utils.cpp	/^void accumulate_average_array( complex<double> *avg , complex<double>* dat ) {$/;"	f
+allocate	array_utils.cpp	/^void allocate(void) {$/;"	f
+append_data	io_utils.cpp	/^void append_data(char* nmi, complex<double> *dt) {$/;"	f
+brent_method	brent.cpp	/^double brent_method(double lowerLimit, double upperLimit, double errorTol) {$/;"	f
+calc_H	calc_h.cpp	/^complex<double> calc_H() {$/;"	f
+calc_discrete_debye	calc_debye.cpp	/^void calc_discrete_debye( complex<double> *g , int N ) {$/;"	f
+calc_gaa	calc_debye.cpp	/^void calc_gaa(complex<double> *g , double fD ) {$/;"	f
+calc_gab	calc_debye.cpp	/^void calc_gab( complex<double> *g , double fD ) {$/;"	f
+calc_gbb	calc_debye.cpp	/^void calc_gbb(complex<double> *g , double fD ) {$/;"	f
+calc_gd	calc_debye.cpp	/^void calc_gd(complex<double> *g, double alpha) {$/;"	f
+calc_poly_density	calc_poly_density.cpp	/^void calc_poly_density() {$/;"	f
+change_L0	brent.cpp	/^void change_L0(double len) {$/;"	f
+cross_prod	array_utils.cpp	/^double cross_prod( double u[Dim], double r[Dim] ) {$/;"	f
+diblock_discrete	diblock_discrete.cpp	/^complex<double> diblock_discrete( complex<double> *WA, complex<double> *WB, $/;"	f
+dot_prod	array_utils.cpp	/^double dot_prod( double u[Dim], double r[Dim] ) {$/;"	f
+explicit_nanorod	initialize.cpp	/^void explicit_nanorod(double len, double rad, double xi,$/;"	f
+explicit_nanosphere	initialize.cpp	/^void explicit_nanosphere(double rad, double xi, double rel_center[Dim]) {$/;"	f
+fft_bck_wrapper	fft_wrappers.cpp	/^void fft_bck_wrapper(complex<double>* in, complex<double>* out) {$/;"	f
+fft_fwd_wrapper	fft_wrappers.cpp	/^void fft_fwd_wrapper(complex<double>* in, complex<double>* out) {$/;"	f
+field_gradient	array_utils.cpp	/^void field_gradient( complex<double> *in , complex<double> *out , int dir ) {$/;"	f
+gasdev2	ran2.cpp	/^double gasdev2() {$/;"	f
+gauss_legendre_init	sphere_utils.cpp	/^void gauss_legendre_init( double* x , double *w , double a , double b , int N) {$/;"	f
+generate_1s_noise	1s_update.cpp	/^void generate_1s_noise( complex<double> *et, double lambda ) {$/;"	f
+generate_smwp_aniso	calc_poly_density.cpp	/^void generate_smwp_aniso(complex<double>* w, complex<double>*** GammaH,$/;"	f
+generate_smwp_iso	calc_poly_density.cpp	/^void generate_smwp_iso(complex<double>* w, complex<double>* GammaH,$/;"	f
+get_k	array_utils.cpp	/^double get_k(int id, double k[Dim]) {$/;"	f
+get_k_alias	array_utils.cpp	/^double get_k_alias( int id , double k[Dim] ) {$/;"	f
+get_k_global	array_utils.cpp	/^double get_k_global(int id2, double k[Dim]) {$/;"	f
+get_r	array_utils.cpp	/^double get_r( int id , double r[Dim] ) {$/;"	f
+get_slope	brent.cpp	/^double get_slope(double l) {$/;"	f
+grafted_nanoparticles	grafted_nanoparticle.cpp	/^complex<double> grafted_nanoparticles( $/;"	f
+homopolymer_discrete	homopolymer_discrete.cpp	/^complex<double> homopolymer_discrete( complex<double> *WA,  $/;"	f
+init_Gamma_rod	initialize.cpp	/^void init_Gamma_rod() {$/;"	f
+init_Gamma_sphere	initialize.cpp	/^void init_Gamma_sphere() {$/;"	f
+init_fields	initialize.cpp	/^void init_fields() {$/;"	f
+initialize_1	initialize.cpp	/^void initialize_1() {$/;"	f
+initialize_2	initialize.cpp	/^void initialize_2() {$/;"	f
+initialize_averages	array_utils.cpp	/^void initialize_averages( complex<double> *avg ) {$/;"	f
+integ_simpson	integrate_utils.cpp	/^complex<double> integ_simpson(int np, complex<double>* dat, double h) {$/;"	f
+integ_sphere	sphere_utils.cpp	/^complex<double> integ_sphere( complex<double> **dat ) {$/;"	f
+integ_sphere_posits	sphere_utils.cpp	/^void integ_sphere_posits( complex<double> ***dat , complex<double> *out ) {$/;"	f
+integ_sphere_trapPBC	sphere_utils.cpp	/^complex<double> integ_sphere_trapPBC(complex<double> ***dat) {$/;"	f
+integ_trapPBC	integrate_utils.cpp	/^complex<double> integ_trapPBC(complex<double>* dat) {$/;"	f
+integrate_diblock_discrete	calc_poly_density.cpp	/^void integrate_diblock_discrete(complex<double>** q, complex<double> **qdag, $/;"	f
+integrate_homopoly_discrete	calc_poly_density.cpp	/^void integrate_homopoly_discrete(complex<double>** q,$/;"	f
+main	main.cpp	/^int main(int argc, char** argv) {$/;"	f
+max	globals.h	16;"	d
+min	globals.h	15;"	d
+np_density_rod	calc_poly_density.cpp	/^complex<double> np_density_rod(complex<double>*** GammaH,$/;"	f
+np_density_sphere	calc_poly_density.cpp	/^complex<double> np_density_sphere(complex<double>* GammaH,$/;"	f
+pbc_mdr2	array_utils.cpp	/^double pbc_mdr2( double x1[Dim] , double x2[Dim] , double dr[Dim] ) {$/;"	f
+ran2	ran2.cpp	/^double ran2 () {$/;"	f
+read_input	read_input.cpp	/^void read_input() {$/;"	f
+read_one_resume_file	io_utils.cpp	/^void read_one_resume_file(FILE *inp, complex<double> *w ) {$/;"	f
+read_resume_files	io_utils.cpp	/^void read_resume_files() {$/;"	f
+save_averages	io_utils.cpp	/^void save_averages() {$/;"	f
+shift_field	grafted_nanoparticle.cpp	/^complex<double> shift_field( complex<double> *w  ) {$/;"	f
+simulate	simulate.cpp	/^double simulate() {$/;"	f
+sphere_init	sphere_utils.cpp	/^void sphere_init( ) {$/;"	f
+stack	array_utils.cpp	/^int stack( int x[Dim] ) {$/;"	f
+stack_input	array_utils.cpp	/^int stack_input(int x[Dim], int Nxx[Dim]) {$/;"	f
+stack_local	array_utils.cpp	/^int stack_local(int x[Dim]) {$/;"	f
+unstack	array_utils.cpp	/^void unstack(int id, int nn[Dim] ) {$/;"	f
+unstack_input	array_utils.cpp	/^void unstack_input(int id, int nn[Dim], int Nxx[Dim]) {$/;"	f
+unstack_local	array_utils.cpp	/^void unstack_local(int id, int nn[Dim] ) {$/;"	f
+unstack_stack	array_utils.cpp	/^int unstack_stack(int id) {$/;"	f
+update_1s	1s_update.cpp	/^void update_1s( ) {$/;"	f
+update_Euler	Euler_update.cpp	/^void update_Euler( ) {$/;"	f
+wab_part	calc_h.cpp	/^complex<double> wab_part() {$/;"	f
+wpl_part	calc_h.cpp	/^complex<double> wpl_part() {$/;"	f
+write_avg_data	io_utils.cpp	/^void write_avg_data(char* nmi, complex<double> *dt) {$/;"	f
+write_avg_data_bin	io_utils.cpp	/^void write_avg_data_bin(char* nmi, complex<double> *dt) {$/;"	f
+write_avg_kdata	io_utils.cpp	/^void write_avg_kdata(char* nmi, complex<double> *dt) {$/;"	f
+write_data	io_utils.cpp	/^void write_data(char* nmi, complex<double> *dt) {$/;"	f
+write_data_bin	io_utils.cpp	/^void write_data_bin(char* nmi, complex<double> *dt) {$/;"	f
+write_fft_cpx	io_utils.cpp	/^void write_fft_cpx(char* nm, fftw_complex *dt) {$/;"	f
+write_kdata	io_utils.cpp	/^void write_kdata(char* nmi, complex<double> *dt) {$/;"	f
+write_outputs	io_utils.cpp	/^void write_outputs() {$/;"	f
+zero_average	array_utils.cpp	/^void zero_average(complex<double>* tp) {$/;"	f

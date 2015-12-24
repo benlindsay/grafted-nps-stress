@@ -17,6 +17,7 @@ void accumulate_all_averages() {
     initialize_averages( avg_rhodb );
     initialize_averages( avg_rhoha );
     initialize_averages( avg_rhoga );
+    initialize_averages( avg_rhoga_exp );
     initialize_averages( avg_rho_fld_np );
     initialize_averages( avg_rho_fld_np_c );
   }
@@ -25,6 +26,7 @@ void accumulate_all_averages() {
   accumulate_average_array( avg_rhodb , rhodb );
   accumulate_average_array( avg_rhoha , rhoha );
   accumulate_average_array( avg_rhoga , rhoga );
+  accumulate_average_array( avg_rhoga_exp , rhoga_exp );
   accumulate_average_array( avg_expl_grafts , expl_grafts );
   accumulate_average_array( avg_rho_fld_np , rho_fld_np );
   accumulate_average_array( avg_rho_fld_np_c , rho_fld_np_c );
@@ -456,10 +458,12 @@ void allocate(void) {
   rhodb = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   rhoha = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   rhoga = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
+  rhoga_exp = (complex<double>*)
+              fftw_malloc(alloc_size*sizeof(complex<double>));
   grafts = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   expl_grafts = (complex<double>*)
                 fftw_malloc(alloc_size*sizeof(complex<double>));
-  total_alloced += alloc_size * sizeof(complex<double>) * 12;
+  total_alloced += alloc_size * sizeof(complex<double>) * 13;
 
   if ( do_CL ) {
     avg_rhoda = (complex<double>*)
@@ -470,11 +474,13 @@ void allocate(void) {
                 fftw_malloc(alloc_size*sizeof(complex<double>));
     avg_rhoga = (complex<double>*)
                  fftw_malloc(alloc_size*sizeof(complex<double>));
+    avg_rhoga_exp = (complex<double>*)
+                    fftw_malloc(alloc_size*sizeof(complex<double>));
     avg_rho_fld_np = (complex<double>*)
                      fftw_malloc(alloc_size*sizeof(complex<double>));
     avg_rho_fld_np_c = (complex<double>*)
                        fftw_malloc(alloc_size*sizeof(complex<double>));
-    total_alloced += alloc_size * sizeof(complex<double>) * 6;
+    total_alloced += alloc_size * sizeof(complex<double>) * 7;
   }
 
   // Debye functions
@@ -493,17 +499,24 @@ void allocate(void) {
   qddag = (complex<double>**) fftw_malloc((N+1) * sizeof(complex<double>*));
   qg = (complex<double>**) fftw_malloc((N+1) * sizeof(complex<double>*));
   qgdag = (complex<double>**) fftw_malloc((N+1) * sizeof(complex<double>*));
+  qgdag_exp = (complex<double>**)
+              fftw_malloc((N+1) * sizeof(complex<double>*));
   for (i=0; i<=N; i++) {
     qd[i] = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
-    qddag[i] = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
+    qddag[i] = (complex<double>*)
+               fftw_malloc(alloc_size*sizeof(complex<double>));
     qg[i] = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
-    qgdag[i] = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
+    qgdag[i] = (complex<double>*)
+               fftw_malloc(alloc_size*sizeof(complex<double>));
+    qgdag_exp[i] = (complex<double>*)
+                   fftw_malloc(alloc_size*sizeof(complex<double>));
   }
-  total_alloced += alloc_size * sizeof(complex<double>) * (N+1) * 4;
+  total_alloced += alloc_size * sizeof(complex<double>) * (N+1) * 5;
 
   qha = (complex<double>**) fftw_malloc((Nah+1)*sizeof(complex<double>*));
   for (i=0; i<=Nah; i++) {
-    qha[i] = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
+    qha[i] = (complex<double>*)
+             fftw_malloc(alloc_size*sizeof(complex<double>));
   }
   total_alloced += alloc_size * sizeof(complex<double>) * (Nah+1);
  

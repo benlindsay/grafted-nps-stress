@@ -43,6 +43,12 @@ void write_outputs() {
     fft_bck_wrapper(tmp, tmp);
     write_data_bin("rhoga", tmp);
     write_data_bin("rhoga_c", rhoga);
+    fft_fwd_wrapper(rhoga_exp, tmp);
+    for (i=0; i<ML; i++) 
+      tmp[i] *= hhat[i];
+    fft_bck_wrapper(tmp, tmp);
+    write_data_bin("rhoga_exp", tmp);
+    write_data_bin("rhoga_exp_c", rhoga_exp);
   }
 
   if (n_exp_nr > 0 && iter == 1) {
@@ -93,6 +99,12 @@ void save_averages() {
   if (nAH > 0.0) {
     sprintf(nm, "avg_rhoha_%d", iter);
     write_avg_data_bin(nm, avg_rhoha);
+  }
+  if (sigma > 0.0) {
+    sprintf(nm, "avg_rhoga_%d", iter);
+    write_avg_data_bin(nm, avg_rhoga);
+    sprintf(nm, "avg_rhoga_exp_%d", iter);
+    write_avg_data_bin(nm, avg_rhoga_exp);
   }
   if (do_fld_np) {
     sprintf(nm, "avg_rho_fld_np_%d", iter);

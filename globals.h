@@ -47,12 +47,12 @@ FILE *brent_otp, *dot;
 extern
 #endif
 complex<double> I, *wpl, *wa, *wb, *wabp, *wabm, *smwa, *smwb,
-                **qd, **qddag, **qha, **qg, **qgdag,
-                Qd, *rhoha, *rhoda, *rhodb, *rhoga, Qha, Qp,
-                *tmp, *tmp2, *gd, *gaa, *gab, *gbb,
+                **qd, **qddag, **qha, **qg, **qgdag, **qgdag_exp,
+                Qd, *rhoha, *rhoda, *rhodb, *rhoga, *rhoga_exp, Qha, Qp,
+                Qga_exp, *tmp, *tmp2, *gd, *gaa, *gab, *gbb,
                 *etap, *etam, 
                 *avg_rhoda, *avg_rhodb, *avg_rhoha, *avg_rhoga,
-                *avg_grafts, *avg_expl_grafts,
+                *avg_rhoga_exp, *avg_grafts, *avg_expl_grafts,
                 *avg_rho_fld_np, *avg_rho_fld_np_c,
                 *rho_surf, *surfH, *rho_exp_nr, *exp_nrH,
                 *rho_fld_np_c, *rho_fld_np, *fld_npH,
