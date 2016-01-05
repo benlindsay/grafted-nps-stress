@@ -56,6 +56,8 @@ void update_1s( ) {
       + ( nAH * double(Nah * Nah) / double(N)
           + ng_per_np * nP * double(Ng * Ng) / double(N) )
         * hhat[i] * hhat[i] * gd[i] / V;
+    if (nFP > 0.0 && np_type == 1)
+      A += nFP * Gamma_iso[i] * Gamma_iso[i] / (V * double(N * N));
     numer = wpl[i] - lam_pl * (F - A * wpl[i]);
     if (do_CL) 
       numer += etap[i];
@@ -94,6 +96,8 @@ void update_1s( ) {
         + ( nAH * double(Nah * Nah) / double(N)
             + ng_per_np * nP * double(Ng * Ng) / double(N) )
           * hhat[i] * hhat[i] * gd[i] / V;
+      if (nFP > 0 && np_chem == 1 && np_type == 1)
+        A += nFP * Gamma_iso[i] * Gamma_iso[i] / (V * double(N*N));
       numer = wabp[i] - lam_pl * ( F - A * wabp[i] ) ;
       if ( do_CL )
         numer += etap[i] ;
