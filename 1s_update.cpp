@@ -18,6 +18,9 @@ void update_1s( ) {
   if (sigma > 0.0 && nFP > 0.0)
     fft_fwd_wrapper(rhoga, rhoga);
 
+  if (iter==0)
+    write_data_bin("pre_pre_rhoga_exp", rhoga_exp);
+
   if (sigma > 0.0 && n_exp_nr > 0.0)
     fft_fwd_wrapper(rhoga_exp, rhoga_exp);
 
@@ -50,12 +53,24 @@ void update_1s( ) {
                                    rhoga[i] + rhoga_exp[i] + rhodb[i]);
     A = (kappaN <= 0.0 ? 0.0 : C/kappaN)
       + nD * double(N) * hhat[i] * hhat[i] * (gaa[i] + 2.0 * gab[i] + gbb[i]) / V
-      + nAH * double(Nah * Nah) / double(N) * hhat[i] * hhat[i] * gd[i] / V;
+      + ( nAH * double(Nah * Nah) / double(N)
+          + ng_per_np * nP * double(Ng * Ng) / double(N) )
+        * hhat[i] * hhat[i] * gd[i] / V;
     numer = wpl[i] - lam_pl * (F - A * wpl[i]);
     if (do_CL) 
       numer += etap[i];
     denom = 1.0 + lam_pl * A;
     wpl[i] = numer / denom; 
+  }
+
+  if (iter==0) {
+    write_data_bin("pre_rhodb", rhodb);
+    write_data_bin("pre_rhoda", rhoda);
+    write_data_bin("pre_rhoha", rhoha);
+    write_data_bin("pre_rhoga", rhoga);
+    write_data_bin("pre_rhoga_exp", rhoga_exp);
+    write_data_bin("pre_rho_fld_np", rho_fld_np);
+    write_data_bin("pre_exp_nrH", exp_nrH);
   }
   
   // Update AB fields //
@@ -68,12 +83,17 @@ void update_1s( ) {
     for ( i=0 ; i<ML ; i++ ) {
       // AB+ //
       F = 2.0 * C * wabp[i] / chiN
-        + I * rho_fld_np[i] / double(N)
         + I * hhat[i] / double(N) * (rhoda[i] + rhodb[i] +
                                      rhoha[i] + rhoga[i] + rhoga_exp[i] );
+      // If NP is A chemistry instead of neutral, add NP contributions
+      if (np_chem == 1)
+        F += I * rho_fld_np[i] / double(N) + I * C * exp_nrH[i];
+
       A = 2.0 * C / chiN 
         + nD*double(N)*hhat[i]*hhat[i] * (gaa[i] + 2.0*gab[i] + gbb[i]) / V 
-        + nAH * Nah * Nah / double(N) * hhat[i] * hhat[i] * gd[i] / V ;
+        + ( nAH * double(Nah * Nah) / double(N)
+            + ng_per_np * nP * double(Ng * Ng) / double(N) )
+          * hhat[i] * hhat[i] * gd[i] / V;
       numer = wabp[i] - lam_pl * ( F - A * wabp[i] ) ;
       if ( do_CL )
         numer += etap[i] ;
@@ -82,9 +102,11 @@ void update_1s( ) {
 
       // AB- //
       F = 2.0 * C * wabm[i] / chiN
-          + rho_fld_np[i] / double(N)
           + hhat[i] / double(N) * ( rhodb[i] - rhoda[i] - rhoha[i] -
                                     rhoga[i] - rhoga_exp[i]);
+      // If NP is A chemistry instead of neutral, add NP contributions
+      if (np_chem == 1)
+        F += - I * rho_fld_np[i] / double(N) - I * C * exp_nrH[i];
       A = 2.0 * C / chiN ;
       numer = wabm[i] - lam_mi * ( F - A * wabm[i] ) ;
       if ( do_CL ) 
@@ -97,6 +119,16 @@ void update_1s( ) {
   else {
     for ( i=0 ; i<ML ; i++ )
       wabp[i] = wabm[i] = 0.0 ;
+  }
+
+  if (iter==0) {
+    write_data_bin("post_rhodb", rhodb);
+    write_data_bin("post_rhoda", rhoda);
+    write_data_bin("post_rhoha", rhoha);
+    write_data_bin("post_rhoga", rhoga);
+    write_data_bin("post_rhoga_exp", rhoga_exp);
+    write_data_bin("post_rho_fld_np", rho_fld_np);
+    write_data_bin("post_exp_nrH", exp_nrH);
   }
 
   fft_bck_wrapper( wpl , wpl ) ;

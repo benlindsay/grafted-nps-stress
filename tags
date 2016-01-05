@@ -59,7 +59,9 @@ get_k_alias	array_utils.cpp	/^double get_k_alias( int id , double k[Dim] ) {$/;"
 get_k_global	array_utils.cpp	/^double get_k_global(int id2, double k[Dim]) {$/;"	f
 get_r	array_utils.cpp	/^double get_r( int id , double r[Dim] ) {$/;"	f
 get_slope	brent.cpp	/^double get_slope(double l) {$/;"	f
-grafted_nanoparticles	grafted_nanoparticle.cpp	/^complex<double> grafted_nanoparticles( $/;"	f
+graft_homopoly_free_ends	grafted_nanoparticle.cpp	/^void graft_homopoly_free_ends(complex<double>* smwg, int Ng,$/;"	f
+grafted_exp_nps	grafted_nanoparticle.cpp	/^complex<double> grafted_exp_nps($/;"	f
+grafted_fld_nps	grafted_nanoparticle.cpp	/^complex<double> grafted_fld_nps ( $/;"	f
 homopolymer_discrete	homopolymer_discrete.cpp	/^complex<double> homopolymer_discrete( complex<double> *WA,  $/;"	f
 init_Gamma_rod	initialize.cpp	/^void init_Gamma_rod() {$/;"	f
 init_Gamma_sphere	initialize.cpp	/^void init_Gamma_sphere() {$/;"	f

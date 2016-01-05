@@ -14,6 +14,19 @@ complex<double> diblock_discrete( complex<double> *WA, complex<double> *WB,
   qf = (complex<double>*) fftw_malloc(sizeof(complex<double>)*size);
   h =  (complex<double>*) fftw_malloc(sizeof(complex<double>)*size);
   a =  (complex<double>*) fftw_malloc(sizeof(complex<double>)*size);
+
+  if (iter==0 && first_cpd) {
+    write_data_bin("WA_0", WA);
+    write_data_bin("wpl_0", wpl);
+    write_data_bin("wabm_0", wabm);
+    write_data_bin("wabp_0", wabp);
+  }
+  if (iter==0 && !first_cpd) {
+    write_data_bin("WA_1", WA);
+    write_data_bin("wpl_1", wpl);
+    write_data_bin("wabm_1", wabm);
+    write_data_bin("wabp_1", wabp);
+  }
  
   // Initial condition on q(s=0, x)
   for (i=0; i<ML; i++) {

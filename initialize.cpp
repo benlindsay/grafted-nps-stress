@@ -191,6 +191,7 @@ void initialize_2() {
     }
     if (n_exp_nr > 0) {
       exp_norm = integ_trapPBC(expl_grafts);
+      printf("exp_norm = %lf + i * %lf\n", real(exp_norm), imag(exp_norm));
     }
     fft_fwd_wrapper(grafts, grafts);
   }
@@ -204,6 +205,7 @@ void initialize_2() {
       }
     }
   }
+  write_data_bin("post_expl_grafts", expl_grafts);
 
   // Number of nanoparticles
   if (n_exp_nr == 0 && !do_fld_np)
@@ -415,8 +417,11 @@ void explicit_nanosphere(double rad, double xi, double rel_center[Dim]) {
     // Compute explicit nanosphere density (excluding rho0)
     rho_exp_nr[i] += 0.5 * erfc( (dr_abs-rad)/xi );
 
-    double exp_arg = ( dr_abs - R_nr - xi_nr ) / xi_nr ;
-    expl_grafts[i] += exp( -exp_arg * exp_arg ) ;
+    
+    if (sigma > 0.0) {
+      double exp_arg = ( dr_abs - R_nr - xi_nr ) / xi_nr ;
+      expl_grafts[i] += exp( -exp_arg * exp_arg ) ;
+    }
 
   }
 } // explicit_nanosphere

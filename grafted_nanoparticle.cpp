@@ -12,7 +12,7 @@
 complex<double> shift_field( complex<double>* ) ;
 
 void graft_homopoly_free_ends(complex<double>* smwg, int Ng,
-                              complex<double>**q) {
+                              complex<double>** q) {
 
   // Equation 18 in H. Chao 2014 Soft Matter Paper
   // wg is either wa or wb in real space depending on whether grafts are A or B
@@ -46,28 +46,35 @@ complex<double> grafted_exp_nps(
     int Ng,
     complex<double> *smwg,
     complex<double> *expl_grafts,
-    complex<double> **q,
-    complex<double> **qdag,
+    complex<double> **q_loc,
+    complex<double> **qdag_loc,
     complex<double> *rhog) {
 
   int i, j;
 
+  if (iter==0 && first_cpd) {
+    write_data_bin("q_loc_Ng_0", q_loc[Ng-1]);
+  }
+  if (iter==0 && !first_cpd) {
+    write_data_bin("q_loc_Ng_1", q_loc[Ng-1]);
+  }
+
   // Initial condition for the complimentary graft propagator
   for ( i=0 ; i<ML ; i++ ) 
-    qdag[0][i] = expl_grafts[i] * exp( -smwg[i] ) / q[Ng-1][i] ;
+    qdag_loc[0][i] = expl_grafts[i] * exp( -smwg[i] ) / q_loc[Ng-1][i] ;
 
   // Rest of the graft propagator
   for ( j=1 ; j<Ng ; j++ ) {
 
-    fft_fwd_wrapper( qdag[j-1] , qdag[j] ) ;
+    fft_fwd_wrapper( qdag_loc[j-1] , qdag_loc[j] ) ;
 
     for ( i=0 ; i<ML ; i++ ) 
-      qdag[j][i] *= poly_bond_fft[i] ;
+      qdag_loc[j][i] *= poly_bond_fft[i] ;
 
-    fft_bck_wrapper( qdag[j] , qdag[j] ) ;
+    fft_bck_wrapper( qdag_loc[j] , qdag_loc[j] ) ;
 
     for ( i=0 ; i<ML ; i++ )
-      qdag[j][i] *= exp( -smwg[i] ) ;
+      qdag_loc[j][i] *= exp( -smwg[i] ) ;
 
   }
 
@@ -75,14 +82,18 @@ complex<double> grafted_exp_nps(
   for ( i=0 ; i<ML ; i++ ) {
     rhog[i] = 0.0 ;
     for ( j=0 ; j<Ng ; j++ ) 
-      rhog[i] += q[j][i] * qdag[Ng-j-1][i] ;
+      rhog[i] += q_loc[j][i] * qdag_loc[Ng-j-1][i] ;
 
     rhog[i] *= ngrafts_per_np * n_exp_np * exp( +smwg[i] ) ;
   }
 
   // Factor for the partition function
-  for ( i=0 ; i<ML ; i++ ) 
-    tmp[i] =  expl_grafts[i] * log( q[N-1][i] );
+  for ( i=0 ; i<ML ; i++ ) {
+    tmp[i] =  (real(expl_grafts[i]) <= 0.0 ? 0.0 : expl_grafts[i] * log( q_loc[Ng-1][i] ));
+    if (real(q_loc[Ng-1][i]) <= 0.0)
+      printf("q_loc[Ng-1][%d] = %g\n", i, real(q_loc[Ng-1][i]));
+  }
+
 
   Qga_exp = integ_trapPBC(tmp);
 

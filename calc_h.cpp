@@ -30,7 +30,7 @@ complex<double> calc_H() {
     Hcur += - double(n_exp_nr) * ng_per_np * real(Qga_exp);
 
   // Exit if H is NaN
-  if ( Hcur != Hcur ) {
+  if ( Hcur != Hcur) {
     if (myrank == 0) {
       printf("Hcur is NaN!\n");
       printf("real(Hcur) = %lf\n", real(Hcur));
@@ -43,6 +43,8 @@ complex<double> calc_H() {
       printf("real(-n_exp_grafts*Qga_exp) = %lf\n",
               - double(n_exp_nr) * ng_per_np * real(Qga_exp) );
       printf("real(Qga_exp) = %lf\n", real(Qga_exp));
+      printf("iter = %d\n", iter);
+      printf("Qd = %lf\n", real(Qd));
     }
     exit(1);
   }

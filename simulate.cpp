@@ -32,7 +32,9 @@ double simulate() {
   MPI_Barrier(MPI_COMM_WORLD);
 #endif
 
+  first_cpd = 1;
   calc_poly_density();
+  first_cpd = 0;
 
   if (do_fld_np) {
     // Field nanoparticle sanity check

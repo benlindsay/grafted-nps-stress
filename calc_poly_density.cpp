@@ -44,6 +44,12 @@ void calc_poly_density() {
     // Add all fields that make up wa and wb
     wa[i] = (I * (wpl[i] + wabp[i]) - wabm[i]) / double(N);
     wb[i] = (I * (wpl[i] + wabp[i]) + wabm[i]) / double(N);
+    if (np_chem == 0) {
+      wp[i] = I * wpl[i] / double(N);
+    }
+    else if (np_chem == 1) {
+      wp[i] = wa[i];
+    }
 
     // If doing a film calculation, add surface density times appropriate
     // lambda to wa and wb
@@ -116,7 +122,7 @@ void calc_poly_density() {
   // nanoparticles are chemically identical to A).
 
   if (nP > 0.0) {
-    graft_homopoly_free_ends(wa, Ng, qg);
+    graft_homopoly_free_ends(smwa, Ng, qg);
   }
 
   if (nFP > 0.0) {
@@ -124,7 +130,7 @@ void calc_poly_density() {
       // For spherical particles, no orientation dependence. Do this stuff even
       // if sigma=0 because currently the grafted_fld_nps function handles
       // both grafted and bare nanoparticles
-      generate_smwp_iso(wa, Gamma_iso, smwp_iso, exp_neg_smwp_iso);
+      generate_smwp_iso(wp, Gamma_iso, smwp_iso, exp_neg_smwp_iso);
       Qp = grafted_fld_nps(smwp_iso, smwa, grafts, Gamma_iso, qg, qgdag,
           rho_fld_np_c, rho_fld_np, smwp_min, rhoga,
           nFP, ng_per_np, Ng);

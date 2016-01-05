@@ -373,6 +373,7 @@ void allocate(void) {
   wpl = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   wa = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   wb = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
+  wp = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   smwa = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   smwb = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   wabp = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));

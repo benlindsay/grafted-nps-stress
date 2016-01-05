@@ -46,7 +46,7 @@ FILE *brent_otp, *dot;
 #ifndef MAIN
 extern
 #endif
-complex<double> I, *wpl, *wa, *wb, *wabp, *wabm, *smwa, *smwb,
+complex<double> I, *wpl, *wa, *wb, *wp, *wabp, *wabm, *smwa, *smwb,
                 **qd, **qddag, **qha, **qg, **qgdag, **qgdag_exp,
                 Qd, *rhoha, *rhoda, *rhodb, *rhoga, *rhoga_exp, Qha, Qp,
                 Qga_exp, *tmp, *tmp2, *gd, *gaa, *gab, *gbb,
@@ -69,8 +69,8 @@ int Nx[Dim], NxT[Dim], M, do_CL, iter,
     print_freq, itermax, sample_freq, sample_wait, update_scheme, 
     ML, NxL[Dim], zstart, size, myrank, nprocs,
     N, Ng, Nda, Ndb, Nah,
-    ic_flag[3], do_brent, do_film, np_type, n_exp_nr, do_fld_np, Nu,
-    keep_fields, first_sim;  
+    ic_flag[3], do_brent, do_film, np_type, np_chem, n_exp_nr, do_fld_np, Nu,
+    keep_fields, first_sim, first_cpd;  
 
 #ifdef PAR
 #ifndef MAIN
