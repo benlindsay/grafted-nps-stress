@@ -183,18 +183,19 @@ void initialize_2() {
   
   // Normalize expl_grafts and grafts
   complex<double> exp_norm, fld_norm;
-  write_data_bin("pre_expl_grafts", expl_grafts);
-  write_data_bin("pre_grafts", grafts);
   if (sigma > 0.0) {
+
     if (do_fld_np) {
       fld_norm = integ_trapPBC(grafts);
     }
+
     if (n_exp_nr > 0) {
       exp_norm = integ_trapPBC(expl_grafts);
-      printf("exp_norm = %lf + i * %lf\n", real(exp_norm), imag(exp_norm));
     }
+
     fft_fwd_wrapper(grafts, grafts);
   }
+
   for (i=0; i<ML; i++) {
     if (sigma > 0.0) {
       if (do_fld_np) {
@@ -205,7 +206,6 @@ void initialize_2() {
       }
     }
   }
-  write_data_bin("post_expl_grafts", expl_grafts);
 
   // Number of nanoparticles
   if (n_exp_nr == 0 && !do_fld_np)

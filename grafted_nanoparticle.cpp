@@ -52,13 +52,6 @@ complex<double> grafted_exp_nps(
 
   int i, j;
 
-  if (iter==0 && first_cpd) {
-    write_data_bin("q_loc_Ng_0", q_loc[Ng-1]);
-  }
-  if (iter==0 && !first_cpd) {
-    write_data_bin("q_loc_Ng_1", q_loc[Ng-1]);
-  }
-
   // Initial condition for the complimentary graft propagator
   for ( i=0 ; i<ML ; i++ ) 
     qdag_loc[0][i] = expl_grafts[i] * exp( -smwg[i] ) / q_loc[Ng-1][i] ;
@@ -93,7 +86,6 @@ complex<double> grafted_exp_nps(
     if (real(q_loc[Ng-1][i]) <= 0.0)
       printf("q_loc[Ng-1][%d] = %g\n", i, real(q_loc[Ng-1][i]));
   }
-
 
   Qga_exp = integ_trapPBC(tmp);
 

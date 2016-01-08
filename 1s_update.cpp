@@ -18,9 +18,6 @@ void update_1s( ) {
   if (sigma > 0.0 && nFP > 0.0)
     fft_fwd_wrapper(rhoga, rhoga);
 
-  if (iter==0)
-    write_data_bin("pre_pre_rhoga_exp", rhoga_exp);
-
   if (sigma > 0.0 && n_exp_nr > 0.0)
     fft_fwd_wrapper(rhoga_exp, rhoga_exp);
 
@@ -65,16 +62,6 @@ void update_1s( ) {
     wpl[i] = numer / denom; 
   }
 
-  if (iter==0) {
-    write_data_bin("pre_rhodb", rhodb);
-    write_data_bin("pre_rhoda", rhoda);
-    write_data_bin("pre_rhoha", rhoha);
-    write_data_bin("pre_rhoga", rhoga);
-    write_data_bin("pre_rhoga_exp", rhoga_exp);
-    write_data_bin("pre_rho_fld_np", rho_fld_np);
-    write_data_bin("pre_exp_nrH", exp_nrH);
-  }
-  
   // Update AB fields //
   if (chiN > 0.0) {
     if (do_CL) {
@@ -123,16 +110,6 @@ void update_1s( ) {
   else {
     for ( i=0 ; i<ML ; i++ )
       wabp[i] = wabm[i] = 0.0 ;
-  }
-
-  if (iter==0) {
-    write_data_bin("post_rhodb", rhodb);
-    write_data_bin("post_rhoda", rhoda);
-    write_data_bin("post_rhoha", rhoha);
-    write_data_bin("post_rhoga", rhoga);
-    write_data_bin("post_rhoga_exp", rhoga_exp);
-    write_data_bin("post_rho_fld_np", rho_fld_np);
-    write_data_bin("post_exp_nrH", exp_nrH);
   }
 
   fft_bck_wrapper( wpl , wpl ) ;

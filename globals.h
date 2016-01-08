@@ -70,7 +70,7 @@ int Nx[Dim], NxT[Dim], M, do_CL, iter,
     ML, NxL[Dim], zstart, size, myrank, nprocs,
     N, Ng, Nda, Ndb, Nah,
     ic_flag[3], do_brent, do_film, np_type, np_chem, n_exp_nr, do_fld_np, Nu,
-    keep_fields, first_sim, first_cpd;  
+    keep_fields, first_sim;  
 
 #ifdef PAR
 #ifndef MAIN
