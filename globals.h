@@ -32,7 +32,7 @@ double dx[Dim], L[Dim], V, Vf, V_1_fld_np, V_1_exp_np,
        top_wall_lamA, top_wall_lamB, bot_wall_lamA, bot_wall_lamB,
        wallT, wallXi, exp_nr_c[2][Dim],
        exp_nr_u[2][Dim], L_nr, R_nr, xi_nr,
-       *theta, *phi, *theta_weights, *phi_weights, np_frac, smwp_min,
+       *theta, *phi, *theta_weights, *phi_weights, np_frac,
        exp_nr_chiAPN, exp_nr_chiBPN,
        L_low, L_high, L_step, brent_tol, error_tol,
        L_ideal, min_H_over_V,
@@ -46,7 +46,7 @@ FILE *brent_otp, *dot;
 #ifndef MAIN
 extern
 #endif
-complex<double> I, *wpl, *wa, *wb, *wp, *wabp, *wabm, *smwa, *smwb,
+complex<double> I, *wpl, *wa, *wb, *wp, *wabp, *wabm, *smwa, *smwb, smwp_min,
                 **qd, **qddag, **qha, **qg, **qgdag, **qgdag_exp,
                 Qd, *rhoha, *rhoda, *rhodb, *rhoga, *rhoga_exp, Qha, Qp,
                 Qga_exp, *tmp, *tmp2, *gd, *gaa, *gab, *gbb,

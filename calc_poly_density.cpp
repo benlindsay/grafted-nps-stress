@@ -27,7 +27,7 @@ complex<double> np_density_sphere(complex<double>*, complex<double>*);
 complex<double> np_density_rod(complex<double>***, complex<double>***);
 complex<double> grafted_fld_nps(complex<double>*, complex<double>*,
     complex<double>*, complex<double>*, complex<double>**, complex<double>**,
-    complex<double>*, complex<double>*, complex<double>, complex<double>*,
+    complex<double>*, complex<double>*, complex<double>&, complex<double>*,
     double, double, int);
 void graft_homopoly_free_ends(complex<double>*, int, complex<double>**);
 complex<double> grafted_exp_nps( double, int, int, complex<double>*,
@@ -230,6 +230,7 @@ void generate_smwp_iso(complex<double>* w, complex<double>* GammaH,
   // This is corrected for when Qp is calculated. First, find current
   // processor's minimum:
   double smwp_min_local = 1000.0;
+  double smwp_min_global;
   for (i=0; i<ML; i++) {
     if (real(smwp[i]) < smwp_min_local)
       smwp_min_local = real(smwp[i]) ;
@@ -238,13 +239,15 @@ void generate_smwp_iso(complex<double>* w, complex<double>* GammaH,
 #ifdef PAR
   // Next, find the global minimum. Replace smwp_min in this processor with
   // that global minimum across all processors.
-  MPI_Allreduce(&smwp_min_local, &smwp_min, 1, MPI_DOUBLE, MPI_MIN,
+  MPI_Allreduce(&smwp_min_local, &smwp_min_global, 1, MPI_DOUBLE, MPI_MIN,
                 MPI_COMM_WORLD);
   MPI_Barrier(MPI_COMM_WORLD);
 #else
   // If no parallelization, the local minimum is already the global minimum
-  smwp_min = smwp_min_local;
+  smwp_min_global = smwp_min_local;
 #endif
+
+  smwp_min = complex<double> (smwp_min_global, 0.0);
 
   // Finally, subtract off the global minimum from all values in smwp and
   // store the exponential of the negative adjusted smeared field in
@@ -285,6 +288,7 @@ void generate_smwp_aniso(complex<double>* w, complex<double>*** GammaH,
   // This is corrected for when Qp is calculated. First, find current
   // processor's minimum:
   double smwp_min_local = 1000.0;
+  double smwp_min_global;
   for (i=0; i<Nu; i++) {
     for (j=0; j<2*Nu; j++) {
       for (k=0; k<ML; k++) {
@@ -297,13 +301,15 @@ void generate_smwp_aniso(complex<double>* w, complex<double>*** GammaH,
 #ifdef PAR
   // Next, find the global minimum. Replace smwp_min in this processor with
   // that global minimum across all processors.
-  MPI_Allreduce(&smwp_min_local, &smwp_min, 1, MPI_DOUBLE, MPI_MIN,
+  MPI_Allreduce(&smwp_min_local, &smwp_min_global, 1, MPI_DOUBLE, MPI_MIN,
                 MPI_COMM_WORLD);
   MPI_Barrier(MPI_COMM_WORLD);
 #else
   // If no parallelization, the local minimum is already the global minimum
-  smwp_min = smwp_min_local;
+  smwp_min_global = smwp_min_local;
 #endif
+
+  smwp_min = complex<double> (smwp_min_global, 0.0);
 
   // Finally, subtract off the global minimum from all values in smwp
   // Store the exponential of the negative smeared field for use in calculating

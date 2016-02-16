@@ -100,7 +100,7 @@ complex<double> grafted_fld_nps (
     complex<double> *gammaNP,  // nanoparticle shape function
     complex<double> **q, complex<double> **qdag, // Propagators for grafts
     complex<double> *rp , complex<double> *smrp, // Nanoparticle densities
-    complex<double> shift_WP, // Shift of chx pot field of the NPs
+    complex<double> &shift_WP, // Shift of chx pot field of the NPs
     complex<double> *rhg, // Grafted chain densities
     double npar,    // number of particles
     double ngrafts_per_np, // Number of grafted chains 
@@ -116,7 +116,7 @@ complex<double> grafted_fld_nps (
   // Distribution of bare particles //
   if ( sigma == 0.0 ) {
 
-    shift_WP = 0.0 ; //shift_field( WP  ) ;
+    shift_WP = shift_field( WP ) ;
 
     for ( i=0 ; i<ML ; i++ )
       tmp[i] = exp( -WP[i] ) ;
@@ -151,7 +151,7 @@ complex<double> grafted_fld_nps (
     for ( i=0 ; i<ML ; i++ ) 
       WP[i] = WP[i] - tmp[i] ;
 
-    shift_WP = 0.0 ; //shift_field( WP ) ;
+    shift_WP = shift_field( WP ) ;
 
     // Calculate the particle partition function
     for ( i=0 ; i<ML ; i++ )
