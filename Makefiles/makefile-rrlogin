@@ -6,7 +6,7 @@
 #CC = g++
 CC = mpic++
 DFLAGS = -DPAR
-CFLAGS = -O3 -w -Wall
+CFLAGS = -Ofast -march=native -w -Wall
 INCLUDE = -I${FFTWHOME}/include 
 LDFLAGS = -limf -lm -lfftw3_mpi -lfftw3 -L${FFTWHOME}/lib
 

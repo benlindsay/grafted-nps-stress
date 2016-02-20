@@ -2,6 +2,7 @@
 # makes the fftw3_mpi and fftw3 libraries available
 
 CC = CC
+CFLAGS = -O3
 DFLAGS = -DPAR
 LDFLAGS = -lm -lfftw3_mpi -lfftw3
 
