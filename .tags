@@ -6,16 +6,17 @@
 !_TAG_PROGRAM_VERSION	5.6	//
 AM	ran2.cpp	7;"	d	file:
 CC	makefile	/^CC = mpic++$/;"	m
-CFLAGS	makefile	/^CFLAGS = -O3 -w -Wall$/;"	m
+CFLAGS	makefile	/^CFLAGS = -Ofast -march=native -w -Wall$/;"	m
 DFLAGS	makefile	/^DFLAGS = -DPAR$/;"	m
 Dim	globals.h	21;"	d
 EPS	ran2.cpp	17;"	d	file:
+EXE	makefile	/^EXE := a.out$/;"	m
 IA1	ran2.cpp	9;"	d	file:
 IA2	ran2.cpp	10;"	d	file:
 IM1	ran2.cpp	5;"	d	file:
 IM2	ran2.cpp	6;"	d	file:
 IMM1	ran2.cpp	8;"	d	file:
-INCLUDE	makefile	/^INCLUDE = -I${FFTWHOME}\/include $/;"	m
+INCLUDE	makefile	/^INCLUDE = -I${FFTWHOME}\/include$/;"	m
 IQ1	ran2.cpp	11;"	d	file:
 IQ2	ran2.cpp	12;"	d	file:
 IR1	ran2.cpp	13;"	d	file:
@@ -28,6 +29,7 @@ OBJS	makefile	/^OBJS = ${SRCS:.cpp=.o}$/;"	m
 PI	globals.h	18;"	d
 RNMX	ran2.cpp	18;"	d	file:
 SRCS	makefile	/^SRCS = main.cpp calc_poly_density.cpp homopolymer_discrete.cpp \\$/;"	m
+TAGS	makefile	/^TAGS := .tags$/;"	m
 accumulate_all_averages	array_utils.cpp	/^void accumulate_all_averages() {$/;"	f
 accumulate_average_array	array_utils.cpp	/^void accumulate_average_array( complex<double> *avg , complex<double>* dat ) {$/;"	f
 allocate	array_utils.cpp	/^void allocate(void) {$/;"	f
