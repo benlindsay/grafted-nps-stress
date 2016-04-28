@@ -50,7 +50,7 @@ complex<double> I, *wpl, *wa, *wb, *wp, *wabp, *wabm, *smwa, *smwb, smwp_min,
                 **qd, **qddag, **qha, **qg, **qgdag, **qgdag_exp,
                 Qd, *rhoha, *rhoda, *rhodb, *rhoga, *rhoga_exp, Qha, Qp,
                 Qga_exp, *tmp, *tmp2, *gd, *gaa, *gab, *gbb,
-                *etap, *etam, 
+                *etap, *etam,
                 *avg_rhoda, *avg_rhodb, *avg_rhoha, *avg_rhoga,
                 *avg_rhoga_exp, *avg_grafts, *avg_expl_grafts,
                 *avg_rho_fld_np, *avg_rho_fld_np_c,
@@ -65,12 +65,12 @@ complex<double> I, *wpl, *wa, *wb, *wp, *wabp, *wabm, *smwa, *smwb, smwp_min,
 #ifndef MAIN
 extern
 #endif
-int Nx[Dim], NxT[Dim], M, do_CL, iter, 
-    print_freq, itermax, sample_freq, sample_wait, update_scheme, 
+int Nx[Dim], NxT[Dim], M, do_CL, iter,
+    print_freq, itermax, sample_freq, sample_wait, update_scheme,
     ML, NxL[Dim], zstart, size, myrank, nprocs,
     N, Ng, Nda, Ndb, Nah,
     ic_flag[3], do_brent, do_film, np_type, np_chem, n_exp_nr, do_fld_np, Nu,
-    keep_fields, first_sim;  
+    keep_fields, first_sim;
 
 #ifdef PAR
 #ifndef MAIN
@@ -78,7 +78,7 @@ extern
 #endif
 MPI_Status status;
 
-#endif 
+#endif
 
 #ifndef MAIN
 extern
@@ -97,7 +97,7 @@ double ran2(void);
 double get_k( int , double* );
 double get_k_alias( int , double* );
 int stack(int*);
-int stack2(int); 
+int stack2(int);
 int stack3(int, int);
 void unstack(int, int*);
 void unstack_local(int, int*);
