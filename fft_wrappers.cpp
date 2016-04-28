@@ -1,6 +1,6 @@
 #include "globals.h"
 
-// Forward transform 
+// Forward transform
 void fft_fwd_wrapper(complex<double>* in, complex<double>* out) {
 
   int i;
@@ -28,7 +28,7 @@ void fft_fwd_wrapper(complex<double>* in, complex<double>* out) {
     out[i] =( fmot0[i][0] + I * fmot0[i][1] ) * norm ;
   }
 #else
-  for (i=0; i<M; i++) 
+  for (i=0; i<M; i++)
     out[i] = ( fout[i][0] + I * fout[i][1] ) * norm ;
 #endif
 
