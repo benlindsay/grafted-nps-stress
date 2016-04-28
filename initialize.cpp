@@ -1,7 +1,5 @@
 #include "globals.h"
-void calc_P_constants(int);
 void read_resume_files(void);
-void init_particles(void);
 void sphere_init(void);
 complex<double> integ_sphere(complex<double>**);
 void calc_gaa(complex<double>* , double);
@@ -11,7 +9,6 @@ double get_r(int , double*) ;
 double dot_prod(double[Dim], double[Dim]);
 double cross_prod(double[Dim], double[Dim]);
 void write_data(char*, complex<double>*); // Added for debugging
-void init_negative_k(void) ;
 void init_fields(void);
 void init_Gamma_sphere(void);
 void init_Gamma_rod(void);
@@ -109,20 +106,9 @@ void initialize_2() {
   }
 
   // Initialize fields
-  if (keep_fields && !first_sim) {
-    // Do nothing if we're keeping the fields and it's not the first
-    // simulation. The final fields from the previous simulation carry on to
-    // the next one. (first_sim gets marked false at end of simulate() method)
-    if (myrank == 0) printf("Keeping fields, not reinitializing\n");
-  }
-  else {
-    init_fields();
-    if (myrank == 0) {
-      if (first_sim) printf("Initialized fields\n");
-      else printf("Reinitialized fields\n");
-    }
-  }
-  
+  init_fields();
+  if (myrank == 0) printf("Initialized fields\n");
+
   ////////////////////////
   // Define the volumes //
   ////////////////////////
@@ -180,7 +166,7 @@ void initialize_2() {
       exit(1);
     }
   }
-  
+
   // Normalize expl_grafts and grafts
   complex<double> exp_norm, fld_norm;
   if (sigma > 0.0) {
@@ -273,13 +259,13 @@ void initialize_2() {
   calc_gaa(gaa, fD);
   calc_gbb(gbb, fD);
   calc_gab(gab, fD);
-  
+
   if (Nah > 0) calc_gd( gd, double(Nah-1)/double(N-1) );
 
   ///////////////////////////////
   // Set up bonding potentials //
   ///////////////////////////////
-  if (myrank == 0) 
+  if (myrank == 0)
     printf("Setting up Gaussian bonds\n");
   for (i=0; i<ML; i++) {
     k2 = get_k(i, kv);
@@ -327,12 +313,12 @@ void init_fields() {
       }
     }
     // Random fields
-    else if (ic_flag[0] == -1) 
+    else if (ic_flag[0] == -1)
       wabm[i] = ic_pre[0] * ran2() ;
     // Zero fields
-    else 
+    else
       wabm[i] = 0.0 ;
-  } 
+  }
 
   // Overwrite fields with restart files if available
   read_resume_files();
@@ -340,7 +326,7 @@ void init_fields() {
 
 // Initialize 1 explicit nanorod by adding appropriate densities to the
 // rho_exp_nr array
-// 
+//
 // INPUTS:
 //    len         Nanorod length
 //    rad         Nanorod radius
@@ -383,7 +369,7 @@ void explicit_nanorod(double len, double rad, double xi,
 
 // Initialize 1 explicit nanosphere by adding appropriate densities to the
 // rho_exp_nr array
-// 
+//
 // INPUTS:
 //    rad         Nanosphere radius
 //    xi          Thickness of interface between nanosphere and surroundings
@@ -417,7 +403,6 @@ void explicit_nanosphere(double rad, double xi, double rel_center[Dim]) {
     // Compute explicit nanosphere density (excluding rho0)
     rho_exp_nr[i] += 0.5 * erfc( (dr_abs-rad)/xi );
 
-    
     if (sigma > 0.0) {
       double exp_arg = ( dr_abs - R_nr - xi_nr ) / xi_nr ;
       expl_grafts[i] += exp( -exp_arg * exp_arg ) ;
@@ -485,13 +470,16 @@ void init_Gamma_rod() {
   // Read legendre abscissa and weights once with processor 0
   if (myrank == 0) {
     sphere_init();
-  }     
+  }
+
+#ifdef PAR
   // Broadcast the values to all other processors
   MPI_Bcast(theta,           Nu, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Bcast(theta_weights,   Nu, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Bcast(phi,           2*Nu, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Bcast(phi_weights,   2*Nu, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Barrier(MPI_COMM_WORLD);
+#endif
 
   // Compute nanorod density (including rho0)
   for (int i=0; i<Nu; i++) {
@@ -521,7 +509,7 @@ void init_Gamma_rod() {
     } // j
   } // i
 
-  // Calculate average volume of 1 nanorod based on 
+  // Calculate average volume of 1 nanorod based on
   // Vp = integral ( dr * 1/(4PI) * integral( du * Gamma ) )
   // The extra V in the denominator is to cancel out the extra V included in
   // Gamma to speed up convolution later

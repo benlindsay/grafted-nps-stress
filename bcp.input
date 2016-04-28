@@ -11,13 +11,10 @@
 #Init field cond flags (0=zero, -1=rand, -2=cosine, -3=sine, -4=factor of 1)
 -2 -6.0 0 1.0  flag 1, prefactor, direction (x=0, y=1, z=2), # periods
 -4 6.0 1 1.0  flag 2, prefactor, direction (0, 1, 2), # periods
-1   keep_fields  0=re-initialize fields for each sim, 1=keep prev. w's
 
 # Simulation parameters
 25 25 25  Nx, # grid points in each direction
 5.0 5.0 5.0   L, box dimension in each direction
-0         do_brent flag
-10.0 13.0 0.05 0.01  L_min, L_max, L_step, brent_tol, brent's method stuff
 0.01   lam_pl, step size on the w+ fields
 0.005  lam_mi, step size on the w- fields
 1000000    itermax, max. # of iterations
@@ -25,7 +22,7 @@
 50 0  sample_freq, sample_wait
 1E-5  error_tol
 1       Update scheme (0 = Euler, 1=1S)
-0        do_CL 
+0        do_CL
 
 # Film parameters
 0        do_film flag, creates walls in dim-1 direction

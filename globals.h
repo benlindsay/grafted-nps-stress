@@ -34,14 +34,12 @@ double dx[Dim], L[Dim], V, Vf, V_1_fld_np, V_1_exp_np,
        exp_nr_u[2][Dim], L_nr, R_nr, xi_nr,
        *theta, *phi, *theta_weights, *phi_weights, np_frac,
        exp_nr_chiAPN, exp_nr_chiBPN,
-       L_low, L_high, L_step, brent_tol, error_tol,
-       L_ideal, min_H_over_V,
-       sigma, ng_per_np;
+       error_tol, sigma, ng_per_np;
 
 #ifndef MAIN
 extern
 #endif
-FILE *brent_otp, *dot;
+FILE *dot;
 
 #ifndef MAIN
 extern
@@ -69,8 +67,7 @@ int Nx[Dim], NxT[Dim], M, do_CL, iter,
     print_freq, itermax, sample_freq, sample_wait, update_scheme,
     ML, NxL[Dim], zstart, size, myrank, nprocs,
     N, Ng, Nda, Ndb, Nah,
-    ic_flag[3], do_brent, do_film, np_type, np_chem, n_exp_nr, do_fld_np, Nu,
-    keep_fields, first_sim;
+    ic_flag[3], do_film, np_type, np_chem, n_exp_nr, do_fld_np, Nu;
 
 #ifdef PAR
 #ifndef MAIN

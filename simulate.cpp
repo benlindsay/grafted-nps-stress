@@ -19,15 +19,12 @@ double simulate() {
     exit(1);
   }
 
-  if (myrank == 0) {
-    printf("------Starting simulation for L[0]=%lf, L[1]=%lf------\n",
-           L[0], L[1]);
-  }
+  if (myrank == 0) printf("------Starting simulation------\n");
 
   // Initialize variables and fields
   initialize_1();
   initialize_2();
- 
+
 #ifdef PAR
   MPI_Barrier(MPI_COMM_WORLD);
 #endif
@@ -38,7 +35,7 @@ double simulate() {
     // Field nanoparticle sanity check
     complex<double> np_check = integ_trapPBC(rho_fld_np_c)
                                + double(n_exp_nr);
-    complex<double> npVp_check = integ_trapPBC(rho_fld_np) 
+    complex<double> npVp_check = integ_trapPBC(rho_fld_np)
                                + integ_trapPBC(rho_exp_nr) * rho0;
     complex<double> C_check_easy = ( nD + nAH*Nah/double(N)
                                      + ng_per_np * nP * Ng / double(N)
@@ -77,7 +74,7 @@ double simulate() {
 
   write_outputs();
 
-  if (myrank == 0) printf("---Entering main loop---\n"); 
+  if (myrank == 0) printf("---Entering main loop---\n");
 
   ///////////////
   // MAIN LOOP //
@@ -88,7 +85,7 @@ double simulate() {
     else
       update_1s();
 
-    if (do_CL && iter >= sample_wait && iter % sample_freq == 0) 
+    if (do_CL && iter >= sample_wait && iter % sample_freq == 0)
       accumulate_all_averages();
 
     ////////////
@@ -120,7 +117,7 @@ double simulate() {
         fflush(stdout);
       }
       if (myrank == 0) {
-        fprintf(otp, "%d %5.6lf %1.3e %5.6lf %5.6lf %5.6lf %1.3e", 
+        fprintf(otp, "%d %5.6lf %1.3e %5.6lf %5.6lf %5.6lf %1.3e",
                 iter, real(H), imag(H), real(-log(Qd)), real(-log(Qha)),
                 real(-log(Qp)+smwp_min), error);
         fprintf(otp, "\n");
@@ -129,7 +126,7 @@ double simulate() {
       write_outputs();
     } // Output
 
-    if (!do_CL && iter > 25 && error < error_tol) {     
+    if (!do_CL && iter > 25 && error < error_tol) {
       if (myrank == 0) {
         printf("Tolerance reached. Error = %.4e\n", error);
         printf("---Main loop complete---\n\n");
@@ -142,38 +139,9 @@ double simulate() {
   // Close output stream
   fclose(otp);
 
-  double H_over_V = real(H) / V;
-  if (first_sim || H_over_V < min_H_over_V) {
-    min_H_over_V = H_over_V;
-    L_ideal = L[0];
-  }
-
   if (myrank == 0) {
-    // Output results to standard output
-    printf("------Completed L[0]=%lf simulation. H=%lf and H/V=%lf------\n\n",
-           L[0], real(H), H_over_V);
-    if (do_brent) {
-      // Open brent.dat
-      brent_otp = fopen("brent.dat", "a");
-      if (brent_otp == NULL) {
-        printf("Failed to open brent.dat!\n");
-        exit(1);
-      }
-
-      // Output length, H, and H/V data to brent.dat
-      for (int i=0; i<Dim; i++)
-        fprintf(brent_otp, "%5.6lf ", L[i]);
-      fprintf(brent_otp, "%5.6lf %5.6lf\n", real(H), H_over_V);
-      fclose(brent_otp);
-
-      printf("Current global minimum: L=%lf, H/V=%lf\n\n", L_ideal, min_H_over_V);
-    }
+    printf("------Completed simulation------\n\n");
     fflush(stdout);
   }
 
-  // The first simulation is complete by this point so set first_sim to 0
-  // no matter what it's current value is
-  first_sim = 0;
-
-  return H_over_V;
 }

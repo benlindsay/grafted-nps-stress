@@ -5,6 +5,7 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.6	//
 AM	ran2.cpp	7;"	d	file:
+BUF_LEN	read_input.cpp	2;"	d	file:
 CC	makefile	/^CC = mpic++$/;"	m
 CFLAGS	makefile	/^CFLAGS = -Ofast -march=native -w -Wall$/;"	m
 DFLAGS	makefile	/^DFLAGS = -DPAR$/;"	m
@@ -34,7 +35,6 @@ accumulate_all_averages	array_utils.cpp	/^void accumulate_all_averages() {$/;"	f
 accumulate_average_array	array_utils.cpp	/^void accumulate_average_array( complex<double> *avg , complex<double>* dat ) {$/;"	f
 allocate	array_utils.cpp	/^void allocate(void) {$/;"	f
 append_data	io_utils.cpp	/^void append_data(char* nmi, complex<double> *dt) {$/;"	f
-brent_method	brent.cpp	/^double brent_method(double lowerLimit, double upperLimit, double errorTol) {$/;"	f
 calc_H	calc_h.cpp	/^complex<double> calc_H() {$/;"	f
 calc_discrete_debye	calc_debye.cpp	/^void calc_discrete_debye( complex<double> *g , int N ) {$/;"	f
 calc_gaa	calc_debye.cpp	/^void calc_gaa(complex<double> *g , double fD ) {$/;"	f
@@ -42,7 +42,6 @@ calc_gab	calc_debye.cpp	/^void calc_gab( complex<double> *g , double fD ) {$/;"	
 calc_gbb	calc_debye.cpp	/^void calc_gbb(complex<double> *g , double fD ) {$/;"	f
 calc_gd	calc_debye.cpp	/^void calc_gd(complex<double> *g, double alpha) {$/;"	f
 calc_poly_density	calc_poly_density.cpp	/^void calc_poly_density() {$/;"	f
-change_L0	brent.cpp	/^void change_L0(double len) {$/;"	f
 cross_prod	array_utils.cpp	/^double cross_prod( double u[Dim], double r[Dim] ) {$/;"	f
 diblock_discrete	diblock_discrete.cpp	/^complex<double> diblock_discrete( complex<double> *WA, complex<double> *WB, $/;"	f
 dot_prod	array_utils.cpp	/^double dot_prod( double u[Dim], double r[Dim] ) {$/;"	f
@@ -60,7 +59,6 @@ get_k	array_utils.cpp	/^double get_k(int id, double k[Dim]) {$/;"	f
 get_k_alias	array_utils.cpp	/^double get_k_alias( int id , double k[Dim] ) {$/;"	f
 get_k_global	array_utils.cpp	/^double get_k_global(int id2, double k[Dim]) {$/;"	f
 get_r	array_utils.cpp	/^double get_r( int id , double r[Dim] ) {$/;"	f
-get_slope	brent.cpp	/^double get_slope(double l) {$/;"	f
 graft_homopoly_free_ends	grafted_nanoparticle.cpp	/^void graft_homopoly_free_ends(complex<double>* smwg, int Ng,$/;"	f
 grafted_exp_nps	grafted_nanoparticle.cpp	/^complex<double> grafted_exp_nps($/;"	f
 grafted_fld_nps	grafted_nanoparticle.cpp	/^complex<double> grafted_fld_nps ( $/;"	f
