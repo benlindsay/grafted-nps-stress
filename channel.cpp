@@ -2,11 +2,6 @@
 
 void Channel::init_rho()
 {
-  cout << "in init_rho" << endl;
-
-  // using std::erfc;
-  // using std::erf;
-  // using std::abs;
 
   for (int i=0; i<ML; i++)
   {
@@ -26,16 +21,6 @@ void Channel::init_rho()
     double vert_arg = (abs(x_vert-vert_center) - channel_width/2.0);
     rho[i] = 0.5 * erfc(hor_arg / xi);
     rho[i] *= 0.5 * (1 + erf(vert_arg / xi));
-
-    if (real(rho[i]) < 0 || real(rho[i]) > 1)
-    {
-      cout << "i: " << i << endl;
-      cout << "x_hor: " << x_hor << endl;
-      cout << "x_vert: " << x_vert << endl;
-      cout << "hor_arg: " << hor_arg << endl;
-      cout << "vert_arg: " << vert_arg << endl;
-      cout << "rho[i]: " << rho[i] << endl;
-    }
   }
 
   // Initialize rho_hat (fourier transform of rho)

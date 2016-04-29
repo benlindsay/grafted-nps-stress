@@ -58,6 +58,7 @@ void read_input() {
   if (myrank == 0)
     for (i=0; i<Dim; i++)
       printf("Nx%d: %d Lx%d: %lf\n", i, Nx[i], i, L[i]);
+  fflush(stdout);
 
   // Lambda/time step parameters
   fscanf(inp, "%lf", &lam_pl); fgets(tt,BUF_LEN,inp);

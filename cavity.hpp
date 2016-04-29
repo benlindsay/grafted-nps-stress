@@ -55,13 +55,12 @@ class Channel: public Cavity
       // Initialize center positions
       vert_center = L[vert_dir] / 2.0;
       hor_center = L[hor_dir] / 2.0;
-      cout << "channel_width: " << channel_width << endl;
-      cout << "wall_width: " << wall_width << endl;
-      cout << "xi: " << xi << endl;
-      cout << "vert_dir: " << vert_dir << endl;
-      cout << "hor_dir: " << hor_dir << endl;
-      cout << "vert_center: " << vert_center << endl;
-      cout << "hor_center: " << hor_center << endl;
+      if (myrank==0)
+      {
+        cout << "Initializing channel wall with channel width " << channel_width
+          << ", wall width " << wall_width << ", and xi " << xi << endl;
+        fflush(stdout);
+      }
     };
 
     void init_rho(void);
