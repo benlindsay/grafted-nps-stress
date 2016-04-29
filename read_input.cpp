@@ -1,4 +1,5 @@
 #include "globals.h"
+#include "cavity.hpp"
 #define BUF_LEN 256
 void random_particles( void ) ;
 void allocate_particles( void ) ;
@@ -80,6 +81,29 @@ void read_input() {
   fgets(tt, BUF_LEN, inp);
   fscanf(inp, "%lf %lf", &bot_wall_lamA, &bot_wall_lamB);
   fgets(tt, BUF_LEN, inp);
+
+  fgets(tt, BUF_LEN, inp);
+  fgets(tt, BUF_LEN, inp);
+
+  // Channel wall parameters
+  int do_channel;
+  double wall_width, channel_width, xi;
+  extern Cavity *channel;
+  fscanf(inp, "%d", &do_channel);                   fgets(tt, BUF_LEN, inp);
+  fscanf(inp, "%lf %lf %lf", &wall_width, &channel_width, &xi);
+  fgets(tt, BUF_LEN, inp);
+  if (do_film && do_channel)
+  {
+    cout << "Can't do film and channel in same simulation" << endl;
+    exit(1);
+  }
+  else if (do_channel)
+  {
+    channel = new Channel(channel_width, wall_width, xi, 0, Dim-1);
+  }
+  else {
+    channel = NULL;
+  }
 
   fgets(tt, BUF_LEN, inp);
   fgets(tt, BUF_LEN, inp);

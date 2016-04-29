@@ -11,9 +11,9 @@ complex<double> homopolymer_discrete( complex<double>*, complex<double>**,
     int );
 void integrate_homopoly_discrete(  complex<double>** , complex<double>,
     complex<double> , complex<double>* , complex<double>*,  int );
-complex<double> brush_homopoly_discrete(complex<double>*, complex<double>*, 
+complex<double> brush_homopoly_discrete(complex<double>*, complex<double>*,
     complex<double>**, complex<double>**, complex<double>*, int);
-void integrate_brush_homopoly_discrete(complex<double>**, complex<double>**, 
+void integrate_brush_homopoly_discrete(complex<double>**, complex<double>**,
     complex<double>, complex<double>, complex<double>*, complex<double>*, int );
 complex<double> grafted_nanoparticles( complex<double>*, complex<double>*,
     complex<double>*, complex<double>**, complex<double>**, complex<double>*,
@@ -104,14 +104,14 @@ void calc_poly_density() {
     integrate_diblock_discrete(qd, qddag, Qd, nD, rhoda, rhodb,
                                smwa, smwb, N, Nda);
   }
-  else 
+  else
     Qd = 1.0;
-  
+
   if (nAH > 0.0) {
     Qha = homopolymer_discrete(smwa, qha, Nah);
     integrate_homopoly_discrete(qha, Qha, nAH, rhoha, smwa, Nah);
   }
-  else 
+  else
     Qha = 1.0;
 
   //////////////////////////////////////////////////////////////
@@ -158,8 +158,8 @@ void calc_poly_density() {
 ///////////////////////////////////////////////////////
 // Calculate density of a discrete diblock copolymer //
 ///////////////////////////////////////////////////////
-void integrate_diblock_discrete(complex<double>** q, complex<double> **qdag, 
-    complex<double> Q, complex<double> nK, complex<double>* rda, 
+void integrate_diblock_discrete(complex<double>** q, complex<double> **qdag,
+    complex<double> Q, complex<double> nK, complex<double>* rda,
     complex<double>* rdb, complex<double>* wA,
     complex<double>* wB, int Ns, int Na) {
 
@@ -281,7 +281,7 @@ void generate_smwp_aniso(complex<double>* w, complex<double>*** GammaH,
       } // k
       // Inverse fourier transform smwp to conclude convolution
       fft_bck_wrapper(smwp[i][j], smwp[i][j]);
-    } // j  
+    } // j
   } // i
 
   // Shift smwp so the minimum is 0. This avoids numerical difficulties.
@@ -356,7 +356,7 @@ complex<double> np_density_sphere(complex<double>* GammaH,
 
   // Return rho_fld_np to real space
   fft_bck_wrapper(rho_fld_np, rho_fld_np);
-  
+
   return Qsphere;
 }
 
@@ -393,7 +393,7 @@ complex<double> np_density_rod(complex<double>*** GammaH,
       }
     }
   }
-  
+
   for (i=0; i<ML; i++) {
     // Qrod still represents 4*PI*V*Qp here
     rho_fld_np[i] *= nFP / Qrod;

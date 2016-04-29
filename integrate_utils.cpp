@@ -24,7 +24,7 @@ complex<double> integ_simpson(int np, complex<double>* dat, double h) {
 complex<double> integ_trapPBC(complex<double>* dat) {
   int i;
   complex<double> sum = complex<double>(0.0,0.0);
-  
+
   for (i=0; i<ML; i++)
     sum += dat[i];
 

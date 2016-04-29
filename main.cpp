@@ -1,6 +1,5 @@
 #define MAIN
-#include "globals.h"
-#include "r2.h"
+#include "main.hpp"
 double simulate(void);
 
 // The main routine is essentially a wrapper for the simulation routine

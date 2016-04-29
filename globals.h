@@ -1,7 +1,9 @@
+#ifndef GLOBALS_H
+#define GLOBALS_H
+
 #include <complex>
 #include <fstream>
 #include <iostream>
-//#include "malloc.h"
 #include <cstdlib>
 #include <string.h>
 
@@ -123,3 +125,5 @@ void write_data_bin( char* , complex<double>* ) ;
 void field_gradient( complex<double>* , complex<double>* , int );
 complex<double> calc_H( void ) ;
 void write_outputs( void ) ;
+
+#endif // GLOBALS_H

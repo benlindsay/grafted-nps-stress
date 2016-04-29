@@ -1,4 +1,5 @@
 #include "globals.h"
+#include "cavity.hpp"
 void generate_1s_noise( complex<double>* , double ) ;
 
 
@@ -11,9 +12,9 @@ void update_1s( ) {
     fft_fwd_wrapper(rhoda, rhoda);
     fft_fwd_wrapper(rhodb, rhodb);
   }
-   
-  if (nAH > 0.0) 
-    fft_fwd_wrapper(rhoha, rhoha); 
+
+  if (nAH > 0.0)
+    fft_fwd_wrapper(rhoha, rhoha);
 
   if (sigma > 0.0 && nFP > 0.0)
     fft_fwd_wrapper(rhoga, rhoga);
@@ -23,7 +24,7 @@ void update_1s( ) {
 
   if (do_fld_np)
     fft_fwd_wrapper(rho_fld_np, rho_fld_np);
- 
+
   fft_fwd_wrapper(wpl, wpl);
 
   if (chiN > 0.0) {
@@ -31,7 +32,7 @@ void update_1s( ) {
     fft_fwd_wrapper(wabp, wabp);
   }
 
-  if (do_CL) 
+  if (do_CL)
     generate_1s_noise(etap, lam_pl);
 
   // Update w+ field //
@@ -42,12 +43,14 @@ void update_1s( ) {
       evar = 1.0 ;
     else
       evar = 0.0 ;
-    
-    F = (kappaN <= 0.0 ? 0.0 : C*wpl[i]/kappaN) 
+
+    F = (kappaN <= 0.0 ? 0.0 : C*wpl[i]/kappaN)
       + I * C * (surfH[i] + exp_nrH[i] - evar)
       + I * rho_fld_np[i] / double(N)
       + I * hhat[i] / double(N) * (rhoha[i] + rhoda[i] +
                                    rhoga[i] + rhoga_exp[i] + rhodb[i]);
+    extern Cavity *channel;
+    if (channel != NULL) F += I * C * channel->rho_hat[i];
     A = (kappaN <= 0.0 ? 0.0 : C/kappaN)
       + nD * double(N) * hhat[i] * hhat[i] * (gaa[i] + 2.0 * gab[i] + gbb[i]) / V
       + ( nAH * double(Nah * Nah) / double(N)
@@ -56,10 +59,10 @@ void update_1s( ) {
     if (nFP > 0.0 && np_type == 1)
       A += nFP * Gamma_iso[i] * Gamma_iso[i] / (V * double(N * N));
     numer = wpl[i] - lam_pl * (F - A * wpl[i]);
-    if (do_CL) 
+    if (do_CL)
       numer += etap[i];
     denom = 1.0 + lam_pl * A;
-    wpl[i] = numer / denom; 
+    wpl[i] = numer / denom;
   }
 
   // Update AB fields //
@@ -78,8 +81,8 @@ void update_1s( ) {
       if (np_chem == 1)
         F += I * rho_fld_np[i] / double(N) + I * C * exp_nrH[i];
 
-      A = 2.0 * C / chiN 
-        + nD*double(N)*hhat[i]*hhat[i] * (gaa[i] + 2.0*gab[i] + gbb[i]) / V 
+      A = 2.0 * C / chiN
+        + nD*double(N)*hhat[i]*hhat[i] * (gaa[i] + 2.0*gab[i] + gbb[i]) / V
         + ( nAH * double(Nah * Nah) / double(N)
             + ng_per_np * nP * double(Ng * Ng) / double(N) )
           * hhat[i] * hhat[i] * gd[i] / V;
@@ -100,13 +103,13 @@ void update_1s( ) {
         F += - I * rho_fld_np[i] / double(N) - I * C * exp_nrH[i];
       A = 2.0 * C / chiN ;
       numer = wabm[i] - lam_mi * ( F - A * wabm[i] ) ;
-      if ( do_CL ) 
+      if ( do_CL )
         numer += etam[i] ;
       denom = 1.0 + lam_mi * A ;
       wabm[i] = numer / denom ;
     }
   }
-    
+
   else {
     for ( i=0 ; i<ML ; i++ )
       wabp[i] = wabm[i] = 0.0 ;
@@ -124,7 +127,7 @@ void update_1s( ) {
 
 
 // Generates Gaussian noise in k-space with appropriate statistics //
-// for the 1s updating scheme. 
+// for the 1s updating scheme.
 void generate_1s_noise( complex<double> *et, double lambda ) {
 
   int i ;
@@ -132,7 +135,7 @@ void generate_1s_noise( complex<double> *et, double lambda ) {
   for ( i=0 ; i<Dim ; i++ )
     scale /= sqrt( dx[i] ) ;
 
-  for ( i=0 ; i<ML ; i++ ) 
+  for ( i=0 ; i<ML ; i++ )
     et[i] = scale * gasdev2() ;
 
   fft_fwd_wrapper( et , et ) ;

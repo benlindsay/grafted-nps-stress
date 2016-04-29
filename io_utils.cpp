@@ -13,14 +13,14 @@ void write_outputs() {
 
   if (nD > 0.0) {
     fft_fwd_wrapper(rhoda, tmp);
-    for (i=0; i<ML; i++) 
+    for (i=0; i<ML; i++)
       tmp[i] *= hhat[i];
     fft_bck_wrapper(tmp, tmp);
     write_data_bin("rhoda", tmp);
     write_data_bin("rhoda_c", rhoda);
-    
+
     fft_fwd_wrapper(rhodb, tmp);
-    for (i=0; i<ML; i++) 
+    for (i=0; i<ML; i++)
       tmp[i] *= hhat[i];
     fft_bck_wrapper(tmp, tmp);
     write_data_bin("rhodb", tmp);
@@ -29,7 +29,7 @@ void write_outputs() {
 
   if (nAH > 0.0) {
     fft_fwd_wrapper(rhoha, tmp);
-    for (i=0; i<ML; i++) 
+    for (i=0; i<ML; i++)
       tmp[i] *= hhat[i];
     fft_bck_wrapper(tmp, tmp);
     write_data_bin("rhoha", tmp);
@@ -38,13 +38,13 @@ void write_outputs() {
 
   if (sigma > 0.0) {
     fft_fwd_wrapper(rhoga, tmp);
-    for (i=0; i<ML; i++) 
+    for (i=0; i<ML; i++)
       tmp[i] *= hhat[i];
     fft_bck_wrapper(tmp, tmp);
     write_data_bin("rhoga", tmp);
     write_data_bin("rhoga_c", rhoga);
     fft_fwd_wrapper(rhoga_exp, tmp);
-    for (i=0; i<ML; i++) 
+    for (i=0; i<ML; i++)
       tmp[i] *= hhat[i];
     fft_bck_wrapper(tmp, tmp);
     write_data_bin("rhoga_exp", tmp);
@@ -83,7 +83,7 @@ void write_outputs() {
   write_data_bin("wpl", wpl);
   write_data_bin("wabp", wabp);
   write_data_bin("wabm", wabm);
-  
+
 } // end write_outputs
 
 // Saves average densities with the iteration number in the name
@@ -116,7 +116,7 @@ void save_averages() {
 }
 
 // If running in parallel, this routine searches each file for
-// the starting spatial position for this specific processor, 
+// the starting spatial position for this specific processor,
 // then it reads in ML data points.
 void read_one_resume_file(FILE *inp, complex<double> *w ) {
 
@@ -298,7 +298,7 @@ void write_avg_data_bin(char* nmi, complex<double> *dt) {
   int i,j, nn[Dim];
   FILE *otp;
   char nm[50];
-  
+
   sprintf( nm , "%s.p%d.bin" , nmi, myrank);
   otp = fopen(nm, "wb");
 
@@ -324,7 +324,7 @@ void write_data_bin(char* nmi, complex<double> *dt) {
   int i,j, nn[Dim];
   FILE *otp;
   char nm[50];
-  
+
   sprintf(nm, "%s.p%d.bin", nmi, myrank);
   otp = fopen(nm, "wb");
 

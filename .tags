@@ -5,13 +5,20 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.6	//
 AM	ran2.cpp	7;"	d	file:
-BUF_LEN	read_input.cpp	2;"	d	file:
+ARRAY_UTILS_HPP	array_utils.hpp	2;"	d
+BUF_LEN	read_input.cpp	3;"	d	file:
+CAVITY_HPP	cavity.hpp	2;"	d
 CC	makefile	/^CC = mpic++$/;"	m
 CFLAGS	makefile	/^CFLAGS = -Ofast -march=native -w -Wall$/;"	m
+Cavity	cavity.hpp	/^class Cavity$/;"	c
+Channel	cavity.hpp	/^    Channel(double cw, double ww, double xi, int hd, int vd)$/;"	f	class:Channel
+Channel	cavity.hpp	/^class Channel: public Cavity$/;"	c
 DFLAGS	makefile	/^DFLAGS = -DPAR$/;"	m
-Dim	globals.h	21;"	d
+Dim	globals.h	23;"	d
 EPS	ran2.cpp	17;"	d	file:
 EXE	makefile	/^EXE := a.out$/;"	m
+FFT_WRAPPERS_HPP	fft_wrappers.hpp	2;"	d
+GLOBALS_H	globals.h	2;"	d
 IA1	ran2.cpp	9;"	d	file:
 IA2	ran2.cpp	10;"	d	file:
 IM1	ran2.cpp	5;"	d	file:
@@ -24,17 +31,21 @@ IR1	ran2.cpp	13;"	d	file:
 IR2	ran2.cpp	14;"	d	file:
 LDFLAGS	makefile	/^LDFLAGS = -limf -lm -lfftw3_mpi -lfftw3 -L${FFTWHOME}\/lib$/;"	m
 MAIN	main.cpp	1;"	d	file:
+MAIN_HPP	main.hpp	2;"	d
 NDIV	ran2.cpp	16;"	d	file:
 NTAB	ran2.cpp	15;"	d	file:
 OBJS	makefile	/^OBJS = ${SRCS:.cpp=.o}$/;"	m
-PI	globals.h	18;"	d
+PI	globals.h	20;"	d
 RNMX	ran2.cpp	18;"	d	file:
 SRCS	makefile	/^SRCS = main.cpp calc_poly_density.cpp homopolymer_discrete.cpp \\$/;"	m
 TAGS	makefile	/^TAGS := .tags$/;"	m
 accumulate_all_averages	array_utils.cpp	/^void accumulate_all_averages() {$/;"	f
 accumulate_average_array	array_utils.cpp	/^void accumulate_average_array( complex<double> *avg , complex<double>* dat ) {$/;"	f
 allocate	array_utils.cpp	/^void allocate(void) {$/;"	f
+allocate	cavity.hpp	/^    void allocate()$/;"	f	class:Cavity
+allocate_1d	array_utils.cpp	/^void array_utils::allocate_1d(complex<double> **arr) {$/;"	f	class:array_utils
 append_data	io_utils.cpp	/^void append_data(char* nmi, complex<double> *dt) {$/;"	f
+array_utils	array_utils.hpp	/^namespace array_utils$/;"	n
 calc_H	calc_h.cpp	/^complex<double> calc_H() {$/;"	f
 calc_discrete_debye	calc_debye.cpp	/^void calc_discrete_debye( complex<double> *g , int N ) {$/;"	f
 calc_gaa	calc_debye.cpp	/^void calc_gaa(complex<double> *g , double fD ) {$/;"	f
@@ -42,6 +53,8 @@ calc_gab	calc_debye.cpp	/^void calc_gab( complex<double> *g , double fD ) {$/;"	
 calc_gbb	calc_debye.cpp	/^void calc_gbb(complex<double> *g , double fD ) {$/;"	f
 calc_gd	calc_debye.cpp	/^void calc_gd(complex<double> *g, double alpha) {$/;"	f
 calc_poly_density	calc_poly_density.cpp	/^void calc_poly_density() {$/;"	f
+channel	main.hpp	/^Cavity *channel;$/;"	v
+channel_width	cavity.hpp	/^    double channel_width;$/;"	m	class:Channel
 cross_prod	array_utils.cpp	/^double cross_prod( double u[Dim], double r[Dim] ) {$/;"	f
 diblock_discrete	diblock_discrete.cpp	/^complex<double> diblock_discrete( complex<double> *WA, complex<double> *WB, $/;"	f
 dot_prod	array_utils.cpp	/^double dot_prod( double u[Dim], double r[Dim] ) {$/;"	f
@@ -63,9 +76,12 @@ graft_homopoly_free_ends	grafted_nanoparticle.cpp	/^void graft_homopoly_free_end
 grafted_exp_nps	grafted_nanoparticle.cpp	/^complex<double> grafted_exp_nps($/;"	f
 grafted_fld_nps	grafted_nanoparticle.cpp	/^complex<double> grafted_fld_nps ( $/;"	f
 homopolymer_discrete	homopolymer_discrete.cpp	/^complex<double> homopolymer_discrete( complex<double> *WA,  $/;"	f
+hor_center	cavity.hpp	/^    double hor_center;$/;"	m	class:Channel
+hor_dir	cavity.hpp	/^    int hor_dir;$/;"	m	class:Channel
 init_Gamma_rod	initialize.cpp	/^void init_Gamma_rod() {$/;"	f
 init_Gamma_sphere	initialize.cpp	/^void init_Gamma_sphere() {$/;"	f
 init_fields	initialize.cpp	/^void init_fields() {$/;"	f
+init_rho	channel.cpp	/^void Channel::init_rho()$/;"	f	class:Channel
 initialize_1	initialize.cpp	/^void initialize_1() {$/;"	f
 initialize_2	initialize.cpp	/^void initialize_2() {$/;"	f
 initialize_averages	array_utils.cpp	/^void initialize_averages( complex<double> *avg ) {$/;"	f
@@ -74,11 +90,11 @@ integ_sphere	sphere_utils.cpp	/^complex<double> integ_sphere( complex<double> **
 integ_sphere_posits	sphere_utils.cpp	/^void integ_sphere_posits( complex<double> ***dat , complex<double> *out ) {$/;"	f
 integ_sphere_trapPBC	sphere_utils.cpp	/^complex<double> integ_sphere_trapPBC(complex<double> ***dat) {$/;"	f
 integ_trapPBC	integrate_utils.cpp	/^complex<double> integ_trapPBC(complex<double>* dat) {$/;"	f
-integrate_diblock_discrete	calc_poly_density.cpp	/^void integrate_diblock_discrete(complex<double>** q, complex<double> **qdag, $/;"	f
+integrate_diblock_discrete	calc_poly_density.cpp	/^void integrate_diblock_discrete(complex<double>** q, complex<double> **qdag,$/;"	f
 integrate_homopoly_discrete	calc_poly_density.cpp	/^void integrate_homopoly_discrete(complex<double>** q,$/;"	f
 main	main.cpp	/^int main(int argc, char** argv) {$/;"	f
-max	globals.h	16;"	d
-min	globals.h	15;"	d
+max	globals.h	18;"	d
+min	globals.h	17;"	d
 np_density_rod	calc_poly_density.cpp	/^complex<double> np_density_rod(complex<double>*** GammaH,$/;"	f
 np_density_sphere	calc_poly_density.cpp	/^complex<double> np_density_sphere(complex<double>* GammaH,$/;"	f
 pbc_mdr2	array_utils.cpp	/^double pbc_mdr2( double x1[Dim] , double x2[Dim] , double dr[Dim] ) {$/;"	f
@@ -86,6 +102,8 @@ ran2	ran2.cpp	/^double ran2 () {$/;"	f
 read_input	read_input.cpp	/^void read_input() {$/;"	f
 read_one_resume_file	io_utils.cpp	/^void read_one_resume_file(FILE *inp, complex<double> *w ) {$/;"	f
 read_resume_files	io_utils.cpp	/^void read_resume_files() {$/;"	f
+rho	cavity.hpp	/^    complex<double> *rho;$/;"	m	class:Cavity
+rho_hat	cavity.hpp	/^    complex<double> *rho_hat;$/;"	m	class:Cavity
 save_averages	io_utils.cpp	/^void save_averages() {$/;"	f
 shift_field	grafted_nanoparticle.cpp	/^complex<double> shift_field( complex<double> *w  ) {$/;"	f
 simulate	simulate.cpp	/^double simulate() {$/;"	f
@@ -93,20 +111,27 @@ sphere_init	sphere_utils.cpp	/^void sphere_init( ) {$/;"	f
 stack	array_utils.cpp	/^int stack( int x[Dim] ) {$/;"	f
 stack_input	array_utils.cpp	/^int stack_input(int x[Dim], int Nxx[Dim]) {$/;"	f
 stack_local	array_utils.cpp	/^int stack_local(int x[Dim]) {$/;"	f
+total_alloced	main.hpp	/^long long total_alloced = 0;$/;"	v
 unstack	array_utils.cpp	/^void unstack(int id, int nn[Dim] ) {$/;"	f
 unstack_input	array_utils.cpp	/^void unstack_input(int id, int nn[Dim], int Nxx[Dim]) {$/;"	f
 unstack_local	array_utils.cpp	/^void unstack_local(int id, int nn[Dim] ) {$/;"	f
 unstack_stack	array_utils.cpp	/^int unstack_stack(int id) {$/;"	f
 update_1s	1s_update.cpp	/^void update_1s( ) {$/;"	f
 update_Euler	Euler_update.cpp	/^void update_Euler( ) {$/;"	f
+vert_center	cavity.hpp	/^    double vert_center;$/;"	m	class:Channel
+vert_dir	cavity.hpp	/^    int vert_dir;$/;"	m	class:Channel
 wab_part	calc_h.cpp	/^complex<double> wab_part() {$/;"	f
+wall_width	cavity.hpp	/^    double wall_width;$/;"	m	class:Channel
 wpl_part	calc_h.cpp	/^complex<double> wpl_part() {$/;"	f
 write_avg_data	io_utils.cpp	/^void write_avg_data(char* nmi, complex<double> *dt) {$/;"	f
 write_avg_data_bin	io_utils.cpp	/^void write_avg_data_bin(char* nmi, complex<double> *dt) {$/;"	f
 write_avg_kdata	io_utils.cpp	/^void write_avg_kdata(char* nmi, complex<double> *dt) {$/;"	f
+write_bin	cavity.hpp	/^    void write_bin(void) { write_data_bin("channel", rho); };$/;"	f	class:Channel
 write_data	io_utils.cpp	/^void write_data(char* nmi, complex<double> *dt) {$/;"	f
 write_data_bin	io_utils.cpp	/^void write_data_bin(char* nmi, complex<double> *dt) {$/;"	f
 write_fft_cpx	io_utils.cpp	/^void write_fft_cpx(char* nm, fftw_complex *dt) {$/;"	f
 write_kdata	io_utils.cpp	/^void write_kdata(char* nmi, complex<double> *dt) {$/;"	f
 write_outputs	io_utils.cpp	/^void write_outputs() {$/;"	f
+xi	cavity.hpp	/^    double xi;$/;"	m	class:Channel
 zero_average	array_utils.cpp	/^void zero_average(complex<double>* tp) {$/;"	f
+~Cavity	cavity.hpp	/^    ~Cavity()$/;"	f	class:Cavity

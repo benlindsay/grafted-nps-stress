@@ -1,4 +1,5 @@
 #include "globals.h"
+#include "cavity.hpp"
 void read_resume_files(void);
 void sphere_init(void);
 complex<double> integ_sphere(complex<double>**);
@@ -86,6 +87,13 @@ void initialize_2() {
     fft_fwd_wrapper(rho_surf, surfH);
   }
 
+  // Initialize channel wall if it exists
+  extern Cavity *channel;
+  if (channel != NULL)
+  {
+    channel->init_rho();
+  }
+
   // Loop over nanorods and add nanorod density to rho_exp_nr
   for (i=0; i<n_exp_nr; i++) {
     if (np_type == 1)
@@ -118,6 +126,7 @@ void initialize_2() {
   V_exp_nps = real(integ_trapPBC(rho_exp_nr));
   // "Free" Volume (everything excluding walls)
   Vf = V - real(integ_trapPBC(rho_surf));
+  if (channel != NULL) Vf -= real(integ_trapPBC(channel->rho));
   if (do_fld_np) {
     // Error-check np_frac
     if (np_frac < 0.0) {
@@ -285,6 +294,10 @@ void initialize_2() {
 void init_fields() {
   int sincos_dir;
   double x[Dim];
+  complex<double> *tmp_rho_wall;
+  extern Cavity* channel;
+  if (channel == NULL) tmp_rho_wall = rho_surf;
+  else tmp_rho_wall = channel->rho;
   // Initialize fields based on custom pattern specified in input file
   for (int i=0; i<ML; i++) {
     wpl[i] = wabp[i] = 0.0;
@@ -292,7 +305,7 @@ void init_fields() {
 
     // Sine and cosine pattern
     if (ic_flag[0] < -1) {
-      if (real(rho_surf[i] + rho_exp_nr[i]) > 0.5)
+      if (real(tmp_rho_wall[i] + rho_exp_nr[i]) > 0.5)
         // -1 if there's some wall or nanorod present
         wabm[i] = 0.0;
       else {

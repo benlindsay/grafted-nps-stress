@@ -1,4 +1,5 @@
 #include "globals.h"
+#include "cavity.hpp"
 
 complex<double> wpl_part() ;
 complex<double> wab_part() ;
@@ -61,6 +62,16 @@ complex<double> wpl_part() {
       - I * C * ( 1.0 - rho_surf[i] - rho_exp_nr[i] ) * wpl[i];
   }
 
+  extern Cavity *channel;
+
+  if (channel != NULL)
+  {
+    for (i=0; i<ML; i++)
+    {
+      tmp2[i] += I * C * channel->rho[i];
+    }
+  }
+
   return integ_trapPBC(tmp2);
 
 }
@@ -72,10 +83,10 @@ complex<double> wab_part() {
   }
   else {
     int i ;
- 
-    for ( i=0 ; i<ML ; i++ ) 
+
+    for ( i=0 ; i<ML ; i++ )
       tmp[i] = ( wabp[i] * wabp[i] + wabm[i] * wabm[i] ) * C / chiN ;
- 
+
     return integ_trapPBC( tmp ) ;
   }
 }

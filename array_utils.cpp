@@ -1,4 +1,4 @@
-#include "globals.h"
+#include "array_utils.hpp"
 void calc_P_constants( int );
 int stack_local( int* ) ;
 void fft_fwd_wrapper(complex<double>*, complex<double>*, int);
@@ -40,18 +40,18 @@ void initialize_averages( complex<double> *avg ) {
 }
 
 void accumulate_average_array( complex<double> *avg , complex<double>* dat ) {
-  for (int i=0; i<ML; i++) 
+  for (int i=0; i<ML; i++)
     avg[i] += dat[i];
 }
 
-// Takes integer "id" in [0, ML] and finds the correct 
+// Takes integer "id" in [0, ML] and finds the correct
 // unstacked integer value in [0, M]
 int unstack_stack(int id) {
 
   int n[Dim];
 
   unstack_local(id, n );
-  
+
   n[Dim-1] += zstart;
 
   return stack(n);
@@ -108,7 +108,7 @@ void unstack_input(int id, int nn[Dim], int Nxx[Dim]) {
   }
 }
 
-// Receives index id in [ 0 , ML ] and turns it into 
+// Receives index id in [ 0 , ML ] and turns it into
 // array nn[Dim]
 void unstack_local(int id, int nn[Dim] ) {
 
@@ -166,12 +166,12 @@ double get_r( int id , double r[Dim] ) {
 
   for ( i=0; i<Dim; i++) {
     r[i] = dx[i] * double( n[i] );
-    
+
     if ( r[i] > L[i]/2.0 )
       r[i] -= L[i];
     else if ( r[i] <= -L[i]/2.0 )
       r[i] += L[i];
- 
+
     r2 += r[i]*r[i];
   }
 
@@ -226,7 +226,7 @@ double get_k_alias( int id , double k[Dim] ) {
       }
     }
   }
-  
+
   for (i=0; i<Dim; i++)
     kmag += k[i]*k[i];
 
@@ -234,7 +234,7 @@ double get_k_alias( int id , double k[Dim] ) {
 
 }
 
-// Receives index id in [ 0 , ML ] and returns 
+// Receives index id in [ 0 , ML ] and returns
 // proper k-value, whether running in parallel or not
 double get_k(int id, double k[Dim]) {
 
@@ -271,7 +271,7 @@ double get_k(int id, double k[Dim]) {
 
 }
 
-// Receives index id in [ 0 , ML ] and returns 
+// Receives index id in [ 0 , ML ] and returns
 // proper k-value, whether running in parallel or not
 double get_k_global(int id2, double k[Dim]) {
 
@@ -312,13 +312,21 @@ void zero_average(complex<double>* tp) {
   int i;
 
   complex<double> integ;
-  
+
   integ = integ_trapPBC(tp);
 
   integ *= (1.0 / V);
 
   for (i=0; i<M; i++)
     tp[i] -= integ;
+
+}
+
+void array_utils::allocate_1d(complex<double> **arr) {
+
+  (*arr) = (complex<double>*) fftw_malloc(ML * sizeof(complex<double>));
+  extern long long total_alloced;
+  total_alloced += ML * sizeof(complex<double>);
 
 }
 
@@ -330,10 +338,10 @@ void allocate(void) {
   int i;
   int Nf[Dim], alloc_size;
 
-  for (i=0; i<Dim; i++) 
+  for (i=0; i<Dim; i++)
     Nf[i] = Nx[Dim-i-1];
 
-  long long total_alloced = 0 ;
+  extern long long total_alloced; // Declared in main.hpp
 
   ptrdiff_t Dm = Dim, Nfp[Dim], NxLtp, ztp;
   for (i=0; i<Dim; i++)
@@ -348,26 +356,30 @@ void allocate(void) {
 
 
   zstart = ztp;
-  
+
   fmin0 = (fftw_complex*) fftw_malloc( size * sizeof(fftw_complex) );
   fmot0 = (fftw_complex*) fftw_malloc( size * sizeof(fftw_complex) );
-  
-  fwd0 = fftw_mpi_plan_dft(Dim, Nfp, fmin0, fmot0, 
+
+  fwd0 = fftw_mpi_plan_dft(Dim, Nfp, fmin0, fmot0,
       MPI_COMM_WORLD, FFTW_FORWARD, FFTW_MEASURE );
-  fbk0 = fftw_mpi_plan_dft(Dim, Nfp, fmin0, fmot0, 
+  fbk0 = fftw_mpi_plan_dft(Dim, Nfp, fmin0, fmot0,
       MPI_COMM_WORLD, FFTW_BACKWARD, FFTW_MEASURE );
 
   ML = 1;
   for (i=0; i<Dim; i++)
     ML *= NxL[i];
-  
+
   total_alloced += size*sizeof(fftw_complex)*2 ;
 
   // Set up the memory to allocate //
   alloc_size = NxL[0] ;
 
-  for ( i=1 ; i<Dim ; i++ ) 
+  for ( i=1 ; i<Dim ; i++ )
     alloc_size *= NxL[i];
+
+  // Allocate channel wall if it exists
+  extern Cavity *channel;
+  if (channel != NULL) channel->allocate();
 
   // Allocate the fields
   wpl = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
@@ -379,7 +391,7 @@ void allocate(void) {
   wabp = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   wabm = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   total_alloced += alloc_size * sizeof(complex<double>) * 7;
-  
+
   if (do_CL) {
     etap = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
     etam = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
@@ -490,7 +502,7 @@ void allocate(void) {
   gbb = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   gd = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   total_alloced += alloc_size * sizeof(complex<double>) * 4;
-  
+
   poly_bond_fft = (complex<double>*) fftw_malloc(alloc_size *
                                                  sizeof(complex<double>));
   hhat = (complex<double>*) fftw_malloc(alloc_size * sizeof(complex<double>));
@@ -520,7 +532,7 @@ void allocate(void) {
              fftw_malloc(alloc_size*sizeof(complex<double>));
   }
   total_alloced += alloc_size * sizeof(complex<double>) * (Nah+1);
- 
+
   printf("Processor %d allocated %lf MB\n",
          myrank, double(total_alloced)/1.0E6);
 
@@ -530,7 +542,7 @@ void allocate(void) {
 #endif
 
   if (myrank == 0) {
-    printf("---Memory allocation complete---\n\n"); 
+    printf("---Memory allocation complete---\n\n");
     fflush(stdout);
   }
 }
@@ -570,7 +582,7 @@ double pbc_mdr2( double x1[Dim] , double x2[Dim] , double dr[Dim] ) {
   return mdr2 ;
 }
 
-// Returns u dot r where both u and r are in Cartesian coords 
+// Returns u dot r where both u and r are in Cartesian coords
 double dot_prod( double u[Dim], double r[Dim] ) {
 
   int i;
@@ -583,7 +595,7 @@ double dot_prod( double u[Dim], double r[Dim] ) {
 
 }
 
-// Returns magnitude of u x r where both u and r are in Cartesian coords 
+// Returns magnitude of u x r where both u and r are in Cartesian coords
 double cross_prod( double u[Dim], double r[Dim] ) {
 
   double dum;

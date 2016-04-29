@@ -1,4 +1,5 @@
 #include "globals.h"
+#include "cavity.hpp"
 void generate_1s_noise( complex<double>* , double ) ;
 
 void update_Euler( ) {
@@ -10,10 +11,10 @@ void update_Euler( ) {
     fft_fwd_wrapper(rhoda, rhoda);
     fft_fwd_wrapper(rhodb, rhodb);
   }
-   
-  if (nAH > 0.0) 
-    fft_fwd_wrapper(rhoha, rhoha); 
- 
+
+  if (nAH > 0.0)
+    fft_fwd_wrapper(rhoha, rhoha);
+
 
   fft_fwd_wrapper(wpl, wpl);
 
@@ -22,25 +23,27 @@ void update_Euler( ) {
     fft_fwd_wrapper(wabp, wabp);
   }
 
-  if (do_CL) 
+  if (do_CL)
     generate_1s_noise(etap, lam_pl);
 
   for (i=0; i<ML; i++) {
     // Update w+ field //
-    if (i == 0 && myrank == 0) 
+    if (i == 0 && myrank == 0)
       evar = 1.0 ;
     else
       evar = 0.0 ;
-    F = (kappaN <= 0.0 ? 0.0 : C * wpl[i] / kappaN) 
+    F = (kappaN <= 0.0 ? 0.0 : C * wpl[i] / kappaN)
         + I * C * (surfH[i] + exp_nrH[i] - evar)
         + I * rho_fld_np[i] / double(N)
         + I * hhat[i] / double(N) * (rhoha[i] + rhoda[i] + rhodb[i]);
+    extern Cavity *channel;
+    if (channel != NULL) F += I * C * channel->rho_hat[i];
     numer = wpl[i] - lam_pl * F;
-    if (do_CL) 
+    if (do_CL)
       numer += etap[i];
     wpl[i] = numer;
   }
-  
+
   // Update AB fields //
   if (chiN > 0.0) {
     if (do_CL) {
@@ -63,12 +66,12 @@ void update_Euler( ) {
           + rho_fld_np[i] / double(N)
           + hhat[i] / double(N) * (rhodb[i] - rhoda[i] - rhoha[i]);
       numer = wabm[i] - lam_mi * F;
-      if (do_CL) 
+      if (do_CL)
         numer += etam[i];
       wabm[i] = numer;
     }
   }
-    
+
   else {
     for (i=0; i<ML; i++)
       wabp[i] = wabm[i] = 0.0 ;
