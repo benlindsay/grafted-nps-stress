@@ -12,6 +12,7 @@ void write_data(char*, complex<double>*); // for debugging
 double simulate() {
   complex<double> Hcur, Ho, H;
   double error;
+  int close_to_tol_count = 0;
   FILE *otp;
   otp = fopen("data.dat", "w");
   if (otp == NULL) {
@@ -106,6 +107,9 @@ double simulate() {
         exit(1);
       }
       error = abs(H - Ho) / V / double(print_freq);
+      if (error < error_tol * 10) {
+        close_to_tol_count++;
+      }
       if (myrank == 0) {
         printf("Iter: %d, H=%lf", iter, real(H) );
         if (do_CL)
@@ -129,7 +133,7 @@ double simulate() {
       write_outputs();
     } // Output
 
-    if (!do_CL && iter > 25 && error < error_tol) {     
+    if (!do_CL && iter > 25 && error < error_tol && close_to_tol_count > 10) {
       if (myrank == 0) {
         printf("Tolerance reached. Error = %.4e\n", error);
         printf("---Main loop complete---\n\n");
