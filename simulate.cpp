@@ -5,6 +5,7 @@ void accumulate_all_averages(void);
 void update_1s(void);
 void update_Euler(void);
 void write_data(char*, complex<double>*); // for debugging
+void calc_stress(complex<double>*, complex<double>*);
 
 // This is the routine that is essentially the main routine in a code that
 // doesn't use Brent's method. Int calculates the equilibrium structure and
@@ -18,6 +19,15 @@ double simulate() {
   if (otp == NULL) {
     printf("Failed to open data.dat!\n");
     exit(1);
+  }
+
+  FILE *stress_otp;
+  if (stress_freq > 0) {
+    stress_otp = fopen("stress.dat", "w");
+    if (stress_otp == NULL) {
+      printf("Failed to open stress.dat!\n");
+      exit(1);
+    }
   }
 
   if (myrank == 0) {
@@ -34,6 +44,12 @@ double simulate() {
 #endif
 
   calc_poly_density();
+
+  complex<double> stress_diblock[Dim];
+  complex<double> stress_grafts[Dim];
+  if (stress_freq > 0) {
+    calc_stress(stress_diblock, stress_grafts);
+  }
 
   if (do_fld_np) {
     // Field nanoparticle sanity check
@@ -129,6 +145,17 @@ double simulate() {
                 real(-log(Qp)+smwp_min), error);
         fprintf(otp, "\n");
         fflush(otp);
+        if (stress_freq > 0 && iter % stress_freq == 0 && iter > stress_wait) {
+          fprintf(stress_otp, "%d ", iter);
+          for (int d = 0; d < Dim; d++) {
+            fprintf(stress_otp, "%.10e ", real(stress_diblock[d]));
+          }
+          for (int d = 0; d < Dim; d++) {
+            fprintf(stress_otp, "%.10e ", real(stress_grafts[d]));
+          }
+          fprintf(stress_otp, "\n");
+          fflush(stress_otp);
+        }
       }
       write_outputs();
     } // Output
@@ -145,6 +172,7 @@ double simulate() {
 
   // Close output stream
   fclose(otp);
+  fclose(stress_otp);
 
   double H_over_V = real(H) / V;
   if (first_sim || H_over_V < min_H_over_V) {

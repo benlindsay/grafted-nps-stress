@@ -67,6 +67,7 @@ extern
 #endif
 int Nx[Dim], NxT[Dim], M, do_CL, iter, 
     print_freq, itermax, sample_freq, sample_wait, update_scheme, 
+    stress_freq, stress_wait,
     ML, NxL[Dim], zstart, size, myrank, nprocs,
     N, Ng, Nda, Ndb, Nah,
     ic_flag[3], do_brent, do_film, np_type, np_chem, n_exp_nr, do_fld_np, Nu,

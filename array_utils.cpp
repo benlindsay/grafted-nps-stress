@@ -555,6 +555,26 @@ void field_gradient( complex<double> *in , complex<double> *out , int dir ) {
 
 }
 
+///////////////////////////////////////////////////////////////
+// Calculates grad squared of a field in the "dir" direction //
+// using spectral methods.  FFT, mult. by I*k[dir], iFFT     //
+///////////////////////////////////////////////////////////////
+void field_gradient_2( complex<double> *in , complex<double> *out , int dir ) {
+
+  int i ;
+  double kv[Dim] , k2 ;
+
+  fft_fwd_wrapper( in , out );
+
+  for ( i=0 ; i<ML ; i++ ) {
+    k2 = get_k_alias( i , kv ) ;
+    out[i] *= -kv[dir] * kv[dir];
+  }
+
+  fft_bck_wrapper( out , out ) ;
+
+}
+
 double pbc_mdr2( double x1[Dim] , double x2[Dim] , double dr[Dim] ) {
   int i;
   double mdr2 = 0.0 ;
