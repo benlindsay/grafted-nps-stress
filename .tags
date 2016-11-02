@@ -34,12 +34,16 @@ allocate	array_utils.cpp	/^void allocate(void) {$/;"	f
 append_data	io_utils.cpp	/^void append_data(char* nmi, complex<double> *dt) {$/;"	f
 brent_method	brent.cpp	/^double brent_method(double lowerLimit, double upperLimit, double errorTol) {$/;"	f
 calc_H	calc_h.cpp	/^complex<double> calc_H() {$/;"	f
+calc_dH_dL_diblock	calc_stress.cpp	/^void calc_dH_dL_diblock(complex<double> dH_dL_diblock[Dim]) {$/;"	f
+calc_dH_dL_diblock_other_way	calc_stress.cpp	/^void calc_dH_dL_diblock_other_way(complex<double> dH_dL_diblock[Dim]) {$/;"	f
+calc_dH_dL_grafts	calc_stress.cpp	/^void calc_dH_dL_grafts(complex<double> dH_dL_grafts[Dim]) {$/;"	f
 calc_discrete_debye	calc_debye.cpp	/^void calc_discrete_debye( complex<double> *g , int N ) {$/;"	f
 calc_gaa	calc_debye.cpp	/^void calc_gaa(complex<double> *g , double fD ) {$/;"	f
 calc_gab	calc_debye.cpp	/^void calc_gab( complex<double> *g , double fD ) {$/;"	f
 calc_gbb	calc_debye.cpp	/^void calc_gbb(complex<double> *g , double fD ) {$/;"	f
 calc_gd	calc_debye.cpp	/^void calc_gd(complex<double> *g, double alpha) {$/;"	f
 calc_poly_density	calc_poly_density.cpp	/^void calc_poly_density() {$/;"	f
+calc_stress	calc_stress.cpp	/^void calc_stress(complex<double> stress_diblock[Dim],$/;"	f
 change_L0	brent.cpp	/^void change_L0(double len) {$/;"	f
 cross_prod	array_utils.cpp	/^double cross_prod( double u[Dim], double r[Dim] ) {$/;"	f
 diblock_discrete	diblock_discrete.cpp	/^complex<double> diblock_discrete( complex<double> *WA, complex<double> *WB, $/;"	f
@@ -49,6 +53,7 @@ explicit_nanosphere	initialize.cpp	/^void explicit_nanosphere(double rad, double
 fft_bck_wrapper	fft_wrappers.cpp	/^void fft_bck_wrapper(complex<double>* in, complex<double>* out) {$/;"	f
 fft_fwd_wrapper	fft_wrappers.cpp	/^void fft_fwd_wrapper(complex<double>* in, complex<double>* out) {$/;"	f
 field_gradient	array_utils.cpp	/^void field_gradient( complex<double> *in , complex<double> *out , int dir ) {$/;"	f
+field_gradient_2	array_utils.cpp	/^void field_gradient_2( complex<double> *in , complex<double> *out , int dir ) {$/;"	f
 gasdev2	ran2.cpp	/^double gasdev2() {$/;"	f
 gauss_legendre_init	sphere_utils.cpp	/^void gauss_legendre_init( double* x , double *w , double a , double b , int N) {$/;"	f
 generate_1s_noise	1s_update.cpp	/^void generate_1s_noise( complex<double> *et, double lambda ) {$/;"	f

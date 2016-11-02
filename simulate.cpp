@@ -108,6 +108,10 @@ double simulate() {
     if (do_CL && iter >= sample_wait && iter % sample_freq == 0) 
       accumulate_all_averages();
 
+    if (stress_freq > 0) {
+      calc_stress(stress_diblock, stress_grafts);
+    }
+
     ////////////
     // OUTPUT //
     ////////////
@@ -145,20 +149,23 @@ double simulate() {
                 real(-log(Qp)+smwp_min), error);
         fprintf(otp, "\n");
         fflush(otp);
-        if (stress_freq > 0 && iter % stress_freq == 0 && iter > stress_wait) {
-          fprintf(stress_otp, "%d ", iter);
-          for (int d = 0; d < Dim; d++) {
-            fprintf(stress_otp, "%.10e ", real(stress_diblock[d]));
-          }
-          for (int d = 0; d < Dim; d++) {
-            fprintf(stress_otp, "%.10e ", real(stress_grafts[d]));
-          }
-          fprintf(stress_otp, "\n");
-          fflush(stress_otp);
-        }
       }
       write_outputs();
     } // Output
+
+    if (myrank == 0) {
+      if (stress_freq > 0 && iter % stress_freq == 0 && iter > stress_wait) {
+        fprintf(stress_otp, "%d ", iter);
+        for (int d = 0; d < Dim; d++) {
+          fprintf(stress_otp, "%.10e ", real(stress_diblock[d]));
+        }
+        for (int d = 0; d < Dim; d++) {
+          fprintf(stress_otp, "%.10e ", real(stress_grafts[d]));
+        }
+        fprintf(stress_otp, "\n");
+        fflush(stress_otp);
+      }
+    }
 
     if (!do_CL && iter > 25 && error < error_tol && close_to_tol_count > 10) {
       if (myrank == 0) {
