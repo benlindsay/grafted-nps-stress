@@ -369,6 +369,15 @@ void allocate(void) {
   for ( i=1 ; i<Dim ; i++ ) 
     alloc_size *= NxL[i];
 
+  diblock_stress = (complex<double>**) fftw_malloc(Dim*sizeof(complex<double>*));
+  graft_stress = (complex<double>**) fftw_malloc(Dim*sizeof(complex<double>*));
+  for (int d = 0; d < Dim; d++) {
+    diblock_stress[d] = (complex<double>*)
+                        fftw_malloc(alloc_size*sizeof(complex<double>*));
+    graft_stress[d] = (complex<double>*)
+                        fftw_malloc(alloc_size*sizeof(complex<double>*));
+  }
+
   // Allocate the fields
   wpl = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   wa = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));

@@ -10,11 +10,6 @@ complex<double> calc_H() {
 
   Hcur = wpl_part() + wab_part()  ;
 
-  if (myrank == 0) {
-    printf("wpl and wab parts of H: %lf\n", Hcur);
-    printf("diblock part of H:      %lf\n", -nD*log(Qd));
-  }
-
   // Add diblock part if applicable
   if (nD > 0.0)
     Hcur += - nD*log(Qd) ;

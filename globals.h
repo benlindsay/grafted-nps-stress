@@ -60,7 +60,7 @@ complex<double> I, *wpl, *wa, *wb, *wp, *wabp, *wabm, *smwa, *smwb, smwp_min,
                 shift_wp , *hhat, **tmp_sph, ***Gamma_aniso, *Gamma_iso,
                 ***smwp_aniso, *smwp_iso, ***tmp_aniso, *tmp_iso,
                 *exp_neg_smwp_iso, ***exp_neg_smwp_aniso,
-                *gamma_vir, *expl_grafts, *grafts;
+                *gamma_vir, *expl_grafts, *grafts, **diblock_stress, **graft_stress;
 
 #ifndef MAIN
 extern
