@@ -49,6 +49,13 @@ double simulate() {
   complex<double> stress_grafts[Dim];
   if (stress_freq > 0) {
     calc_stress(stress_diblock, stress_grafts);
+    for (int d = 0; d < Dim; d++) {
+      char nm[25];
+      sprintf(nm, "diblock_stress_%d", d);
+      write_data_bin(nm, diblock_stress[d]);
+      sprintf(nm, "graft_stress_%d", d);
+      write_data_bin(nm, graft_stress[d]);
+    }
   }
 
   if (do_fld_np) {

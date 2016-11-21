@@ -30,14 +30,16 @@ void calc_dH_dL_diblock(complex<double> dH_dL_diblock[Dim]) {
     for (int i = 0; i < ML; i++) {
       diblock_stress[d][i] *= bond_factor;
     }
-    field_gradient_2(smwa, tmp, d);
-    field_gradient_2(smwb, tmp2, d);
-    for (int i = 0; i < ML; i++) {
-      tmp[i] *= rhoda[i];
-      tmp2[i] *= rhodb[i];
-      tmp[i] += tmp2[i];
-      tmp[i] *= smear_factor;
-      diblock_stress[d][i] += tmp[i];
+    if (include_smearing) {
+      field_gradient_2(smwa, tmp, d);
+      field_gradient_2(smwb, tmp2, d);
+      for (int i = 0; i < ML; i++) {
+        tmp[i] *= rhoda[i];
+        tmp2[i] *= rhodb[i];
+        tmp[i] += tmp2[i];
+        tmp[i] *= smear_factor;
+        diblock_stress[d][i] += tmp[i];
+      }
     }
     dH_dL_diblock[d] = integ_trapPBC(diblock_stress[d]);
   }
@@ -69,16 +71,31 @@ void calc_dH_dL_grafts(complex<double> dH_dL_grafts[Dim]) {
   double n_GA = ng_per_np * (n_exp_nr);
   for (int d = 0; d < Dim; d++) {
     dH_dL_grafts[d] = 0;
-    complex<double> factor = n_GA * b2 / (3.0 * L[d]);
+    complex<double> bond_factor = n_GA * b2 / (3.0 * L[d]);
+    complex<double> smear_factor = a_squared / L[d];
+    for (int i = 0; i < ML; i++) {
+      graft_stress[d][i] = 0;
+    }
     for (int j = 0; j < N-1; j++) {
       field_gradient_2(qg[j], tmp, d);
       for (int i = 0; i < ML; i++) {
         tmp[i] *= qgdag_exp[N-j-1][i];
         tmp[i] *= exp(smwa[i]);
+        graft_stress[d][i] += tmp[i];
       }
-      dH_dL_grafts[d] += integ_trapPBC(tmp);
     }
-    dH_dL_grafts[d] *= factor;
+    for (int i = 0; i < ML; i++) {
+      graft_stress[d][i] *= bond_factor;
+    }
+    if (include_smearing) {
+      field_gradient_2(smwa, tmp, d);
+      for (int i = 0; i < ML; i++) {
+        tmp[i] *= rhoga_exp[i];
+        tmp[i] *= smear_factor;
+        graft_stress[d][i] += tmp[i];
+      }
+    }
+    dH_dL_grafts[d] = integ_trapPBC(graft_stress[d]);
   }
 }
 
