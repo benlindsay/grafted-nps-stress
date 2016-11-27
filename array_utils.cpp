@@ -566,7 +566,7 @@ void field_gradient( complex<double> *in , complex<double> *out , int dir ) {
 
 ///////////////////////////////////////////////////////////////
 // Calculates grad squared of a field in the "dir" direction //
-// using spectral methods.  FFT, mult. by I*k[dir], iFFT     //
+// using spectral methods.  FFT, mult. by -k[dir]^2, iFFT    //
 ///////////////////////////////////////////////////////////////
 void field_gradient_2( complex<double> *in , complex<double> *out , int dir ) {
 
@@ -581,6 +581,65 @@ void field_gradient_2( complex<double> *in , complex<double> *out , int dir ) {
   }
 
   fft_bck_wrapper( out , out ) ;
+
+}
+
+////////////////////////////////////////////////////////////////
+// Calculates grad squared of a field in the "dir" direction  //
+// using 5-point method.                                      //
+//          -f(x+2h) + 16f(x+h) - 30f(x) + 16f(x-h) - f(x-2h) //
+// f''(x) = ------------------------------------------------- //
+//                                 12 h^2                     //
+////////////////////////////////////////////////////////////////
+void field_gradient_2_5pt( complex<double> *in , complex<double> *out , int dir ) {
+  // if (dir == Dim - 1) {
+  //   // Currently no support for Z derivatives
+  //   for (int i = 0; i < ML; i++) {
+  //     out[i] = 0;
+  //   }
+  //   return;
+  // }
+
+  if (myrank > 0) {
+    printf("Stress calculations with the 5-pt method only work with 1 processor\n");
+    exit(1);
+  }
+
+  for (int i = 0; i < ML; i++) {
+    int ip2h, ip1h, im1h, im2h;
+    complex<double> fip2h, fip1h, fi, fim1h, fim2h;
+    int i_global = unstack_stack(i);
+    int nn[Dim];
+    unstack(i_global, nn);
+    int nn_dir = nn[dir];
+    double h = dx[dir];
+    // Take care of periodic boundary conditions
+    // (this part breaks if multiple processors are used,
+    // hence the myrank > 0 check above
+    nn[dir] = (nn_dir + 2) % Nx[dir];
+    if (nn[dir] < 0) nn[dir] += Nx[dir];
+    ip2h = stack_input(nn, Nx);
+
+    nn[dir] = (nn_dir + 1) % Nx[dir];
+    if (nn[dir] < 0) nn[dir] += Nx[dir];
+    ip1h = stack_input(nn, Nx);
+
+    nn[dir] = (nn_dir - 1) % Nx[dir];
+    if (nn[dir] < 0) nn[dir] += Nx[dir];
+    im1h = stack_input(nn, Nx);
+
+    nn[dir] = (nn_dir - 2) % Nx[dir];
+    if (nn[dir] < 0) nn[dir] += Nx[dir];
+    im2h = stack_input(nn, Nx);
+    // assign the function values that go into the 5-pt formula
+    fip2h = in[ip2h];
+    fip1h = in[ip1h];
+    fi = in[i];
+    fim1h = in[im1h];
+    fim2h = in[im2h];
+    // Compute the 2nd derivative
+    out[i] = 1.0/(12.0*h*h) * (-fip2h + 16.0*fip1h - 30.0*fi + 16.0*fim1h - fim2h);
+  }
 
 }
 

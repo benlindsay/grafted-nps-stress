@@ -5,6 +5,7 @@
 #include "globals.h"
 
 void field_gradient_2(complex<double>*, complex<double>*, int);
+void field_gradient_2_5pt(complex<double>*, complex<double>*, int);
 void write_data(char*, complex<double>*);
 
 void calc_dH_dL_diblock(complex<double> dH_dL_diblock[Dim]) {
@@ -16,7 +17,8 @@ void calc_dH_dL_diblock(complex<double> dH_dL_diblock[Dim]) {
       diblock_stress[d][i] = 0;
     }
     for (int j = 0; j < N-1; j++) {
-      field_gradient_2(qd[j], tmp, d);
+      // field_gradient_2(qd[j], tmp, d);
+      field_gradient_2_5pt(qd[j], tmp, d);
       for (int i = 0; i < ML; i++) {
         tmp[i] *= qddag[N-j-1][i];
         if (j < Nda) {
@@ -31,8 +33,10 @@ void calc_dH_dL_diblock(complex<double> dH_dL_diblock[Dim]) {
       diblock_stress[d][i] *= bond_factor;
     }
     if (include_smearing) {
-      field_gradient_2(smwa, tmp, d);
-      field_gradient_2(smwb, tmp2, d);
+      // field_gradient_2(smwa, tmp, d);
+      // field_gradient_2(smwb, tmp2, d);
+      field_gradient_2_5pt(smwa, tmp, d);
+      field_gradient_2_5pt(smwb, tmp2, d);
       for (int i = 0; i < ML; i++) {
         tmp[i] *= rhoda[i];
         tmp2[i] *= rhodb[i];
@@ -51,7 +55,8 @@ void calc_dH_dL_diblock_other_way(complex<double> dH_dL_diblock[Dim]) {
     dH_dL_diblock[d] = 0;
     complex<double> factor = nD * b2 / (3.0 * Qd * L[d] * V);
     for (int j = 1; j < N; j++) {
-      field_gradient_2(qddag[N-j-1], tmp, d);
+      // field_gradient_2(qddag[N-j-1], tmp, d);
+      field_gradient_2_5pt(qddag[N-j-1], tmp, d);
       for (int i = 0; i < ML; i++) {
         tmp[i] *= qd[j][i];
         if (j < Nda) {
@@ -77,7 +82,8 @@ void calc_dH_dL_grafts(complex<double> dH_dL_grafts[Dim]) {
       graft_stress[d][i] = 0;
     }
     for (int j = 0; j < N-1; j++) {
-      field_gradient_2(qg[j], tmp, d);
+      // field_gradient_2(qg[j], tmp, d);
+      field_gradient_2_5pt(qg[j], tmp, d);
       for (int i = 0; i < ML; i++) {
         tmp[i] *= qgdag_exp[N-j-1][i];
         tmp[i] *= exp(smwa[i]);
@@ -88,7 +94,8 @@ void calc_dH_dL_grafts(complex<double> dH_dL_grafts[Dim]) {
       graft_stress[d][i] *= bond_factor;
     }
     if (include_smearing) {
-      field_gradient_2(smwa, tmp, d);
+      // field_gradient_2(smwa, tmp, d);
+      field_gradient_2_5pt(smwa, tmp, d);
       for (int i = 0; i < ML; i++) {
         tmp[i] *= rhoga_exp[i];
         tmp[i] *= smear_factor;
@@ -102,6 +109,17 @@ void calc_dH_dL_grafts(complex<double> dH_dL_grafts[Dim]) {
 // just bond stress for now...
 void calc_stress(complex<double> stress_diblock[Dim],
                  complex<double> stress_grafts[Dim]) {
+  // for (int i = 0; i < ML; i++) {
+  //   int i_global = unstack_stack(i);
+  //   int nn[Dim];
+  //   unstack(i_global, nn);
+  //   tmp[i] = sin(2.0 * PI * nn[0] * dx[0] / L[0]);
+  // }
+  // field_gradient_2_5pt(tmp, tmp2, 0);
+  // write_data_bin("grad2_real", tmp2);
+  // field_gradient_2(tmp, tmp2, 0);
+  // write_data_bin("grad2_spectral", tmp2);
+
   complex<double> dH_dL_diblock[Dim];
   // calc_dH_dL_diblock_other_way(dH_dL_diblock);
   // printf("dHdL_x other  way: %lf\n", dH_dL_diblock[0]);

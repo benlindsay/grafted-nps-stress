@@ -4,3 +4,4 @@ test*/
 *.exe
 makefile
 tags
+.tags
