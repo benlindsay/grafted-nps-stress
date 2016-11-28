@@ -81,11 +81,11 @@ void calc_dH_dL_grafts(complex<double> dH_dL_grafts[Dim]) {
     for (int i = 0; i < ML; i++) {
       graft_stress[d][i] = 0;
     }
-    for (int j = 0; j < N-1; j++) {
+    for (int j = 0; j < Ng-1; j++) {
       // field_gradient_2(qg[j], tmp, d);
       field_gradient_2_5pt(qg[j], tmp, d);
       for (int i = 0; i < ML; i++) {
-        tmp[i] *= qgdag_exp[N-j-1][i];
+        tmp[i] *= qgdag_exp[Ng-j-1][i];
         tmp[i] *= exp(smwa[i]);
         graft_stress[d][i] += tmp[i];
       }
