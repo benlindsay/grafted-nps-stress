@@ -186,7 +186,9 @@ double simulate() {
 
   // Close output stream
   fclose(otp);
-  fclose(stress_otp);
+  if (stress_freq > 0) {
+    fclose(stress_otp);
+  }
 
   double H_over_V = real(H) / V;
   if (first_sim || H_over_V < min_H_over_V) {
@@ -218,7 +220,7 @@ double simulate() {
   }
 
   // The first simulation is complete by this point so set first_sim to 0
-  // no matter what it's current value is
+  // no matter what its current value is
   first_sim = 0;
 
   return H_over_V;
