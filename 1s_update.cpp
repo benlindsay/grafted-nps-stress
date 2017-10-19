@@ -97,7 +97,7 @@ void update_1s( ) {
                                     rhoga[i] - rhoga_exp[i]);
       // If NP is A chemistry instead of neutral, add NP contributions
       if (np_chem == 1)
-        F += - I * rho_fld_np[i] / double(N) - I * C * exp_nrH[i];
+        F += - rho_fld_np[i] / double(N) - C * exp_nrH[i];
       A = 2.0 * C / chiN ;
       numer = wabm[i] - lam_mi * ( F - A * wabm[i] ) ;
       if ( do_CL ) 
