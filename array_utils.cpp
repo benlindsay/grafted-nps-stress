@@ -378,6 +378,13 @@ void allocate(void) {
                         fftw_malloc(alloc_size*sizeof(complex<double>));
   }
 
+  nematic_order = (complex<double>**)
+                  fftw_malloc(n_nematic_terms*sizeof(complex<double>*));
+  for (int t = 0; t < n_nematic_terms; t++) {
+    nematic_order[t] = (complex<double>*)
+                       fftw_malloc(alloc_size*sizeof(complex<double>));
+  }
+
   // Allocate the fields
   wpl = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   wa = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
@@ -564,11 +571,12 @@ void field_gradient( complex<double> *in , complex<double> *out , int dir ) {
 
 }
 
-///////////////////////////////////////////////////////////////
-// Calculates grad squared of a field in the "dir" direction //
-// using spectral methods.  FFT, mult. by -k[dir]^2, iFFT    //
-///////////////////////////////////////////////////////////////
-void field_gradient_2( complex<double> *in , complex<double> *out , int dir ) {
+///////////////////////////////////////////////////////////////////////////
+// Calculates 2 gradients of a field in the "dir1" and "dir2" directions //
+// using spectral methods. FFT, multiply by -k[dir1]*k[dir2], iFFT       //
+///////////////////////////////////////////////////////////////////////////
+void field_gradient_2( complex<double> *in , complex<double> *out ,
+                       int dir1, int dir2 ) {
 
   int i ;
   double kv[Dim] , k2 ;
@@ -577,11 +585,19 @@ void field_gradient_2( complex<double> *in , complex<double> *out , int dir ) {
 
   for ( i=0 ; i<ML ; i++ ) {
     k2 = get_k_alias( i , kv ) ;
-    out[i] *= -kv[dir] * kv[dir];
+    out[i] *= -kv[dir1] * kv[dir2];
   }
 
   fft_bck_wrapper( out , out ) ;
 
+}
+
+///////////////////////////////////////////////////////////////
+// Calculates grad squared of a field in the "dir" direction //
+// using spectral methods.  FFT, mult. by -k[dir]^2, iFFT    //
+///////////////////////////////////////////////////////////////
+void field_gradient_2( complex<double> *in , complex<double> *out , int dir ) {
+  field_gradient_2(in, out, dir, dir);
 }
 
 ////////////////////////////////////////////////////////////////
