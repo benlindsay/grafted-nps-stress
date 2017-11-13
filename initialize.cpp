@@ -47,6 +47,8 @@ void initialize_1() {
   }
 
   n_samples = 0.0;
+
+  n_nematic_terms = Dim * (Dim + 1) / 2;
 }
 
 // Initializes fields and other variables

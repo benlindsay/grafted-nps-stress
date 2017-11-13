@@ -115,6 +115,23 @@ void save_averages() {
   }
 }
 
+void write_nematic_order(complex<double> **nematic_order) {
+  char nm[50];
+  int i_nematic = 0;
+  for (int d1 = 0; d1 < Dim; d1++) {
+    for (int d2 = d1; d2 < Dim; d2++) {
+      if (iter == 0) {
+        sprintf(nm, "init_nematic_%d%d", d1, d2);
+      }
+      else {
+        sprintf(nm, "nematic_%d%d", d1, d2);
+      }
+      write_data_bin(nm, nematic_order[i_nematic]);
+      i_nematic++;
+    }
+  }
+}
+
 // If running in parallel, this routine searches each file for
 // the starting spatial position for this specific processor, 
 // then it reads in ML data points.

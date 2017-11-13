@@ -24,6 +24,7 @@
 100       print_freq
 50 0  sample_freq, sample_wait
 0 0 0   stress_freq, stress_wait, include_smearing
+0     nematic_order_freq
 1E-5  error_tol
 1       Update scheme (0 = Euler, 1=1S)
 0        do_CL 

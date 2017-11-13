@@ -74,6 +74,7 @@ void read_input() {
   fscanf(inp, "%d %d", &sample_freq, &sample_wait);  fgets(tt, 80, inp);
   fscanf(inp, "%d %d %d", &stress_freq, &stress_wait, &include_smearing);
   fgets(tt, 80, inp);
+  fscanf(inp, "%d", &nematic_order_freq);            fgets(tt, 80, inp);
   fscanf(inp, "%le", &error_tol);                    fgets(tt, 80, inp);
   fscanf(inp, "%d", &update_scheme);                 fgets(tt, 80, inp);
   fscanf(inp, "%d", &do_CL);                         fgets(tt, 80, inp);

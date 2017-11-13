@@ -6,6 +6,8 @@ void update_1s(void);
 void update_Euler(void);
 void write_data(char*, complex<double>*); // for debugging
 void calc_stress(complex<double>*, complex<double>*);
+void calc_nematic_order(complex<double>**);
+void write_nematic_order(complex<double>**);
 
 // This is the routine that is essentially the main routine in a code that
 // doesn't use Brent's method. Int calculates the equilibrium structure and
@@ -56,6 +58,11 @@ double simulate() {
       sprintf(nm, "graft_stress_%d", d);
       write_data_bin(nm, graft_stress[d]);
     }
+  }
+
+  if (nematic_order_freq > 0) {
+    calc_nematic_order(nematic_order);
+    write_nematic_order(nematic_order);
   }
 
   if (do_fld_np) {

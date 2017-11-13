@@ -60,18 +60,19 @@ complex<double> I, *wpl, *wa, *wb, *wp, *wabp, *wabm, *smwa, *smwb, smwp_min,
                 shift_wp , *hhat, **tmp_sph, ***Gamma_aniso, *Gamma_iso,
                 ***smwp_aniso, *smwp_iso, ***tmp_aniso, *tmp_iso,
                 *exp_neg_smwp_iso, ***exp_neg_smwp_aniso,
-                *gamma_vir, *expl_grafts, *grafts, **diblock_stress, **graft_stress;
+                *gamma_vir, *expl_grafts, *grafts, **diblock_stress, **graft_stress,
+                **nematic_order;
 
 #ifndef MAIN
 extern
 #endif
 int Nx[Dim], NxT[Dim], M, do_CL, iter, 
     print_freq, itermax, sample_freq, sample_wait, update_scheme, 
-    stress_freq, stress_wait, include_smearing,
+    stress_freq, stress_wait, include_smearing, nematic_order_freq,
     ML, NxL[Dim], zstart, size, myrank, nprocs,
     N, Ng, Nda, Ndb, Nah,
     ic_flag[3], do_brent, do_film, np_type, np_chem, n_exp_nr, do_fld_np, Nu,
-    keep_fields, first_sim;  
+    keep_fields, first_sim, n_nematic_terms;
 
 #ifdef PAR
 #ifndef MAIN
