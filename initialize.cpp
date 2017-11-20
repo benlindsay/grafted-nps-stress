@@ -314,7 +314,7 @@ void init_fields() {
       else {
         wabm[i] = 1.0;
         for (int j=0; j<2; j++) { // initial condition flag sets
-          sincos_dir = ic_dir[j];
+          sincos_dir = int(ic_dir[j]);
           if (ic_flag[j] == -2) // cosine flag
             wabm[i] *= ic_pre[j]*tanh( cos(2.0 * PI * ic_period[j]
                   * x[sincos_dir] / L[sincos_dir])/0.2 );
