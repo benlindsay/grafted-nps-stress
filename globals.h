@@ -85,7 +85,11 @@ MPI_Status status;
 #ifndef MAIN
 extern
 #endif
+#ifdef PAR
 fftw_complex *fmin0, *fmot0 ;
+#else
+fftw_complex *fin, *fout;
+#endif
 
 #ifndef MAIN
 extern

@@ -221,7 +221,11 @@ complex<double> shift_field( complex<double> *w  ) {
     if ( real( w[i] ) < wtmp )
       wtmp = real( w[i] ) ;
 
+#ifdef PAR
   MPI_Allreduce( &wtmp, &wmin, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD ) ;
+#else
+  wmin = wtmp;
+#endif
 
   for ( i=0 ; i<ML ; i++ )
     w[i] -= wmin ;

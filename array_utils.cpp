@@ -339,8 +339,14 @@ void allocate(void) {
   for (i=0; i<Dim; i++)
     Nfp[i] = Nf[i];
 
+#ifdef PAR
   size = fftw_mpi_local_size_many(Dm, Nfp, 1, 0, MPI_COMM_WORLD,
             &NxLtp, &ztp );
+#else
+  size = M;
+  ML = M;
+  NxLtp = Nx[Dim - 1];
+#endif
 
   NxL[Dim-1] = NxLtp;
   for (i=0; i<Dim-1; i++)
@@ -349,6 +355,7 @@ void allocate(void) {
 
   zstart = ztp;
   
+#ifdef PAR
   fmin0 = (fftw_complex*) fftw_malloc( size * sizeof(fftw_complex) );
   fmot0 = (fftw_complex*) fftw_malloc( size * sizeof(fftw_complex) );
   
@@ -356,6 +363,18 @@ void allocate(void) {
       MPI_COMM_WORLD, FFTW_FORWARD, FFTW_MEASURE );
   fbk0 = fftw_mpi_plan_dft(Dim, Nfp, fmin0, fmot0, 
       MPI_COMM_WORLD, FFTW_BACKWARD, FFTW_MEASURE );
+#else
+  // Create int copy of ptrdiff_t because non MPI function uses ints I think...
+  int Nx_rev[Dim];
+  for (int d = 0; d < Dim; d++) {
+    Nx_rev[d] = Nfp[d];
+  }
+  fin = (fftw_complex*) fftw_malloc( size * sizeof(fftw_complex) );
+  fout = (fftw_complex*) fftw_malloc( size * sizeof(fftw_complex) );
+
+  fwd0 = fftw_plan_dft(Dim, Nx_rev, fin, fout, FFTW_FORWARD, FFTW_MEASURE);
+  fbk0 = fftw_plan_dft(Dim, Nx_rev, fin, fout, FFTW_BACKWARD, FFTW_MEASURE);
+#endif
 
   ML = 1;
   for (i=0; i<Dim; i++)

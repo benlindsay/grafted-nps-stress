@@ -489,11 +489,13 @@ void init_Gamma_rod() {
     sphere_init();
   }     
   // Broadcast the values to all other processors
+#ifdef PAR
   MPI_Bcast(theta,           Nu, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Bcast(theta_weights,   Nu, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Bcast(phi,           2*Nu, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Bcast(phi_weights,   2*Nu, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Barrier(MPI_COMM_WORLD);
+#endif
 
   // Compute nanorod density (including rho0)
   for (int i=0; i<Nu; i++) {
