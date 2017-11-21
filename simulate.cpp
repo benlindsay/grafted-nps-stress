@@ -102,7 +102,7 @@ double simulate() {
     fflush(stdout);
   }
 
-  Ho = calc_H();
+  Hcur = calc_H();
 
   if (myrank == 0) printf("Starting H: %lf\n\n", real(Ho));
 
