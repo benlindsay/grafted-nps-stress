@@ -346,6 +346,7 @@ void allocate(void) {
   size = M;
   ML = M;
   NxLtp = Nx[Dim - 1];
+  ztp = 0;
 #endif
 
   NxL[Dim-1] = NxLtp;
