@@ -405,6 +405,13 @@ void allocate(void) {
                        fftw_malloc(alloc_size*sizeof(complex<double>));
   }
 
+  eigenvec = (complex<double>**)
+             fftw_malloc(Dim*sizeof(complex<double>*));
+  for (int d = 0; d < Dim; d++) {
+    eigenvec[d] = (complex<double>*)
+                  fftw_malloc(ML*sizeof(complex<double>));
+  }
+
   // Allocate the fields
   wpl = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));
   wa = (complex<double>*) fftw_malloc(alloc_size*sizeof(complex<double>));

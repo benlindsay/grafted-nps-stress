@@ -61,7 +61,7 @@ complex<double> I, *wpl, *wa, *wb, *wp, *wabp, *wabm, *smwa, *smwb, smwp_min,
                 ***smwp_aniso, *smwp_iso, ***tmp_aniso, *tmp_iso,
                 *exp_neg_smwp_iso, ***exp_neg_smwp_aniso,
                 *gamma_vir, *expl_grafts, *grafts, **diblock_stress, **graft_stress,
-                **nematic_order;
+                **nematic_order, **eigenvec;
 
 #ifndef MAIN
 extern
@@ -69,6 +69,7 @@ extern
 int Nx[Dim], NxT[Dim], M, do_CL, iter, 
     print_freq, itermax, sample_freq, sample_wait, update_scheme, 
     stress_freq, stress_wait, include_smearing, nematic_order_freq,
+    nematic_order_output_mode, lam_norm,
     ML, NxL[Dim], zstart, size, myrank, nprocs,
     N, Ng, Nda, Ndb, Nah,
     ic_flag[3], do_brent, do_film, np_type, np_chem, n_exp_nr, do_fld_np, Nu,

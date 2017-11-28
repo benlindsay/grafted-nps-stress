@@ -15,7 +15,8 @@ SRCS = main.cpp calc_poly_density.cpp homopolymer_discrete.cpp \
        fft_wrappers.cpp calc_debye.cpp initialize.cpp \
        read_input.cpp diblock_discrete.cpp 1s_update.cpp \
        Euler_update.cpp brent.cpp simulate.cpp sphere_utils.cpp \
-       grafted_nanoparticle.cpp calc_stress.cpp
+       grafted_nanoparticle.cpp calc_stress.cpp calc_nematic_order.cpp \
+       matrix_utils.cpp
 			 
 
 OBJS = ${SRCS:.cpp=.o}
@@ -24,6 +25,7 @@ OBJS = ${SRCS:.cpp=.o}
 	${CC} ${CFLAGS} ${DFLAGS} -c ${INCLUDE} $<
 
 a.out:	${OBJS}
+	ctags -R -f .tags
 	${CC} ${CFLAGS} -o $@ ${OBJS} ${LDFLAGS}
 
 debug: $(SRCS)

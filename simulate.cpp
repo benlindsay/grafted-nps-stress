@@ -60,9 +60,18 @@ double simulate() {
     }
   }
 
-  if (nematic_order_freq > 0) {
+  if (nematic_order_freq > 0 && nematic_order_freq > 0) {
+    if (myrank == 0) {
+      printf("calculating nematic order:\n");
+    }
     calc_nematic_order(nematic_order);
+    if (myrank == 0) {
+      printf("writing nematic order:\n");
+    }
     write_nematic_order(nematic_order);
+    if (myrank == 0) {
+      printf("done writing nematic order:\n");
+    }
   }
 
   if (do_fld_np) {
@@ -124,6 +133,20 @@ double simulate() {
 
     if (stress_freq > 0) {
       calc_stress(stress_diblock, stress_grafts);
+    }
+
+    if (nematic_order_freq > 0 && iter % nematic_order_freq == 0) {
+      if (myrank == 0) {
+        printf("calculating nematic order:\n");
+      }
+      calc_nematic_order(nematic_order);
+      if (myrank == 0) {
+        printf("writing nematic order:\n");
+      }
+      write_nematic_order(nematic_order);
+      if (myrank == 0) {
+        printf("done writing nematic order:\n");
+      }
     }
 
     ////////////

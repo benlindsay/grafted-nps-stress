@@ -130,6 +130,17 @@ void write_nematic_order(complex<double> **nematic_order) {
       i_nematic++;
     }
   }
+  if (nematic_order_output_mode == 1 && Dim == 3) {
+    for (int d = 0; d < Dim; d++) {
+      if (iter == 0) {
+        sprintf(nm, "init_eigenvec_%d", d);
+      }
+      else {
+        sprintf(nm, "eigenvec_%d", d);
+      }
+      write_data_bin(nm, eigenvec[d]);
+    }
+  }
 }
 
 // If running in parallel, this routine searches each file for
