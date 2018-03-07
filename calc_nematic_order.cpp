@@ -12,7 +12,7 @@ void calc_one_nematic_term(complex<double> *nematic_order_element,
                            int dir1, int dir2) {
   double b2 = 6.0 / (N - 1.0);
   // complex<double> factor = V * b2 / (36.0 * N * Qd);
-  complex<double> factor = b2 / 36.0;
+  complex<double> factor = b2 / (36.0 * Qd * (N - 1.0));
   for (int i = 0; i < ML; i++) {
     nematic_order_element[i] = tmp[i] = tmp2[i] = 0.0;
   }
