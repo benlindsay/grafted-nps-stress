@@ -115,32 +115,33 @@ void save_averages() {
   }
 }
 
-void write_nematic_order(complex<double> **nematic_order) {
+void write_nematic_order(char *nmi, complex<double> **nematic_order) {
   char nm[50];
   int i_nematic = 0;
   for (int d1 = 0; d1 < Dim; d1++) {
     for (int d2 = d1; d2 < Dim; d2++) {
-      if (iter == 0) {
-        sprintf(nm, "init_nematic_%d%d", d1, d2);
-      }
-      else {
-        sprintf(nm, "nematic_%d%d", d1, d2);
-      }
+      // if (iter == 0) {
+      //   sprintf(nm, "init_%s_%d%d", nmi, d1, d2);
+      // }
+      // else {
+      //   sprintf(nm, "%s_%d%d", nmi, d1, d2);
+      // }
+      sprintf(nm, "%s_%d%d", nmi, d1, d2);
       write_data_bin(nm, nematic_order[i_nematic]);
       i_nematic++;
     }
   }
-  if (nematic_order_output_mode == 1 && Dim == 3) {
-    for (int d = 0; d < Dim; d++) {
-      if (iter == 0) {
-        sprintf(nm, "init_eigenvec_%d", d);
-      }
-      else {
-        sprintf(nm, "eigenvec_%d", d);
-      }
-      write_data_bin(nm, eigenvec[d]);
-    }
-  }
+  // if (nematic_order_output_mode == 1 && Dim == 3) {
+  //   for (int d = 0; d < Dim; d++) {
+  //     if (iter == 0) {
+  //       sprintf(nm, "init_eigenvec_%d", d);
+  //     }
+  //     else {
+  //       sprintf(nm, "eigenvec_%d", d);
+  //     }
+  //     write_data_bin(nm, eigenvec[d]);
+  //   }
+  // }
 }
 
 // If running in parallel, this routine searches each file for

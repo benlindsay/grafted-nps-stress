@@ -398,11 +398,19 @@ void allocate(void) {
                         fftw_malloc(alloc_size*sizeof(complex<double>));
   }
 
-  nematic_order = (complex<double>**)
-                  fftw_malloc(n_nematic_terms*sizeof(complex<double>*));
+  diblock_nematic_order = (complex<double>**)
+                         fftw_malloc(n_nematic_terms*sizeof(complex<double>*));
+  homopoly_nematic_order = (complex<double>**)
+                         fftw_malloc(n_nematic_terms*sizeof(complex<double>*));
+  exp_graft_nematic_order = (complex<double>**)
+                         fftw_malloc(n_nematic_terms*sizeof(complex<double>*));
   for (int t = 0; t < n_nematic_terms; t++) {
-    nematic_order[t] = (complex<double>*)
-                       fftw_malloc(alloc_size*sizeof(complex<double>));
+    diblock_nematic_order[t] = (complex<double>*)
+                               fftw_malloc(alloc_size*sizeof(complex<double>));
+    homopoly_nematic_order[t] = (complex<double>*)
+                               fftw_malloc(alloc_size*sizeof(complex<double>));
+    exp_graft_nematic_order[t] = (complex<double>*)
+                               fftw_malloc(alloc_size*sizeof(complex<double>));
   }
 
   eigenvec = (complex<double>**)

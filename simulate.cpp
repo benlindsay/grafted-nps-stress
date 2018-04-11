@@ -6,8 +6,9 @@ void update_1s(void);
 void update_Euler(void);
 void write_data(char*, complex<double>*); // for debugging
 void calc_stress(complex<double>*, complex<double>*);
-void calc_nematic_order(complex<double>**);
-void write_nematic_order(complex<double>**);
+void calc_nematic_order(complex<double>**, complex<double>, complex<double>**,
+                        complex<double>**, int);
+void write_nematic_order(char*, complex<double>**);
 
 // This is the routine that is essentially the main routine in a code that
 // doesn't use Brent's method. Int calculates the equilibrium structure and
@@ -62,15 +63,22 @@ double simulate() {
 
   if (nematic_order_freq > 0 && nematic_order_freq > 0) {
     if (myrank == 0) {
-      printf("calculating nematic order:\n");
+      printf("calculating and writing nematic order:\n");
     }
-    calc_nematic_order(nematic_order);
-    if (myrank == 0) {
-      printf("writing nematic order:\n");
+    if (nD > 0) {
+      calc_nematic_order(diblock_nematic_order, Qd, qd, qddag, N);
+      write_nematic_order("diblock_nematic", diblock_nematic_order);
     }
-    write_nematic_order(nematic_order);
+    if (nAH > 0) {
+      calc_nematic_order(homopoly_nematic_order, Qha, qha, qha, Nah);
+      write_nematic_order("homopoly_nematic", homopoly_nematic_order);
+    }
+    if (ng_per_np * n_exp_nr > 0) {
+      calc_nematic_order(exp_graft_nematic_order, Qga_exp, qg, qgdag_exp, Ng);
+      write_nematic_order("exp_graft_nematic", exp_graft_nematic_order);
+    }
     if (myrank == 0) {
-      printf("done writing nematic order:\n");
+      printf("done calculating and writing nematic order:\n");
     }
   }
 
@@ -135,19 +143,19 @@ double simulate() {
       calc_stress(stress_diblock, stress_grafts);
     }
 
-    if (nematic_order_freq > 0 && iter % nematic_order_freq == 0) {
-      if (myrank == 0) {
-        printf("calculating nematic order:\n");
-      }
-      calc_nematic_order(nematic_order);
-      if (myrank == 0) {
-        printf("writing nematic order:\n");
-      }
-      write_nematic_order(nematic_order);
-      if (myrank == 0) {
-        printf("done writing nematic order:\n");
-      }
-    }
+    // if (nematic_order_freq > 0 && iter % nematic_order_freq == 0) {
+    //   if (myrank == 0) {
+    //     printf("calculating nematic order:\n");
+    //   }
+    //   calc_nematic_order(nematic_order);
+    //   if (myrank == 0) {
+    //     printf("writing nematic order:\n");
+    //   }
+    //   write_nematic_order(nematic_order);
+    //   if (myrank == 0) {
+    //     printf("done writing nematic order:\n");
+    //   }
+    // }
 
     ////////////
     // OUTPUT //

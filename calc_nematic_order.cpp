@@ -8,45 +8,54 @@ void field_gradient_2(complex<double>*, complex<double>*, int, int);
 void field_gradient_2_5pt(complex<double>*, complex<double>*, int);
 void calc_symmetric_matrix_eigenvecs(double**, double*, double**);
 
-void calc_one_nematic_term(complex<double> *nematic_order_element,
-                           int dir1, int dir2) {
-  double b2 = 6.0 / (N - 1.0);
+void calc_one_nematic_term(
+      complex<double> *nematic_order_element,
+      int dir1,
+      int dir2,
+      complex<double> Q_local,
+      complex<double> **q_local,
+      complex<double> **qdag_local,
+      int N_local) {
+  // No matter what component we're looking at right now, b2 (kuhn length
+  // squared) depends on diblock chain length
+  double b2 = 6.0 / (Nda + Ndb - 1.0);
   // complex<double> factor = V * b2 / (36.0 * N * Qd);
-  complex<double> factor = b2 / (36.0 * Qd * (N - 1.0));
+  complex<double> factor = b2 / (36.0 * Q_local * (N_local - 1.0));
   for (int i = 0; i < ML; i++) {
     nematic_order_element[i] = tmp[i] = tmp2[i] = 0.0;
   }
-  for (int n = 0; n < N - 1; n++) {
-    field_gradient_2(qddag[N-2-n], tmp, dir1, dir2);
+  for (int n = 0; n < N_local - 1; n++) {
+    field_gradient_2(qdag_local[N_local-2-n], tmp, dir1, dir2);
     for (int i = 0; i < ML; i++) {
-      nematic_order_element[i] += qd[n][i] * tmp[i];
+      nematic_order_element[i] += q_local[n][i] * tmp[i];
     }
-    field_gradient_2(qd[n], tmp, dir1, dir2);
+    field_gradient_2(q_local[n], tmp, dir1, dir2);
     for (int i = 0; i < ML; i++) {
-      nematic_order_element[i] += tmp[i] * qddag[N-2-n][i];
+      nematic_order_element[i] += tmp[i] * qdag_local[N_local-2-n][i];
     }
-    field_gradient(qd[n], tmp, dir1);
-    field_gradient(qddag[N-2-n], tmp2, dir2);
+    field_gradient(q_local[n], tmp, dir1);
+    field_gradient(qdag_local[N_local-2-n], tmp2, dir2);
     for (int i = 0; i < ML; i++) {
       nematic_order_element[i] += - tmp[i] * tmp2[i];
     }
-    field_gradient(qd[n], tmp, dir2);
-    field_gradient(qddag[N-2-n], tmp2, dir1);
+    field_gradient(q_local[n], tmp, dir2);
+    field_gradient(qdag_local[N_local-2-n], tmp2, dir1);
     for (int i = 0; i < ML; i++) {
       nematic_order_element[i] += - tmp[i] * tmp2[i];
     }
     if (dir1 == dir2) {
       for (int d = 0; d < Dim; d++) {
-        field_gradient_2(qddag[N-2-n], tmp, d, d);
+        field_gradient_2(qdag_local[N_local-2-n], tmp, d, d);
         for (int i = 0; i < ML; i++) {
-          nematic_order_element[i] += -1.0/3.0 * qd[n][i] * tmp[i];
+          nematic_order_element[i] += -1.0/3.0 * q_local[n][i] * tmp[i];
         }
-        field_gradient_2(qd[n], tmp, d, d);
+        field_gradient_2(q_local[n], tmp, d, d);
         for (int i = 0; i < ML; i++) {
-          nematic_order_element[i] += -1.0/3.0 * tmp[i] * qddag[N-2-n][i];
+          nematic_order_element[i] += -1.0/3.0 * tmp[i]
+                                      * qdag_local[N_local-2-n][i];
         }
-        field_gradient(qd[n], tmp, d);
-        field_gradient(qddag[N-2-n], tmp2, d);
+        field_gradient(q_local[n], tmp, d);
+        field_gradient(qdag_local[N_local-2-n], tmp2, d);
         for (int i = 0; i < ML; i++) {
           nematic_order_element[i] += 2.0/3.0 * tmp[i] * tmp2[i];
         }
@@ -58,7 +67,7 @@ void calc_one_nematic_term(complex<double> *nematic_order_element,
   }
 }
 
-void calc_eigenvecs() {
+void calc_eigenvecs(complex<double> **nematic_order) {
     double **A = new double*[Dim];
     double **V = new double*[Dim];
     double *lam = new double[Dim];
@@ -91,12 +100,17 @@ void calc_eigenvecs() {
 }
 
 // just bond stress for now...
-void calc_nematic_order(complex<double> **nematic_order) {
-
+void calc_nematic_order(
+      complex<double> **nematic_order,
+      complex<double> Q_local,
+      complex<double> **q_local,
+      complex<double> **qdag_local,
+      int N_local) {
   int i_nematic = 0;
   for (int dir1 = 0; dir1 < Dim; dir1++) {
     for (int dir2 = dir1; dir2 < Dim; dir2++) {
-      calc_one_nematic_term(nematic_order[i_nematic], dir1, dir2);
+      calc_one_nematic_term(nematic_order[i_nematic], dir1, dir2, Q_local,
+                            q_local, qdag_local, N_local);
       i_nematic++;
     }
   }
@@ -105,7 +119,7 @@ void calc_nematic_order(complex<double> **nematic_order) {
       printf("about to enter calc_eigenvecs()\n");
       fflush(stdout);
     }
-    calc_eigenvecs();
+    calc_eigenvecs(nematic_order);
     if (myrank == 0) {
       printf("done with calc_eigenvecs()\n");
       fflush(stdout);

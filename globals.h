@@ -61,7 +61,8 @@ complex<double> I, *wpl, *wa, *wb, *wp, *wabp, *wabm, *smwa, *smwb, smwp_min,
                 ***smwp_aniso, *smwp_iso, ***tmp_aniso, *tmp_iso,
                 *exp_neg_smwp_iso, ***exp_neg_smwp_aniso,
                 *gamma_vir, *expl_grafts, *grafts, **diblock_stress, **graft_stress,
-                **nematic_order, **eigenvec;
+                **diblock_nematic_order, **homopoly_nematic_order,
+                **exp_graft_nematic_order, **eigenvec;
 
 #ifndef MAIN
 extern
