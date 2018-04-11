@@ -7,8 +7,8 @@
 CC = mpic++
 DFLAGS = -DPAR
 CFLAGS = -Ofast -march=native -w -Wall
-INCLUDE = -I${FFTWHOME}/include 
-LDFLAGS = -limf -lm -lfftw3_mpi -lfftw3 -L${FFTWHOME}/lib
+INCLUDE = -I${FFTW_MPI}/include 
+LDFLAGS = -lm -lfftw3_mpi -lfftw3 -L${FFTW_MPI}/lib
 
 SRCS = main.cpp calc_poly_density.cpp homopolymer_discrete.cpp \
        io_utils.cpp integrate_utils.cpp ran2.cpp array_utils.cpp calc_h.cpp \
@@ -17,7 +17,7 @@ SRCS = main.cpp calc_poly_density.cpp homopolymer_discrete.cpp \
        Euler_update.cpp brent.cpp simulate.cpp sphere_utils.cpp \
        grafted_nanoparticle.cpp calc_stress.cpp calc_nematic_order.cpp \
        matrix_utils.cpp
-			 
+
 
 OBJS = ${SRCS:.cpp=.o}
 
