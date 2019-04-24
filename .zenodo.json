@@ -1,0 +1,29 @@
+{
+  "creators": [
+    {
+      "affiliation": "Department of Chemical and Biomolecular Engineering, University of Pennsylvania",
+      "name": "Riggleman, Robert A.",
+      "orcid": "0000-0002-5434-4787"
+    },
+    {
+      "affiliation": "Department of Chemical and Biomolecular Engineering, University of Pennsylvania",
+      "name": "Koski, Jason P.",
+      "orcid": "0000-0001-5740-8259"
+    },
+    {
+      "affiliation": "Department of Chemical and Biomolecular Engineering, University of Pennsylvania",
+      "name": "Chao, Huikuan"
+    },
+    {
+      "affiliation": "Department of Chemical and Biomolecular Engineering, University of Pennsylvania",
+      "name": "Lindsay, Benjamin J.",
+      "orcid": "0000-0001-6073-9200"
+    }
+  ],
+  "keywords": [
+    "polymer",
+    "simulation"
+  ],
+  "license": "MIT",
+  "upload_type": "software"
+}
